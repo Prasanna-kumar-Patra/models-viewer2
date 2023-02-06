@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <title>&lt;model-viewer&gt; template</title>
+  <meta charset="utf-8">
+  <meta name="description" content="&lt;model-viewer&gt; template">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link type="text/css" href="./styles1.css" rel="stylesheet" />
+  <!-- OPTIONAL: The :focus-visible polyfill removes the focus ring for some input types -->
+  <script src="https://unpkg.com/focus-visible@5.0.2/dist/focus-visible.js" defer></script>
+</head>
+
+<body>
+  <!-- <model-viewer> HTML element -->
+  <model-viewer id="mv1" src="../glbs/cardiac_anatomy_external_view_of_human_heart.glb" ar
+    ar-modes="webxr scene-viewer quick-look" camera-controls poster="poster.webp" shadow-intensity="1"
+    camera-orbit="-41.13deg 55.33deg 2.741m" field-of-view="24.45deg">
+    <button class="Hotspot" slot="hotspot-1" data-orbit="-41.51deg 58.47deg 2.741m" field-of-view="24.45deg"
+      data-target="-0.09m 0.1146m 0.317m" data-surface="28 0 21451 21566 21567 0.528 0.292 0.180"
+      data-visibility-attribute="visible">
+      1<div class="HotspotAnnotation">Ascending Aorta</div>
+    </button>
+
+    <button class="Hotspot" slot="hotspot-2" data-target="0.11m 0.22m 0.1575m" data-orbit="7.978deg 30.42deg 4.092m"
+      field-of-view="15.48deg" data-surface="29 0 49759 49758 49757 0.018 0.134 0.848"
+      data-visibility-attribute="visible">
+      2<div class="HotspotAnnotation">Ligamentum Arteriosum</div>
+    </button>
+
+    <button class="Hotspot" slot="hotspot-3" data-orbit="15.58deg 24.96deg 3.316m" field-of-view="12deg" id="mv1"
+      data-target="0.28m 0.3169m 0.05139m" data-surface="32 0 17565 17567 17568 0.582 0.175 0.243"
+      data-visibility-attribute="visible">
+      3<div class="HotspotAnnotation">Pulmonary Trunk
+        <br>Carries deoxygenated blood from the right ventricle to the lungs
+        (via the left and right pulmonary arteries)
+      </div>
+    </button>
+
+    <button class="Hotspot" slot="hotspot-9" data-orbit="-68.76deg 83.57deg 3.886m" field-of-view="13.61deg" id="mv1"
+      data-target="-0.12m 0.1673m 0.1239m" data-surface="16 0 33766 33770 33764 0.688 0.248 0.064"
+      data-visibility-attribute="visible">9
+      <div class="HotspotAnnotation">Right AuricleThe right auricle comes from the right atrium and is a remnant of
+        the embryonic right atrium.</div>
+    </button>
+
+
+
+    <div class="progress-bar hide" slot="progress-bar">
+      <div class="update-bar"></div>
+    </div>
+    <button slot="ar-button" id="ar-button">
+      View in your space
+    </button>
+    <div id="ar-prompt">
+      <img src="https://modelviewer.dev/shared-assets/icons/hand.png">
+    </div>
+  </model-viewer>
+
+
+
+  <script type="module">
+    const modelViewer2 = document.querySelector("#mv1");
+    const annotationClicked = (annotation) => {
+      let dataset = annotation.dataset;
+      console.log("pkp:  ~ file: index2.html:76 ~ annotationClicked ~ dataset", dataset)
+      modelViewer2.cameraTarget = dataset.target;
+      // Initial Camera Position = camera-orbit
+      modelViewer2.cameraOrbit = dataset.orbit;
+      modelViewer2.fieldOfView = '0deg';
+      // modelViewer2.fieldOfView = dataset.view;
+      modelViewer2.querySelectorAll('button').forEach((hotspot) => {
+        hotspot.classList.remove('active')
+      })
+      annotation.classList.toggle('active');
+
+      console.log(annotation);
+    }
+
+    modelViewer2.querySelectorAll('button').forEach((hotspot) => {
+      console.log("pkp:  ~ file: index2.html:48 ~ modelViewer2.querySelectorAll ~ hotspot", hotspot)
+      hotspot.addEventListener('click', () => annotationClicked(hotspot));
+
+    });
+  </script>
+
+
+  <style type="text/css">
+    .Hotspot {
+      background: #484848;
+      border: none;
+      border-radius: 50%;
+      box-sizing: border-box;
+      box-shadow: 0 2px 4px rgba(85, 85, 85, 0.25);
+      color: rgba(255, 255, 255, 0.8);
+      border: 1px solid #ffffffb9;
+      display: block;
+      font-family: Futura, Helvetica Neue, sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      /* max-width: 128px; */
+      overflow-wrap: break-word;
+      padding: 0;
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      transform: translate3d(-50%, -50%, 0);
+      transition: all 0.2s;
+    }
+
+    .Hotspot:hover {
+      color: #56adff;
+      box-shadow: 0 0 10px #56adff;
+      border-color: #56adff;
+
+    }
+  </style>
+
+  <script src="script.js"></script>
+
+  <!-- Loads <model-viewer> for browsers: -->
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+</body>
+
+</html>
