@@ -8,7 +8,7 @@ var Controls = function (annotationClicked) {
   self.init = function () {
     self.create();
     self.createCOntrols();
-    
+
     // console.log("annotationClicked--->",annotationClicked)
   }
 
@@ -47,8 +47,8 @@ var Controls = function (annotationClicked) {
 
 
     $(".labelTitle").click(function () {
-      $(".listPopup").css("display", "block");
-      self.createPopUpListDiv();
+      // $(".listPopup").css("display", "block");
+      // self.createPopUpListDiv();
     })
     self.modalSlideShow(self.slideIndex, "n");
   }
@@ -109,14 +109,14 @@ var Controls = function (annotationClicked) {
     if (e.target.classList.contains('arrow')) {
       // e.target.classList.add('active')
 
-      console.log("e.target innnn arrow :: ", e.target) 
-    }else{
-      console.log("e.target not arrow :: ", e.target) 
+      console.log("e.target innnn arrow :: ", e.target)
+    } else {
+      console.log("e.target not arrow :: ", e.target)
       self.activateClick(e)
     }
 
-  //  console.log("e.target :: ", e.target) 
-   
+    //  console.log("e.target :: ", e.target) 
+
 
   })
 

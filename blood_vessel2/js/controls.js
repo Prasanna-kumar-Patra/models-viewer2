@@ -45,8 +45,8 @@ var Controls = function (annotationClicked) {
 
 
     $(".labelTitle").click(function () {
-      $(".listPopup").css("display", "block");
-      self.createPopUpListDiv();
+      // $(".listPopup").css("display", "block");
+      // self.createPopUpListDiv();
     })
     self.modalSlideShow(self.slideIndex, "n");
   }
