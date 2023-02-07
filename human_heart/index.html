@@ -96,15 +96,18 @@
     <button class="Hotspot" slot="hotspot-14" data-orbit="-64.82deg 69.98deg 2.232m" field-of-view="17.52deg" id="mv1" 
     data-target="-0.1m 0.09864m 0.2733m"
     data-surface="18 0 14358 14363 14362 0.421 0.247 0.332" data-visibility-attribute="visible">14
-      <div class="HotspotAnnotation">Right Coronary ArteryThe right coronary artery originates from the right aortic sinus of the ascending aorta. 
-          Along its course, it gives rise to several branches: atrial branch, conus branch, ventricular branches, right marginal branch,
-           posterior interventricular and right posterolateral branch.</div>
+      <div class="HotspotAnnotation">
+        <p class="title">Right Coronary Artery</p>
+        <p>The right coronary artery originates from the right aortic sinus of the ascending aorta. </p>
+      <p>Along its course, it gives rise to several branches: atrial branch, conus branch, ventricular branches, right marginal branch,
+           posterior interventricular and right posterolateral branch.</p></div>
   </button>
 
   <button class="Hotspot" slot="hotspot-15" id="mv1" data-orbit="96.78deg 81.35deg 2.798m" field-of-view="25.39deg" data-target="0.31m 0.1489m 0.1048m"
     data-surface="19 0 2697 2419 2415 0.623 0.063 0.314" data-visibility-attribute="visible">15
-        <div class="HotspotAnnotation">Left Coronary ArteryThe left coronary artery originates from the left aortic sinus of the ascending aorta. 
-            The artery divides into its two terminal branches: the anterior interventricular branch and the circumflex branch.</div>
+        <div class="HotspotAnnotation"><p class="title">Left Coronary Artery</p>
+          <p>The left coronary artery originates from the left aortic sinus of the ascending aorta.</p>
+            <p>The artery divides into its two terminal branches: the anterior interventricular branch and the circumflex branch.</p></div>
     </button>
 
 
@@ -128,6 +131,22 @@
     <div id="ar-prompt">
       <img src="https://modelviewer.dev/shared-assets/icons/hand.png">
     </div>
+
+
+
+
+    <div class="pagination">
+      <button class="arrow arrow-left">◂</button>
+      <label>Left Coronary Artery</label>
+      <button class="arrow arrow-right">▸</button>
+    </div>
+
+    <div class="description-box">
+      <p class="title">Left Coronary Artery</p>
+      <p>The left coronary artery originates from the left aortic sinus of the ascending aorta.</p>
+      <p>The artery divides into its two terminal branches: the anterior interventricular branch and the circumflex branch.</p>
+    </div>
+
   </model-viewer>
 
 
@@ -142,12 +161,12 @@
       modelViewer2.cameraOrbit = dataset.orbit;
       modelViewer2.fieldOfView = '0deg';
       // modelViewer2.fieldOfView = dataset.view;
-      modelViewer2.querySelectorAll('button').forEach((hotspot) => {
-        hotspot.classList.remove('active')
-      })
-      annotation.classList.toggle('active');
+      // modelViewer2.querySelectorAll('button').forEach((hotspot) => {
+      //   hotspot.classList.remove('active')
+      // })
+      // annotation.classList.toggle('active');
 
-      console.log(annotation);
+      // console.log(annotation);
     }
 
     modelViewer2.querySelectorAll('button').forEach((hotspot) => {
@@ -155,6 +174,17 @@
       hotspot.addEventListener('click', () => annotationClicked(hotspot));
 
     });
+
+    window.addEventListener('click',(e)=>{
+      document.querySelectorAll('.Hotspot').forEach((hotspot) => {
+        hotspot.classList.remove('active')
+      })
+      if(e.target.classList.contains('Hotspot')){
+        e.target.classList.add('active')
+      }
+
+    })
+
   </script>
 
 
@@ -180,7 +210,9 @@
       transform: translate3d(-50%, -50%, 0);
       transition: all 0.2s;
     }
-
+    .Hotspot.active {
+      z-index: 999;
+    }
     .Hotspot:hover {
       color: #56adff;
       box-shadow: 0 0 10px #56adff;
