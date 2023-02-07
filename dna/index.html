@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <title>&lt;model-viewer&gt; template</title>
+  <meta charset="utf-8">
+  <meta name="description" content="&lt;model-viewer&gt; template">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link type="text/css" href="./styles1.css" rel="stylesheet" />
+  <!-- OPTIONAL: The :focus-visible polyfill removes the focus ring for some input types -->
+  <script src="https://unpkg.com/focus-visible@5.0.2/dist/focus-visible.js" defer></script>
+</head>
+
+<body>
+  <!-- <model-viewer> HTML element -->
+  <model-viewer id="mv1" src="../glbs/dna.glb" ar
+    ar-modes="webxr scene-viewer quick-look" camera-controls poster="poster.webp" shadow-intensity="1"
+    camera-orbit="-41.13deg 55.33deg 2.741m" field-of-view="24.45deg">
+
+
+    <!-- <button class="Hotspot" slot="hotspot-1" data-orbit="-41.51deg 58.47deg 2.741m" field-of-view="24.45deg"
+      data-target="-0.09m 0.1146m 0.317m" data-surface="28 0 21451 21566 21567 0.528 0.292 0.180"
+      data-visibility-attribute="visible">
+      1<div class="HotspotAnnotation">Ascending Aorta</div>
+    </button> -->
+    <button class="Hotspot" slot="hotspot-1"  id="mv1" data-orbit="5.495deg 71.76deg 0.1639m" field-of-view="15.41deg" data-target="0m -0.005325m 0.003837m"
+    data-surface="1 0 4271 4272 4273 0.241 0.261 0.498" data-visibility-attribute="visible">1
+        <div class="HotspotAnnotation">PistilPistil: The ovule producing part of a flower. The ovary often supports a long style, 
+            topped by a stigma. The mature ovary is a fruit, and the mature ovule is a seed. Stigma: The part of the pistil where 
+            pollen germinates. Ovary: The enlarged basal portion of the pistil where ovules are produced.</div>
+    </button>
+
+
+
+    <div class="progress-bar hide" slot="progress-bar">
+      <div class="update-bar"></div>
+    </div>
+    <button slot="ar-button" id="ar-button">
+      View in your space
+    </button>
+    <div id="ar-prompt">
+      <img src="https://modelviewer.dev/shared-assets/icons/hand.png">
+    </div>
+
+
+
+
+    <div class="pagination">
+      <button class="arrow arrow-left">◂</button>
+      <label>Left Coronary Artery</label>
+      <button class="arrow arrow-right">▸</button>
+    </div>
+
+    <div class="description-box">
+      <p class="title">Left Coronary Artery</p>
+      <p>The left coronary artery originates from the left aortic sinus of the ascending aorta.</p>
+      <p>The artery divides into its two terminal branches: the anterior interventricular branch and the circumflex
+        branch.</p>
+    </div>
+
+  </model-viewer>
+
+
+
+  <script type="module">
+    const modelViewer2 = document.querySelector("#mv1");
+    const annotationClicked = (annotation) => {
+      let dataset = annotation.dataset;
+      console.log("pkp:  ~ file: index2.html:76 ~ annotationClicked ~ dataset", dataset)
+      modelViewer2.cameraTarget = dataset.target;
+      // Initial Camera Position = camera-orbit
+      modelViewer2.cameraOrbit = dataset.orbit;
+      modelViewer2.fieldOfView = '0deg';
+      // modelViewer2.fieldOfView = dataset.view;
+      // modelViewer2.querySelectorAll('button').forEach((hotspot) => {
+      //   hotspot.classList.remove('active')
+      // })
+      // annotation.classList.toggle('active');
+
+      // console.log(annotation);
+    }
+    const navBtnClicked = (arrow) => {
+      console.log("pkp:  ~ file: index.html:197 ~ navBtnClicked ~ arrow", arrow)
+      let dataset = arrow.dataset;
+
+    }
+
+    modelViewer2.querySelectorAll('button.Hotspot').forEach((hotspot) => {
+      console.log("pkp:  ~ file: index2.html:48 ~ modelViewer2.querySelectorAll ~ hotspot", hotspot)
+      hotspot.addEventListener('click', () => annotationClicked(hotspot));
+
+    });
+
+    modelViewer2.querySelectorAll('button.arrow').forEach((arrow) => {
+      console.log("pkp:  ~ file: index.html:222 ~ modelViewer2.querySelectorAll ~ arrow", arrow)
+      arrow.addEventListener('click', () => navBtnClicked(arrow));
+
+    });
+
+
+    window.addEventListener('click', (e) => {
+      document.querySelectorAll('.Hotspot').forEach((hotspot) => {
+        hotspot.classList.remove('active')
+      })
+      if (e.target.classList.contains('Hotspot')) {
+        e.target.classList.add('active')
+      }
+
+    })
+
+  </script>
+
+
+  <style type="text/css">
+    .Hotspot {
+      background: #484848;
+      border: none;
+      border-radius: 50%;
+      box-sizing: border-box;
+      box-shadow: 0 2px 4px rgba(85, 85, 85, 0.25);
+      color: rgba(255, 255, 255, 0.8);
+      border: 1px solid #ffffffb9;
+      display: block;
+      font-family: Futura, Helvetica Neue, sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      /* max-width: 128px; */
+      overflow-wrap: break-word;
+      padding: 0;
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      transform: translate3d(-50%, -50%, 0);
+      transition: all 0.2s;
+    }
+
+    .Hotspot.active {
+      z-index: 999;
+    }
+
+    .Hotspot:hover {
+      color: #56adff;
+      box-shadow: 0 0 10px #56adff;
+      border-color: #56adff;
+
+    }
+  </style>
+
+  <script src="script.js"></script>
+
+  <!-- Loads <model-viewer> for browsers: -->
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+</body>
+
+</html>
