@@ -12,9 +12,8 @@
 </head>
 
 <body>
-  
   <!-- <model-viewer> HTML element -->
-    <model-viewer id="mv1" src="../glbs/cardiac_anatomy_external_view_of_human_heart.glb" ar
+  <model-viewer id="mv1" src="../glbs/cardiac_anatomy_external_view_of_human_heart.glb" ar
     ar-modes="webxr scene-viewer quick-look" camera-controls poster="poster.webp" shadow-intensity="1"
     camera-orbit="-41.13deg 55.33deg 2.741m" field-of-view="24.45deg">
     <button class="Hotspot" slot="hotspot-1" data-orbit="-41.51deg 58.47deg 2.741m" field-of-view="24.45deg"
@@ -219,17 +218,21 @@
       <img src="https://modelviewer.dev/shared-assets/icons/hand.png">
     </div>
 
+
+
+
     <div class="pagination">
-
+      <button class="arrow arrow-left">◂</button>
+      <label>Left Coronary Artery</label>
+      <button class="arrow arrow-right">▸</button>
     </div>
-    <div class="listPopup" style="display:none"></div>
 
-    <!-- <div class="description-box">
+    <div class="description-box">
       <p class="title">Left Coronary Artery</p>
       <p>The left coronary artery originates from the left aortic sinus of the ascending aorta.</p>
       <p>The artery divides into its two terminal branches: the anterior interventricular branch and the circumflex
         branch.</p>
-    </div> -->
+    </div>
 
   </model-viewer>
 
@@ -271,24 +274,15 @@
     });
 
 
-    // window.addEventListener('click', (e) => {
-    //   document.querySelectorAll('.Hotspot').forEach((hotspot) => {
-    //     hotspot.classList.remove('active')
-    //   })
-    //   if (e.target.classList.contains('Hotspot')) {
-    //     e.target.classList.add('active')
-    //   }
+    window.addEventListener('click', (e) => {
+      document.querySelectorAll('.Hotspot').forEach((hotspot) => {
+        hotspot.classList.remove('active')
+      })
+      if (e.target.classList.contains('Hotspot')) {
+        e.target.classList.add('active')
+      }
 
-    // })
-
-
-    $(document).ready(function () {
-      var ap = new Controls(annotationClicked);
-      ap.init();
     })
-
-
-
 
   </script>
 
@@ -326,33 +320,9 @@
       border-color: #56adff;
 
     }
-
-    .listPopup {
-      background: rgba(0, 0, 0, 0.5);
-      position: absolute;
-      top: 50%;
-      left: 25%;
-      width: 215px;
-      height: 277px;
-      overflow: auto;
-      color: #ffffff;
-    }
-
-    .labelTitle {
-      cursor: pointer;
-    }
   </style>
 
   <script src="script.js"></script>
-  <script src="./js/controls.js"></script>
-  <script src="./js/jquery-1.12.4.min.js"></script>
-
-  <!-- <script>
-     $(document).ready(function() {
-            var ap = new Controls(annotationClicked);
-            ap.init();
-        })
-  </script> -->
 
   <!-- Loads <model-viewer> for browsers: -->
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
