@@ -13,19 +13,17 @@ var Controls = function (annotationClicked) {
   }
 
   self.create = function () {
+
+
+
     let buttons = document.getElementsByClassName("Hotspot");
+    console.log("pkp:  ~ file: controls.js:20 ~ Controls ~ buttons", buttons)
     titles = document.getElementsByClassName("title");
     console.warn('buttons length--->', buttons)
     for (var i = 0; i < buttons.length; i++) {
-        buttonsArr.push(buttons[i]);
-        console.warn("button------i---->", buttons[i])
-      
+      buttonsArr.push(buttons[i]);
+      console.warn("button------i---->", buttons[i])
     }
-    //audios[0].play();
-
-
-
-
   }
 
 

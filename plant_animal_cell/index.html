@@ -12,11 +12,9 @@
 </head>
 
 <body>
-
   <!-- <model-viewer> HTML element -->
-  <model-viewer id="mv1" src="../glbs/Parts of a Flower Cross section.glb" ar ar-modes="webxr scene-viewer quick-look"
-    camera-controls poster="poster.webp" shadow-intensity="1" camera-orbit="-41.13deg 55.33deg 2.741m"
-    field-of-view="24.45deg">
+  <model-viewer id="mv1" src="../glbs/plant_and_animal_cells_.glb" ar ar-modes="webxr scene-viewer quick-look"
+    camera-controls poster="poster.webp" shadow-intensity="1" camera-orbit="14.48deg 88.24deg 1.773m" field-of-view="29.26deg">
 
 
     <!-- <button class="Hotspot" slot="hotspot-1" data-orbit="-41.51deg 58.47deg 2.741m" field-of-view="24.45deg"
@@ -24,82 +22,45 @@
       data-visibility-attribute="visible">
       1<div class="HotspotAnnotation">Ascending Aorta</div>
     </button> -->
-    <button class="Hotspot" slot="hotspot-1" id="mv1" data-orbit="5.495deg 71.76deg 0.1639m" field-of-view="15.41deg"
-      data-target="0m -0.005325m 0.003837m" data-surface="1 0 4271 4272 4273 0.241 0.261 0.498"
-      data-visibility-attribute="visible">1
+    <button class="Hotspot" id="mv1" slot="hotspot-1" data-surface="32 0 14 50 19 0.332 0.467 0.201"
+    data-orbit="18.61deg 48.11deg 1.795m" field-of-view="30deg" data-target="-0.07m -0.08m -0.43m" data-visibility-attribute="visible">
+        1<div class="HotspotAnnotation">
+            <p class="title">Adenine (A)</p>
+            <p> “Adenine (A) is one of four chemical bases in DNA, with the other three being cytosine (C), guanine (G), and thymine (T). Within the DNA molecule, adenine bases located on one strand form chemical bonds with thymine bases on the opposite strand. The sequence of four DNA bases encodes the cell’s genetic instructions. A form of adenine called adenosine triphosphate (ATP) serves as an energy storage molecule and is used to power many chemical reactions within the cell.” (Adenine)</p>
+        </div>
+    </button>
+
+
+    <button class="Hotspot" id="mv1" slot="hotspot-2" data-surface="14 0 14 50 19 0.283 0.325 0.392" data-orbit="14.48deg 88.24deg 1.315m" field-of-view="17.57deg" data-target="0m 0.27m -0.09m"
+    data-visibility-attribute="visible">2
+        <div class="HotspotAnnotation">
+            <p class="title">Cytosine (C)</p>
+            <p>“Cytosine (C) is one of four chemical bases in DNA, the other three being adenine (A), guanine (G), and thymine (T). Within the DNA molecule, cytosine bases located on one strand form chemical bonds with guanine bases on the opposite strand. The sequence of four DNA bases encodes the cell’s genetic instructions.” (Cytosine)</p>
+            </div>
+    </button>
+
+    <button class="Hotspot" slot="hotspot-3" data-surface="19 0 51 10 15 0.419 0.124 0.456" id="mv1" data-orbit="139.8deg 108.5deg 1.773m" field-of-view="29.26deg" data-target="-0.01m 0.27m -0.30m" data-visibility-attribute="visible">3
       <div class="HotspotAnnotation">
-        <p class="title">Pistil</p>
-        <p>The ovule producing part of a flower. The ovary often supports a long style,
-          topped by a stigma. The mature ovary is a fruit, and the mature ovule is a seed. Stigma: The part of the
-          pistil where
-          pollen germinates. Ovary: The enlarged basal portion of the pistil where ovules are produced.</p>
-      </div>
-    </button>
+          <p class="title">Guanine (G)</p>
+          <p>“Guanine (G) is one of four chemical bases in DNA, with the other three being adenine (A), cytosine (C), and thymine (T). Within the DNA molecule, guanine bases located on one strand form chemical bonds with cytosine bases on the opposite strand. The sequence of four DNA bases encodes the cell’s genetic instructions.” (Guanine)</p></div>
+  </button>
 
-    <button class="Hotspot" slot="hotspot-2" id="mv1" data-orbit="5.495deg 71.76deg 0.1844m" field-of-view="18.2deg"
-      data-target="0m 0.01793m 0.005315m" data-surface="1 0 20764 20767 20355 0.527 0.424 0.049"
-      data-visibility-attribute="visible">2
+    <button class="Hotspot" slot="hotspot-4" data-surface="31 0 51 15 44 0.238 0.360 0.402" id="mv1" data-orbit="-169.7deg 99.7deg 1.315m" field-of-view="17.57deg" data-target="-0.13m 0.28m -0.09m" data-visibility-attribute="visible">4
       <div class="HotspotAnnotation">
-        <p class="title">Stigma</p>
-      </div>
-    </button>
-
-    <button class="Hotspot" slot="hotspot-3" id="mv1" data-orbit="5.495deg 71.76deg 0.1639m" field-of-view="15.41deg"
-      data-target="0m 0.005321m 0.003997m" data-surface="1 0 6362 6363 6364 0.216 0.375 0.409"
-      data-visibility-attribute="visible">3
-      <div class="HotspotAnnotation">
-        <p class="title">Pollen Tube</p>
-      </div>
-      </div>
-    </button>
-
-    <button class="Hotspot" slot="hotspot-4" id="mv1" data-orbit="-4.06deg 74.06deg 0.1844m" field-of-view="18.2deg"
-      data-target="0.02m -0.04482m -0.004407m" data-surface="3 0 8552 8553 8554 0.067 0.096 0.838"
-      data-visibility-attribute="visible">4
-      <div class="HotspotAnnotation">
-        <p class="title">Leaf</p>
-      </div>
-    </button>
-
-    <button class="Hotspot" slot="hotspot-5" id="mv1" data-orbit="-9.793deg 89.73deg 0.2048m" field-of-view="21.5deg"
-      data-target="0.04m 0.004296m -0.01278m" data-surface="2 0 5858 5860 5619 0.508 0.332 0.160"
-      data-visibility-attribute="visible">5
-      <div class="HotspotAnnotation">Petal</div>
-    </button>
-
-    <button class="Hotspot" slot="hotspot-6" id="mv1" data-orbit="-15.91deg 54.95deg 0.1639m" field-of-view="15.4deg"
-      data-target="-0.02m -0.01394m 0.003625m" data-surface="3 0 6277 6276 6278 0.440 0.487 0.073"
-      data-visibility-attribute="visible">6
-      <div class="HotspotAnnotation">
-        <p class="title">Sepal</p>
-      </div>
-    </button>
-
-    <button class="Hotspot" slot="hotspot-7" id="mv1" data-orbit="5.495deg 71.76deg 0.2253m" field-of-view="25.39deg"
-      data-target="-0.01m 0.02176m 0.002251m" data-surface="0 0 1900 1901 1895 0.514 0.471 0.015"
-      data-visibility-attribute="visible">7
-      <div class="HotspotAnnotation">
-        <p class="title">Stamen</p>
-      </div>
-    </button>
-
-    <button class="Hotspot" slot="hotspot-8" id="mv1" data-orbit="5.495deg 71.76deg 0.2253m" field-of-view="25.39deg"
-      data-target="0m -0.03649m 0.002996m" data-surface="3 0 1927 1874 1872 0.138 0.638 0.224"
-      data-visibility-attribute="visible">
-      8<div class="HotspotAnnotation">
-        <p class="title">Stem</p>
-      </div>
-    </button>
-
-    <button class="Hotspot" slot="hotspot-9" id="mv1" data-orbit="5.495deg 71.76deg 0.1639m" field-of-view="15.41deg"
-      data-target="0m -0.01474m 0.003497m" data-surface="1 0 9116 9117 9050 0.408 0.159 0.433"
-      data-visibility-attribute="visible">
-      9<div class="HotspotAnnotation">
-        <p class="title">Ovary</p>
-      </div>
-    </button>
+          <p class="title">Thymine (T)</p>
+          <p>
+              “Thymine (T) is one of four chemical bases in DNA, the other three being adenine (A), cytosine (C), and guanine (G). Within the DNA molecule, thymine bases located on one strand form chemical bonds with adenine bases on the opposite strand. The sequence of four DNA bases encodes the cell’s genetic instructions.” (Thymine)
+          </p>
+          </div>
+  </button>
 
 
+  <button class="Hotspot" slot="hotspot-5" data-surface="3 0 1015 1017 1055 0.036 0.049 0.916" id="mv1" data-orbit="14.48deg 88.24deg 1.773m" field-of-view="29.26deg" data-target="0m 0.21m -0.07124m" data-visibility-attribute="visible">
+    5<div class="HotspotAnnotation">
+        <p class="title">Sugar-Phosphate Backbone</p>
+        <p></p>
+        </div>
+</button>
 
     <div class="progress-bar hide" slot="progress-bar">
       <div class="update-bar"></div>
@@ -111,13 +72,8 @@
       <img src="https://modelviewer.dev/shared-assets/icons/hand.png">
     </div>
 
-
-
-
     <div class="pagination">
-      <!-- <button class="arrow arrow-left">◂</button>
-      <label>Left Coronary Artery</label>
-      <button class="arrow arrow-right" >▸</button> -->
+
     </div>
     <div class="listPopup" style="display:none"></div>
 
