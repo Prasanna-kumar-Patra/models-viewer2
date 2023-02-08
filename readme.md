@@ -6,6 +6,9 @@ https://sketchfab.com/3d-models/cardiac-anatomy-external-view-of-human-heart-a3f
 ## editor
 https://modelviewer.dev/editor/
 
+## lungs
+https://sketchfab.com/3d-models/anatomy-of-the-airways-ad7d7e16b98f421db0cda79f265fcc8d
+
 
 upload glb
 edit data of model-viewer and paste current one if available
