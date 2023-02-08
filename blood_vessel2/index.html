@@ -18,7 +18,7 @@
     field-of-view="28.54deg" camera-target="-0.66m -0.2579m 5.456m" field-of-view="24.45deg">
 
 
-    <button class="Hotspot" slot="hotspot-1" id="mv1" data-orbit="-93.49deg 101.6deg 35.21m" field-of-view="30deg"
+    <button class="Hotspot" data-audio="myAudio1" slot="hotspot-1" id="mv1" data-orbit="-93.49deg 101.6deg 35.21m" field-of-view="30deg"
       data-target="-0.67m 3.027m 11.53m" data-surface="0 0 11008 11007 11005 0.778 0.061 0.161"
       data-visibility-attribute="visible">1
       <div class="HotspotAnnotation"></div>
@@ -29,7 +29,7 @@
 
     </button>
 
-    <button class="Hotspot" slot="hotspot-2" id="mv1" data-orbit="-81.64deg 100.5deg 35.21m" field-of-view="30deg"
+    <button class="Hotspot" data-audio="myAudio2" slot="hotspot-2" id="mv1" data-orbit="-81.64deg 100.5deg 35.21m" field-of-view="30deg"
       data-target="-0.7m 2.954m 0.4824m" data-surface="0 0 4610 4606 4607 0.199 0.748 0.054"
       data-visibility-attribute="visible">2
       <div class="HotspotAnnotation">
@@ -37,7 +37,7 @@
       </div>
     </button>
 
-    <button class="Hotspot" slot="hotspot-3" id="mv1" data-orbit="-89.67deg 102deg 35.21m" field-of-view="30deg"
+    <button class="Hotspot" data-audio="myAudio3" slot="hotspot-3" id="mv1" data-orbit="-89.67deg 102deg 35.21m" field-of-view="30deg"
       data-target="-0.75m 5.053m 11.36m" data-surface="0 0 9948 10451 9953 0.072 0.778 0.150"
       data-visibility-attribute="visible">3
       <div class="HotspotAnnotation">
@@ -45,7 +45,7 @@
       </div>
     </button>
 
-    <button class="Hotspot" slot="hotspot-4" id="mv1" data-orbit="-81.64deg 100.5deg 35.21m" field-of-view="30deg"
+    <button class="Hotspot" data-audio="myAudio4" slot="hotspot-4" id="mv1" data-orbit="-81.64deg 100.5deg 35.21m" field-of-view="30deg"
       data-target="-0.73m 5.158m 0.1688m" data-surface="0 0 6690 6870 6871 0.209 0.596 0.195"
       data-visibility-attribute="visible">4
       <div class="HotspotAnnotation">
@@ -53,7 +53,7 @@
       </div>
     </button>
 
-    <button class="Hotspot" slot="hotspot-5" id="mv1" data-orbit="-98.46deg 87.43deg 19.09m" field-of-view="12deg"
+    <button class="Hotspot" data-audio="myAudio5" slot="hotspot-5" id="mv1" data-orbit="-98.46deg 87.43deg 19.09m" field-of-view="12deg"
       data-target="-2.23m 1.086m 5.906m" data-surface="0 0 580 3976 3974 0.012 0.967 0.021"
       data-visibility-attribute="visible">5
       <div class="HotspotAnnotation">
@@ -88,6 +88,7 @@
 
 
   <script type="module">
+    var ap = '';
     const modelViewer2 = document.querySelector("#mv1");
     const annotationClicked = (annotation) => {
       let dataset = annotation.dataset;
@@ -96,6 +97,7 @@
       // Initial Camera Position = camera-orbit
       modelViewer2.cameraOrbit = dataset.orbit;
       modelViewer2.fieldOfView = '0deg';
+      ap.playAudio(dataset.audio, "from module1");
       // modelViewer2.fieldOfView = dataset.view;
       // modelViewer2.querySelectorAll('button').forEach((hotspot) => {
       //   hotspot.classList.remove('active')
@@ -135,7 +137,7 @@
 
 
     $(document).ready(function () {
-      var ap = new Controls(annotationClicked);
+       ap = new Controls(annotationClicked);
       ap.init();
     })
 
