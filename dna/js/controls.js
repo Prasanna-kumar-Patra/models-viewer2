@@ -109,11 +109,15 @@ var Controls = function (annotationClicked) {
   })
 
 
+  var audioElement
   self.playAudio = function (nm, callee) {
 
 
-
-    var audioElement = document.createElement("AUDIO");
+    if (audioElement) {
+      audioElement.pause()
+      }
+      
+      audioElement = document.createElement("AUDIO");
 
     if (audioElement.canPlayType("audio/mpeg")) {
       audioElement.setAttribute("src", "./mp3s/" + nm + ".mp3");
