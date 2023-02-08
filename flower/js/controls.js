@@ -18,13 +18,13 @@ var Controls = function (annotationClicked) {
     const audios = document.getElementsByTagName("audio");
     let buttons = document.getElementsByClassName("Hotspot");
     titles = document.getElementsByClassName("title");
-   
+
     for (var i = 0; i < buttons.length; i++) {
-        buttonsArr.push(buttons[i]);
-      
+      buttonsArr.push(buttons[i]);
+
     }
-    
-  
+
+
 
   }
 
@@ -46,11 +46,12 @@ var Controls = function (annotationClicked) {
 
 
 
-   
-    self.modalSlideShow(self.slideIndex);
+
+    self.modalSlideShow(self.slideIndex, "", "create it");
   }
 
-  self.modalSlideShow = function (n,b) {
+  self.modalSlideShow = function (n, b, callee) {
+    console.log("pkp:  ~ file: controls.js:54 ~ Controls ~ callee", callee + n)
     let i;
     let title = document.getElementsByClassName("labelTitle");
     if (n > title.length) {
@@ -64,16 +65,17 @@ var Controls = function (annotationClicked) {
     }
     title[self.slideIndex - 1].style.display = "block";
     // console.log("jhfddsjfjdfkjfd---------->", buttonsArr[self.slideIndex - 1])
-    
+
     if (b === "y") {
       // console.log("jhfddsjfhfg----------jdfkjfd---------->", buttonsArr[self.slideIndex - 1])
-      annotationClicked(buttonsArr[self.slideIndex - 1],"navigation")
+      annotationClicked(buttonsArr[self.slideIndex - 1], "navigation - " + n)
       buttonsArr[self.slideIndex - 1].classList.add('active')
-   }
+    }
 
   }
-  self.plusSlides = function (n) {
-    self.modalSlideShow(self.slideIndex += n, "y");
+  self.plusSlides = function (n, callee) {
+    console.log("pkp:  ~ file: controls.js:77 ~ Controls ~ callee", callee + n)
+    self.modalSlideShow(self.slideIndex += n, "y", "auto play");
   }
 
 
@@ -106,25 +108,41 @@ var Controls = function (annotationClicked) {
 
   })
 
-  self.playAudio = function(nm, callee){
-    let audioElement = document.getElementById("myAudio1")
-    console.log("audio callee--->",nm,callee)
-    audioElement.src = "./mp3s/"+nm+".mp3";
-    // audioElement.load();
-    audioElement.play();
 
-    audioElement.addEventListener('ended', (event) => {
-      // console.log('audio has been ended');
+  self.playAudio = function (nm, callee) {
+
+
+
+    var audioElement = document.createElement("AUDIO");
+
+    if (audioElement.canPlayType("audio/mpeg")) {
+      audioElement.setAttribute("src", "./mp3s/" + nm + ".mp3");
+    } else {
+      console.log("pkp:  ~ file: controls.js:121 ~ Controls ~ else xxxxxxxxx")
+      // audioElement.setAttribute("src", "horse.ogg");
+    }
+    document.body.appendChild(audioElement);
+    audioElement.removeEventListener("ended", onAudioEnd);
+    audioElement.addEventListener('ended', onAudioEnd);
+
+    audioElement.addEventListener('canplaythrough', soundLoaded, false);
+
+    function soundLoaded(evt, callee) {
+      console.log("pkp:  ~ file: controls.js:126 ~ soundLoaded ~ evt", evt)
+      audioElement.play();
+    }
+    function onAudioEnd(evt, callee) {
+      console.log("pkp:  ~ file: controls.js:130 ~ onAudioEnd ~ evt", evt)
       audioElement.pause();
-      if(nm != "myAudio9")
-      $(".arrow-right")?.click()
-      //self.plusSlides(1) ;
-    });
+      if (nm != "myAudio9") {
+        self.plusSlides(1, "on end audio");
+      }
+    }
   }
 
 
 
- 
+
 
 
 }
