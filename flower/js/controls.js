@@ -2,35 +2,35 @@ var Controls = function (annotationClicked) {
   var self = this;
   let buttonsArr = [];
   let titles;
-  self.slideIndex = 1
+  self.slideIndex = 1;
+  self.modelViewer2;
+  //self.audios ;
 
 
   self.init = function () {
     self.create();
     self.createCOntrols();
 
-    // console.log("annotationClicked--->",annotationClicked)
   }
 
   self.create = function () {
+    self.modelViewer2 = document.querySelector("#mv1");
+    const audios = document.getElementsByTagName("audio");
     let buttons = document.getElementsByClassName("Hotspot");
     titles = document.getElementsByClassName("title");
-    console.warn('buttons length--->', buttons)
+   
     for (var i = 0; i < buttons.length; i++) {
         buttonsArr.push(buttons[i]);
-        console.warn("button------i---->", buttons[i])
       
     }
-    //audios[0].play();
-
-
-
+    
+  
 
   }
 
 
   self.createCOntrols = function () {
-    console.log("buttons array length----->", buttonsArr[0])
+    console.log("title array length----->", titles.length)
 
     var htmlStr = '';
     htmlStr += '<button class="arrow arrow-left ">◂</button>';
@@ -46,25 +46,11 @@ var Controls = function (annotationClicked) {
 
 
 
-    $(".labelTitle").click(function () {
-      // $(".listPopup").css("display", "block");
-      // self.createPopUpListDiv();
-    })
-    self.modalSlideShow(self.slideIndex, "n");
+   
+    self.modalSlideShow(self.slideIndex);
   }
 
-  self.createPopUpListDiv = function () {
-    var htmlStr = '';
-    htmlStr += '<ol>';
-    for (var i = 0; i < titles.length; i++) {
-      htmlStr += '<li >' + titles[i].textContent + '</li>';
-    }
-    htmlStr += '</ol>';
-    $('.listPopup').html(htmlStr)
-
-  }
-
-  self.modalSlideShow = function (n, b) {
+  self.modalSlideShow = function (n,b) {
     let i;
     let title = document.getElementsByClassName("labelTitle");
     if (n > title.length) {
@@ -74,16 +60,16 @@ var Controls = function (annotationClicked) {
     }
     for (i = 0; i < title.length; i++) {
       title[i].style.display = "none";
-      console.log("button--76>", buttonsArr[i].classList)
       buttonsArr[i].classList.remove('active')
     }
     title[self.slideIndex - 1].style.display = "block";
-    console.log("jhfddsjfjdfkjfd---------->", buttonsArr[self.slideIndex - 1])
+    // console.log("jhfddsjfjdfkjfd---------->", buttonsArr[self.slideIndex - 1])
+    
     if (b === "y") {
-      annotationClicked(buttonsArr[self.slideIndex - 1])
+      // console.log("jhfddsjfhfg----------jdfkjfd---------->", buttonsArr[self.slideIndex - 1])
+      annotationClicked(buttonsArr[self.slideIndex - 1],"navigation")
       buttonsArr[self.slideIndex - 1].classList.add('active')
-    }
-    //annotationClicked(buttonsArr[self.slideIndex-1])
+   }
 
   }
   self.plusSlides = function (n) {
@@ -109,16 +95,36 @@ var Controls = function (annotationClicked) {
     if (e.target.classList.contains('arrow')) {
       // e.target.classList.add('active')
 
-      console.log("e.target innnn arrow :: ", e.target)
+      // console.log("e.target innnn arrow :: ", e.target)
     } else {
-      console.log("e.target not arrow :: ", e.target)
+      // console.log("e.target not arrow :: ", e.target)
       self.activateClick(e)
     }
 
-    //  console.log("e.target :: ", e.target) 
+    //  // console.log("e.target :: ", e.target) 
 
 
   })
+
+  self.playAudio = function(nm, callee){
+    let audioElement = document.getElementById("myAudio1")
+    console.log("audio callee--->",nm,callee)
+    audioElement.src = "./mp3s/"+nm+".mp3";
+    // audioElement.load();
+    audioElement.play();
+
+    audioElement.addEventListener('ended', (event) => {
+      // console.log('audio has been ended');
+      audioElement.pause();
+      if(nm != "myAudio9")
+      $(".arrow-right")?.click()
+      //self.plusSlides(1) ;
+    });
+  }
+
+
+
+ 
 
 
 }

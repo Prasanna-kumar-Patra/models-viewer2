@@ -12,7 +12,7 @@
 </head>
 
 <body>
-
+  <audio src="" id="myAudio1"></audio>
   <!-- <model-viewer> HTML element -->
   <model-viewer id="mv1" src="../glbs/Parts of a Flower Cross section.glb" ar ar-modes="webxr scene-viewer quick-look"
     camera-controls poster="poster.webp" shadow-intensity="1" camera-orbit="-41.13deg 55.33deg 2.741m"
@@ -24,7 +24,7 @@
       data-visibility-attribute="visible">
       1<div class="HotspotAnnotation">Ascending Aorta</div>
     </button> -->
-    <button class="Hotspot" slot="hotspot-1" id="mv1" data-orbit="5.495deg 71.76deg 0.1639m" field-of-view="15.41deg"
+    <button class="Hotspot" slot="hotspot-1" data-audio="myAudio1" id="mv1" data-orbit="5.495deg 71.76deg 0.1639m" field-of-view="15.41deg"
       data-target="0m -0.005325m 0.003837m" data-surface="1 0 4271 4272 4273 0.241 0.261 0.498"
       data-visibility-attribute="visible">1
       <div class="HotspotAnnotation">
@@ -36,7 +36,7 @@
       </div>
     </button>
 
-    <button class="Hotspot" slot="hotspot-2" id="mv1" data-orbit="5.495deg 71.76deg 0.1844m" field-of-view="18.2deg"
+    <button class="Hotspot" slot="hotspot-2" data-audio="myAudio2" id="mv1" data-orbit="5.495deg 71.76deg 0.1844m" field-of-view="18.2deg"
       data-target="0m 0.01793m 0.005315m" data-surface="1 0 20764 20767 20355 0.527 0.424 0.049"
       data-visibility-attribute="visible">2
       <div class="HotspotAnnotation">
@@ -44,7 +44,7 @@
       </div>
     </button>
 
-    <button class="Hotspot" slot="hotspot-3" id="mv1" data-orbit="5.495deg 71.76deg 0.1639m" field-of-view="15.41deg"
+    <button class="Hotspot" slot="hotspot-3" data-audio="myAudio3" id="mv1" data-orbit="5.495deg 71.76deg 0.1639m" field-of-view="15.41deg"
       data-target="0m 0.005321m 0.003997m" data-surface="1 0 6362 6363 6364 0.216 0.375 0.409"
       data-visibility-attribute="visible">3
       <div class="HotspotAnnotation">
@@ -53,7 +53,7 @@
       </div>
     </button>
 
-    <button class="Hotspot" slot="hotspot-4" id="mv1" data-orbit="-4.06deg 74.06deg 0.1844m" field-of-view="18.2deg"
+    <button class="Hotspot" slot="hotspot-4" data-audio="myAudio4" id="mv1" data-orbit="-4.06deg 74.06deg 0.1844m" field-of-view="18.2deg"
       data-target="0.02m -0.04482m -0.004407m" data-surface="3 0 8552 8553 8554 0.067 0.096 0.838"
       data-visibility-attribute="visible">4
       <div class="HotspotAnnotation">
@@ -61,13 +61,14 @@
       </div>
     </button>
 
-    <button class="Hotspot" slot="hotspot-5" id="mv1" data-orbit="-9.793deg 89.73deg 0.2048m" field-of-view="21.5deg"
+    <button class="Hotspot" slot="hotspot-5" data-audio="myAudio5" id="mv1" data-orbit="-9.793deg 89.73deg 0.2048m" field-of-view="21.5deg"
       data-target="0.04m 0.004296m -0.01278m" data-surface="2 0 5858 5860 5619 0.508 0.332 0.160"
       data-visibility-attribute="visible">5
-      <div class="HotspotAnnotation">Petal</div>
+      <div class="HotspotAnnotation">
+        <p class="title">Petal</p>Petal</div>
     </button>
 
-    <button class="Hotspot" slot="hotspot-6" id="mv1" data-orbit="-15.91deg 54.95deg 0.1639m" field-of-view="15.4deg"
+    <button class="Hotspot" slot="hotspot-6" data-audio="myAudio6" id="mv1" data-orbit="-15.91deg 54.95deg 0.1639m" field-of-view="15.4deg"
       data-target="-0.02m -0.01394m 0.003625m" data-surface="3 0 6277 6276 6278 0.440 0.487 0.073"
       data-visibility-attribute="visible">6
       <div class="HotspotAnnotation">
@@ -75,7 +76,7 @@
       </div>
     </button>
 
-    <button class="Hotspot" slot="hotspot-7" id="mv1" data-orbit="5.495deg 71.76deg 0.2253m" field-of-view="25.39deg"
+    <button class="Hotspot" slot="hotspot-7" data-audio="myAudio7" id="mv1" data-orbit="5.495deg 71.76deg 0.2253m" field-of-view="25.39deg"
       data-target="-0.01m 0.02176m 0.002251m" data-surface="0 0 1900 1901 1895 0.514 0.471 0.015"
       data-visibility-attribute="visible">7
       <div class="HotspotAnnotation">
@@ -83,7 +84,7 @@
       </div>
     </button>
 
-    <button class="Hotspot" slot="hotspot-8" id="mv1" data-orbit="5.495deg 71.76deg 0.2253m" field-of-view="25.39deg"
+    <button class="Hotspot" slot="hotspot-8" data-audio="myAudio8" id="mv1" data-orbit="5.495deg 71.76deg 0.2253m" field-of-view="25.39deg"
       data-target="0m -0.03649m 0.002996m" data-surface="3 0 1927 1874 1872 0.138 0.638 0.224"
       data-visibility-attribute="visible">
       8<div class="HotspotAnnotation">
@@ -91,7 +92,7 @@
       </div>
     </button>
 
-    <button class="Hotspot" slot="hotspot-9" id="mv1" data-orbit="5.495deg 71.76deg 0.1639m" field-of-view="15.41deg"
+    <button class="Hotspot" slot="hotspot-9" data-audio="myAudio9" id="mv1" data-orbit="5.495deg 71.76deg 0.1639m" field-of-view="15.41deg"
       data-target="0m -0.01474m 0.003497m" data-surface="1 0 9116 9117 9050 0.408 0.159 0.433"
       data-visibility-attribute="visible">
       9<div class="HotspotAnnotation">
@@ -133,14 +134,19 @@
 
 
   <script type="module">
+     
+      var ap = '';
     const modelViewer2 = document.querySelector("#mv1");
-    const annotationClicked = (annotation) => {
+   // const audios = document.getElementsByTagName("audio");
+    const annotationClicked = (annotation, callee) => {
       let dataset = annotation.dataset;
-      console.log("pkp:  ~ file: index2.html:76 ~ annotationClicked ~ dataset", dataset)
+      //console.log("pkp:  ~ file: index2.html:76 ~ annotationClicked ~ callee", callee)
       modelViewer2.cameraTarget = dataset.target;
       // Initial Camera Position = camera-orbit
       modelViewer2.cameraOrbit = dataset.orbit;
       modelViewer2.fieldOfView = '0deg';
+      console.log("dataset.audio-->",dataset.audio)
+      ap.playAudio(dataset.audio,"from module1");
       // modelViewer2.fieldOfView = dataset.view;
       // modelViewer2.querySelectorAll('button').forEach((hotspot) => {
       //   hotspot.classList.remove('active')
@@ -157,7 +163,7 @@
 
     modelViewer2.querySelectorAll('button.Hotspot').forEach((hotspot) => {
       console.log("pkp:  ~ file: index2.html:48 ~ modelViewer2.querySelectorAll ~ hotspot", hotspot)
-      hotspot.addEventListener('click', () => annotationClicked(hotspot));
+      hotspot.addEventListener('click', () => annotationClicked(hotspot,"query selector"));
 
     });
 
@@ -179,8 +185,9 @@
     // })
 
 
+   
     $(document).ready(function () {
-      var ap = new Controls(annotationClicked);
+       ap = new Controls(annotationClicked);
       ap.init();
     })
 
