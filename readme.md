@@ -28,3 +28,14 @@ camera-target="0.12m 0.03944m 0.203m" to data-target="0.12m 0.03944m 0.203m"
 camera-orbit="-68.76deg 83.57deg 3.886m" to data-orbit="-68.76deg 83.57deg 3.886m"
  and add the hotspot number inside label div
  
+
+
+  ## to do
+
+ - [x] autoplay 
+ - [x] audio
+ - [ ] increage click area
+ - [ ] manual zoom
+ - [ ] description
+ - [ ] menu 
+ - [ ] fix navigation width
