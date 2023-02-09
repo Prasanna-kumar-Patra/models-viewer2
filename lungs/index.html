@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link type="text/css" href="../css/styles1.css" rel="stylesheet" />
   <!-- OPTIONAL: The :focus-visible polyfill removes the focus ring for some input types -->
-  <script src="https://unpkg.com/focus-visible@5.0.2/dist/focus-visible.js" defer></script>
+  <script src="../libs/focus-visible.js" defer></script>
 </head>
 
 <body>
@@ -26,7 +26,7 @@
       </div>
     </button>
 
-    <button class="Hotspot" data-audio="myAudio3" slot="hotspot-2" data-orbit="-204.7deg 72.99deg 0.2912m"
+    <button class="Hotspot" data-audio="myAudio2" slot="hotspot-2" data-orbit="-204.7deg 72.99deg 0.2912m"
       field-of-view="12deg" data-target="0.19m -497.3m 43.83m" data-surface="2 0 15614 2737 15612 0.166 0.809 0.025"
       data-visibility-attribute="visible">
       2<div class="HotspotAnnotation">
@@ -38,7 +38,7 @@
       data-orbit="-9.773deg 86.6deg 0.2912m" data-surface="3 0 11408 4386 13110 0.553 0.048 0.399"
       data-visibility-attribute="visible">
       3<div class="HotspotAnnotation">
-        <p class="title">Cartilagines trachealis</p>
+        <p class="title">Trachea</p>
       </div>
     </button>
 
@@ -53,7 +53,7 @@
       data-orbit="-13.83deg 110.7deg 0.2912m" data-surface="5 0 2843 1869 2844 0.075 0.600 0.325"
       data-visibility-attribute="visible">
       5<div class="HotspotAnnotation">
-        <p class="title">Cartilago thyroidea</p>
+        <p class="title">Thyroid cartilage</p>
       </div>
     </button>
 
@@ -61,7 +61,7 @@
       data-orbit="-13deg 110.2deg 0.2912m" data-surface="5 0 1214 1353 1355 0.427 0.354 0.219"
       data-visibility-attribute="visible">
       6<div class="HotspotAnnotation">
-        <p class="title">Cricoidea</p>
+        <p class="title">Cricoid Cartilage</p>
       </div>
     </button>
 
@@ -92,7 +92,7 @@
       View in your space
     </button>
     <div id="ar-prompt">
-      <img src="https://modelviewer.dev/shared-assets/icons/hand.png">
+      <img src="./ar_hand_prompt.png">
     </div>
 
     <div class="pagination">
@@ -169,17 +169,12 @@
 
   <script src="script.js"></script>
   <script src="./js/controls.js"></script>
-  <script src="./js/jquery-1.12.4.min.js"></script>
+  <script src="../libs/jquery-1.12.4.min.js"></script>
 
-  <!-- <script>
-     $(document).ready(function() {
-            var ap = new Controls(annotationClicked);
-            ap.init();
-        })
-  </script> -->
+  
 
   <!-- Loads <model-viewer> for browsers: -->
-  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <script type="module" src="../libs/model-viewer.min.js"></script>
 </body>
 
 </html>
