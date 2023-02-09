@@ -10,6 +10,7 @@ var Controls = function (annotationClicked) {
   self.init = function () {
     self.create();
     self.createCOntrols();
+    self.pauseAndResumeAudio();
 
   }
 
@@ -145,7 +146,19 @@ var Controls = function (annotationClicked) {
   }
 
 
+  self.pauseAndResumeAudio = function(){
+    var count = 0;
+    $(".labelTitle").click(function(){
+      count ++;
+      if(count == 1){
+        audioElement.pause();
+      }else if(count == 2){
+        audioElement.play();
+        count = 0;
+      }
 
+    })
+  }
 
 
 

@@ -4,12 +4,14 @@ var Controls = function (annotationClicked) {
   let titles;
   self.slideIndex = 1;
   self.modelViewer2;
+  
   //self.audios ;
 
 
   self.init = function () {
     self.create();
     self.createCOntrols();
+    self.pauseAndResumeAudio();
 
   }
 
@@ -108,7 +110,7 @@ var Controls = function (annotationClicked) {
 
   })
 
-  var audioElement
+  var audioElement;
   self.playAudio = function (nm, callee) {
 
 
@@ -141,6 +143,22 @@ var Controls = function (annotationClicked) {
         self.plusSlides(1, "on end audio");
       }
     }
+
+    
+  }
+
+  self.pauseAndResumeAudio = function(){
+    var count = 0;
+    $(".labelTitle").click(function(){
+      count ++;
+      if(count == 1){
+        audioElement.pause();
+      }else if(count == 2){
+        audioElement.play();
+        count = 0;
+      }
+
+    })
   }
 
 
