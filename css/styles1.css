@@ -36,15 +36,18 @@ model-viewer {
     overflow-wrap: break-word;
     padding: 0;
     position: absolute;
-    width: 22px;
-    height: 22px;
+    width: 30px;
+    height: 30px;
     transform: translate3d(-50%, -50%, 0);
     transition: all 0.2s;
   }
 
   .Hotspot.active {
     z-index: 999;
+    background: #00000045;
   }
+
+
 
   .Hotspot:hover {
     color: #56adff;
