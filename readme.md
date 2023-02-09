@@ -35,10 +35,10 @@ camera-orbit="-68.76deg 83.57deg 3.886m" to data-orbit="-68.76deg 83.57deg 3.886
  - [x] autoplay 
  - [x] audio
  - [x] pause
+ - [x] poster
  - [ ] title change
  - [ ] increage click area
  - [ ] manual zoom
- - [ ] poster
  - [ ] description
  - [ ] menu 
  - [ ] fix navigation width
