@@ -1,4 +1,5 @@
- .u-section-1 {
+
+.u-section-1 {
   background-image: linear-gradient(0deg, rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url("images/poster.webp");
   background-position: 50% 50%;
 }
@@ -469,6 +470,11 @@
     min-height: 1277px;
   }
 
+
+  .myimg  {
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
   .u-section-1 .u-image-1 {
     height: 193px;
   }
