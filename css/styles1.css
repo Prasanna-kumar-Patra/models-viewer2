@@ -101,7 +101,10 @@ model-viewer {
     z-index: 999;
 }
 .description-box .title,
-.HotspotAnnotation .title{font-weight: 700; font-size: 14px;}
+.HotspotAnnotation .title{font-weight: 700; 
+    font-size: 14px;
+    margin:5px
+}
 
 
 .description-box{
