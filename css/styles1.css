@@ -14,9 +14,9 @@ body {
     background-color: #0f0f0f;
 }
 
-model-viewer {
+#mv1 {
     width: 100%;
-    height: 90%;
+    height: 100%;
     background-color: #0f0f0f;
 }
 
@@ -56,7 +56,7 @@ model-viewer {
 
   }
 
-  .listPopup {
+  /* .listPopup {
     background: rgba(0, 0, 0, 0.5);
     position: absolute;
     top: 50%;
@@ -65,7 +65,7 @@ model-viewer {
     height: 277px;
     overflow: auto;
     color: #ffffff;
-  }
+  } */
 
   .labelTitle {
     cursor: pointer;
@@ -116,9 +116,9 @@ model-viewer {
     border-radius: 10px;
     padding: 15px;
     position: absolute;
-    right: 20px;
+    right: 30px;
     bottom: 20px;
-    width: 200px;
+    width: 290px;
     font-family: Roboto Regular, Helvetica Neue, sans-serif;
     z-index: 99;
     
@@ -227,6 +227,8 @@ model-viewer>#ar-prompt>img {
 .pagination{
     background: #484848c2;
     border-radius: 15px;
+    position: absolute;
+    width: 180px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -256,4 +258,85 @@ model-viewer>#ar-prompt>img {
     color: #fff;
     font-size: 14px;
     padding: 0 10px;
+}
+
+.arrow-right {
+    position: absolute;
+    right: 10px;
+}
+
+.arrow-left{
+    position: absolute;
+    left: 11px;
+
+}
+
+ .listPopup{
+    position: absolute;
+    top: 71%;
+    left: 643px;
+    /* overflow: auto; */
+    color: white;
+    background-color: #0f0f0f;
+    opacity: 0.7;
+    width: 200px;
+    border: 1px solid black;
+    border-radius: 7px;
+  
+}
+
+.link li{
+    display: list-item;
+}
+.js-scrollable{
+    cursor: pointer;
+margin-top: 35px;
+}
+
+.isAnnotations {
+cursor: pointer;
+}
+.isAutoplay{
+    cursor: pointer;
+ }
+
+.setBgColor{
+    position: absolute;
+    width: 100%;
+    height: 23px;
+    margin-top: 10px;
+}
+.colorDiv{
+    position: relative;
+    display: inline-block;
+    width: 17px;
+    height: 10px;
+    margin: 3px;
+    border: 1px solid white;
+    cursor: pointer;
+    border-radius: 4px;
+}
+.colorDiv #black{
+    background-color:black ;
+}
+#white{
+    background-color:white ;
+}
+#gray{
+    background-color:lightgray ;
+}
+#yellow{
+    background-color:yellow ;
+}
+#coral{
+    background-color:coral ;
+}
+#darkorange{
+    background-color:darkorange ;
+}
+#fuchsia{
+    background-color:fuchsia ;
+}
+#greenyellow{
+    background-color:greenyellow ;
 }
