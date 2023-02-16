@@ -124,7 +124,7 @@ var ModelViewer = function () {
         htmlStr += '<span class="isAutoplay"> start autoplay</span>';
         htmlStr += '<div class="setBgColor">';
         htmlStr += '<span class="colorDiv" id="black"></span><span class="colorDiv" id="gray"></span><span class="colorDiv" id="coral"></span><span class="colorDiv" id="fuchsia"></span>';
-        htmlStr += '<span class="colorDiv" id="white"></span><span class="colorDiv" id="yellow"></span><span class="colorDiv" id="darkorange"></span><span class="colorDiv" id="greenyellow"></span>'
+      //  htmlStr += '<span class="colorDiv" id="white"></span><span class="colorDiv" id="yellow"></span><span class="colorDiv" id="darkorange"></span><span class="colorDiv" id="greenyellow"></span>'
         htmlStr +='</div>';
         htmlStr += '<ul class="js-scrollable">';
         for (var i = 0; i < titles.length; i++) {
