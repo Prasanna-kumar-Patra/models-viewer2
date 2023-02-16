@@ -238,7 +238,7 @@ var ModelViewer = function () {
         function onAudioEnd(evt, callee) {
             console.log("pkp:  ~ file: controls.js:130 ~ onAudioEnd ~ evt", evt)
             audioElement.pause();
-            if (audNm != "myAudio9") {
+            if (audNm != "myAudio"+buttonsArr.length) {
                 if (isAutoplay) {
                     $(".next")?.click();
                 }
