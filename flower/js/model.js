@@ -5,6 +5,7 @@ var ModelViewer = function () {
     let isAnnotation = true;
     let isAutoplay = false;
     let isAudioPlay = false;
+    let isWindowClicked = false;
     var audioElement;
 
     self.modelViewer2 = document.querySelector("#mv1");
@@ -19,6 +20,7 @@ var ModelViewer = function () {
         self.slideNavigation(selectedNavIndex, e);
         console.log("selected nav Index--->", selectedNavIndex)
        self.onWindowsClick();
+       console.log("isWindowClicked------------>",isWindowClicked)
        
     }
 
@@ -59,6 +61,7 @@ var ModelViewer = function () {
 
         var htmlStr = '';
         htmlStr += '<button class="arrow arrow-left prev">◂</button>';
+       // htmlStr += '<label class="labelTitle" id="label_0">Select an Annotation</label>';
         for (var i = 0; i < titles.length; i++) {
             htmlStr += '<label class="labelTitle" id="label_' + i + '">' + titles[i].textContent + '</label>';
         }
@@ -93,25 +96,24 @@ var ModelViewer = function () {
     }
 
     self.slideNavigation = function (navIndex, e) {
-        console.log("selected nav Index--->", navIndex)
-        let title = document.getElementsByClassName("labelTitle");
-        let btn = document.getElementsByClassName("arrow");
-        navIndex = parseInt(navIndex)
-        for (i = 0; i < title.length; i++) {
-            if (i === navIndex) {
-                title[i].style.display = "block";
-                buttonsArr[i].classList.add('active')
-                self.createDescriptionBox(i)
-                if (e.type === "click") {
-                    self.annotationClicked(buttonsArr[i], "next-prev btn");
+            console.log("selected nav Index--->", navIndex)
+            let title = document.getElementsByClassName("labelTitle");
+            let btn = document.getElementsByClassName("arrow");
+            navIndex = parseInt(navIndex)
+            for (i = 0; i < title.length; i++) {
+                if (i === navIndex) {
+                    title[i].style.display = "block";
+                    buttonsArr[i].classList.add('active')
+                    self.createDescriptionBox(i)
+                    if (e.type === "click") {
+                        self.annotationClicked(buttonsArr[i], "next-prev btn");
+                    }
+                } else {
+                    title[i].style.display = "none";
+                        buttonsArr[i].classList.remove('active');
+                    
                 }
-            } else {
-                title[i].style.display = "none";
-                    buttonsArr[i].classList.remove('active');
-                
             }
-        }
-
     }
 
     self.createNavPopup = function () {
@@ -270,11 +272,11 @@ var ModelViewer = function () {
     self.onWindowsClick = function () {
 
         window.addEventListener('click', (e) => {
+            isWindowClicked = true;
             console.log("windows click-------------->", e)
             document.querySelectorAll('.Hotspot').forEach((hotspot) => {
                 hotspot.classList.remove('active')
             })
-
             $(".description-box").css("display", "none");
 
             if (e.target.classList.contains('labelTitle')) {
