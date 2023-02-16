@@ -123,8 +123,8 @@ var ModelViewer = function () {
         htmlStr += '<span class="isAnnotations">Hide annotation</span><br>';
         htmlStr += '<span class="isAutoplay"> start autoplay</span>';
         htmlStr += '<div class="setBgColor">';
-        htmlStr += '<span class="colorDiv" id="black"></span><span class="colorDiv" id="gray"></span><span class="colorDiv" id="coral"></span><span class="colorDiv" id="fuchsia"></span>';
-        htmlStr += '<span class="colorDiv" id="white"></span><span class="colorDiv" id="yellow"></span><span class="colorDiv" id="darkorange"></span><span class="colorDiv" id="greenyellow"></span>'
+        htmlStr += '<span class="colorDiv" id="black"></span><span class="colorDiv" id="gray"></span><span class="colorDiv" id="coral"></span><span class="colorDiv" id="white"></span>';
+       // htmlStr += '<span class="colorDiv" id="white"></span><span class="colorDiv" id="yellow"></span><span class="colorDiv" id="darkorange"></span><span class="colorDiv" id="greenyellow"></span>'
         htmlStr +='</div>';
         htmlStr += '<ul class="js-scrollable">';
         for (var i = 0; i < titles.length; i++) {
@@ -212,40 +212,45 @@ var ModelViewer = function () {
     self.playAudio = function (audNm, callee) {
 
 
-        if (audioElement) {
-            audioElement.pause()
-        }
+    if (audioElement) {
+        audioElement.pause()
+    }
 
-        audioElement = document.createElement("AUDIO");
+    audioElement = document.createElement("AUDIO");
+    let audioUrl = "./audio/" + audNm + ".mp3"
 
-        if (audioElement.canPlayType("audio/mpeg")) {
-            audioElement.setAttribute("src", "./mp3s/" + audNm + ".mp3");
-        } else {
-            console.log("pkp:  ~ file: controls.js:121 ~ Controls ~ else xxxxxxxxx")
-            // audioElement.setAttribute("src", "horse.ogg");
-        }
-        document.body.appendChild(audioElement);
-        audioElement.removeEventListener("ended", onAudioEnd);
-        audioElement.addEventListener('ended', onAudioEnd);
+    if (audioElement.canPlayType("audio/mpeg")) {
+        // audioElement.setAttribute("src", "./audio/" + audNm + ".mp3");
+        audioElement.setAttribute("src", audioUrl);
+    } else {
+        console.log("pkp:  ~ file: controls.js:121 ~ Controls ~ else xxxxxxxxx")
+        // audioElement.setAttribute("src", "horse.ogg");
+    }
+    document.body.appendChild(audioElement);
+    audioElement.removeEventListener("ended", onAudioEnd);
+    audioElement.addEventListener('ended', onAudioEnd);
 
-        audioElement.addEventListener('canplaythrough', soundLoaded, false);
+    audioElement.addEventListener('canplaythrough', soundLoaded, false);
 
-        function soundLoaded(evt, callee) {
-            console.log("pkp:  ~ file: controls.js:126 ~ soundLoaded ~ evt", evt)
+    function soundLoaded(evt, callee) {
+        console.log("pkp:  ~ file: controls.js:126 ~ soundLoaded ~ evt", evt)
+        if(audioUrl){
             audioElement.play();
-
         }
-        function onAudioEnd(evt, callee) {
-            console.log("pkp:  ~ file: controls.js:130 ~ onAudioEnd ~ evt", evt)
-            audioElement.pause();
-            if (audNm != "myAudio"+buttonsArr.length) {
-                if (isAutoplay) {
-                    $(".next")?.click();
-                }
+        
 
+    }
+    function onAudioEnd(evt, callee) {
+        console.log("pkp:  ~ file: controls.js:130 ~ onAudioEnd ~ evt", evt)
+        audioElement.pause();
+        if (audNm != "myAudio"+buttonsArr.length) {
+            if (isAutoplay) {
+                $(".next")?.click();
             }
+
         }
     }
+}
 
     self.pauseAndResumeAudio = function () {
         var count = 0;
