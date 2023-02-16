@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-  <title>Blood vessel anatomy</title>
+  <title>Parts of a Flower Cross section</title>
   <meta charset="utf-8">
   <meta name="description" content="&lt;model-viewer&gt; template">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,8 +12,9 @@
 </head>
 
 <body>
+  <audio src="" id="myAudio1"></audio>
   <!-- <model-viewer> HTML element -->
-  <model-viewer id="mv1" src="../glbs/blood-vessel-anatomy.glb" ar ar-modes="webxr scene-viewer quick-look"
+    <model-viewer id="mv1" src="../glbs/blood-vessel-anatomy.glb" ar ar-modes="webxr scene-viewer quick-look"
     camera-controls poster="poster.webp" shadow-intensity="1"camera-target="-0.66m -0.2579m 5.456m" camera-orbit="-41.13deg 55.33deg 35.21m" field-of-view="30deg">
 
 
@@ -24,6 +25,7 @@
 
       <div class="HotspotAnnotation">
         <p class="title">Vein</p>
+       <p class="description" style="display:none">Veins are blood vessels located throughout your body that collect oxygen-poor blood and return it to your heart. Veins are part of your circulatory system. They work together with other blood vessels and your heart to keep your blood moving. Veins hold most of the blood in your body</p>
       </div>
 
     </button>
@@ -33,6 +35,7 @@
       data-visibility-attribute="visible">2
       <div class="HotspotAnnotation">
         <p class="title">Artery</p>
+        <p class="description" style="display:none">Arteries distribute oxygen-rich blood to your body. Arteries, part of your circulatory (cardiovascular) system, are the blood vessels that bring oxygen-rich blood from your heart to all of your body's cells. </p>
       </div>
     </button>
 
@@ -41,6 +44,7 @@
       data-visibility-attribute="visible">3
       <div class="HotspotAnnotation">
         <p class="title">To Heart</p>
+        <p class="description" style="display:none">blood cerculated to Heart.</p>
       </div>
     </button>
 
@@ -49,6 +53,7 @@
       data-visibility-attribute="visible">4
       <div class="HotspotAnnotation">
         <p class="title">From Heart</p>
+        <p class="description" style="display:none">Blood cerculated From Heart. </p>
       </div>
     </button>
 
@@ -57,8 +62,10 @@
       data-visibility-attribute="visible">5
       <div class="HotspotAnnotation">
         <p class="title">Capillaries</p>
+        <p class="description" style="display:none">Capillaries are delicate blood vessels that exist throughout your body. They transport blood, nutrients and oxygen to cells in your organs and body systems.</p>
       </div>
     </button>
+
 
     <div class="progress-bar hide" slot="progress-bar">
       <div class="update-bar"></div>
@@ -70,74 +77,86 @@
       <img src="./ar_hand_prompt.png">
     </div>
 
-    <div class="pagination">
 
+
+    <div class="navigation">
+      <div class="listPopup" style="display: none;"></div>
+      <div class="pagination"></div>
     </div>
-    <div class="listPopup" style="display:none"></div>
+    <div class="description-box"> </div>
 
-    <!-- <div class="description-box">
-      <p class="title">Left Coronary Artery</p>
-      <p>The left coronary artery originates from the left aortic sinus of the ascending aorta.</p>
-      <p>The artery divides into its two terminal branches: the anterior interventricular branch and the circumflex
-        branch.</p>
-    </div> -->
+
+     
+      
+      
+    
+   
+
+   
 
   </model-viewer>
 
 
 
   <script type="module">
+
     var ap = '';
-    const modelViewer2 = document.querySelector("#mv1");
-    const annotationClicked = (annotation) => {
-      let dataset = annotation.dataset;
-      console.log("pkp:  ~ file: index2.html:76 ~ annotationClicked ~ dataset", dataset)
-      modelViewer2.cameraTarget = dataset.target;
-      // Initial Camera Position = camera-orbit
-      modelViewer2.cameraOrbit = dataset.orbit;
-      modelViewer2.fieldOfView = '0deg';
-      ap.playAudio(dataset.audio, "from module1");
-      // modelViewer2.fieldOfView = dataset.view;
-      // modelViewer2.querySelectorAll('button').forEach((hotspot) => {
-      //   hotspot.classList.remove('active')
-      // })
-      // annotation.classList.toggle('active');
+    var model = '';
+    // const modelViewer2 = document.querySelector("#mv1");
+    // // const audios = document.getElementsByTagName("audio");
+    // const annotationClicked = (annotation, callee) => {
+    //   console.log("pkp:  ~ file: index.html:142 ~ annotationClicked ~ callee", callee)
+    //   let dataset = annotation.dataset;
+    //   modelViewer2.cameraTarget = dataset.target;
+    //   // Initial Camera Position = camera-orbit
+    //   modelViewer2.cameraOrbit = dataset.orbit;
+    //   modelViewer2.fieldOfView = '0deg';
+    //   // console.log("dataset.audio-->", dataset.audio)
+    //   ap.playAudio(dataset.audio, "from module1");
+    //   // modelViewer2.fieldOfView = dataset.view;
+    //   // modelViewer2.querySelectorAll('button').forEach((hotspot) => {
+    //   //   hotspot.classList.remove('active')
+    //   // })
+    //   // annotation.classList.toggle('active');
 
-      // console.log(annotation);
-    }
-    const navBtnClicked = (arrow) => {
-      console.log("pkp:  ~ file: index.html:197 ~ navBtnClicked ~ arrow", arrow)
-      let dataset = arrow.dataset;
+    //   // console.log(annotation);
+    // }
+    // const navBtnClicked = (arrow) => {
+    //   console.log("pkp:  ~ file: index.html:197 ~ navBtnClicked ~ arrow", arrow)
+    //   let dataset = arrow.dataset;
 
-    }
+    // }
 
-    modelViewer2.querySelectorAll('button.Hotspot').forEach((hotspot) => {
-      console.log("pkp:  ~ file: index2.html:48 ~ modelViewer2.querySelectorAll ~ hotspot", hotspot)
-      hotspot.addEventListener('click', () => annotationClicked(hotspot));
+    // modelViewer2.querySelectorAll('button.Hotspot').forEach((hotspot) => {
+    //   console.log("pkp:  ~ file: index2.html:48 ~ modelViewer2.querySelectorAll ~ hotspot", hotspot)
+    //   hotspot.addEventListener('click', () => annotationClicked(hotspot, "query selector"));
 
-    });
+    // });
 
-    modelViewer2.querySelectorAll('button.arrow').forEach((arrow) => {
-      console.log("pkp:  ~ file: index.html:222 ~ modelViewer2.querySelectorAll ~ arrow", arrow)
-      arrow.addEventListener('click', () => navBtnClicked(arrow));
+    // modelViewer2.querySelectorAll('button.arrow').forEach((arrow) => {
+    //   console.log("pkp:  ~ file: index.html:222 ~ modelViewer2.querySelectorAll ~ arrow", arrow)
+    //   arrow.addEventListener('click', () => navBtnClicked(arrow));
 
-    });
-
-
-    // window.addEventListener('click', (e) => {
-    //   document.querySelectorAll('.Hotspot').forEach((hotspot) => {
-    //     hotspot.classList.remove('active')
-    //   })
-    //   if (e.target.classList.contains('Hotspot')) {
-    //     e.target.classList.add('active')
-    //   }
-
-    // })
+    // });
 
 
-    $(document).ready(function () {
-       ap = new Controls(annotationClicked);
-      ap.init();
+    // // window.addEventListener('click', (e) => {
+    // //   document.querySelectorAll('.Hotspot').forEach((hotspot) => {
+    // //     hotspot.classList.remove('active')
+    // //   })
+    // //   if (e.target.classList.contains('Hotspot')) {
+    // //     e.target.classList.add('active')
+    // //   }
+
+    // // })
+
+
+
+    $(document).ready(function (e) {
+      model = new ModelViewer()
+      model.init(e);
+      // ap = new Controls(model.annotationClicked);
+      // ap.init();
     })
 
 
@@ -145,14 +164,12 @@
 
   </script>
 
-
   <script src="script.js"></script>
-  <script src="./js/controls.js"></script>
+  <script src="./js/model.js"></script>
+  <!-- <script src="./js/controls.js"></script> -->
   <script src="../libs/jquery-1.12.4.min.js"></script>
 
-  
-
-  <!-- Loads <model-viewer> for browsers: -->
+ 
   <script type="module" src="../libs/model-viewer.min.js"></script>
 </body>
 
