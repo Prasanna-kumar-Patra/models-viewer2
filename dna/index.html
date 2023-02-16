@@ -72,10 +72,10 @@
       <img src="./ar_hand_prompt.png">
     </div>
 
-    <div class="pagination">
+    <!-- <div class="pagination">
 
     </div>
-    <div class="listPopup" style="display:none"></div>
+    <div class="listPopup" style="display:none"></div> -->
 
     <!-- <div class="description-box">
       <p class="title">Left Coronary Artery</p>
@@ -83,6 +83,38 @@
       <p>The artery divides into its two terminal branches: the anterior interventricular branch and the circumflex
         branch.</p>
     </div> -->
+
+    <div class="navigation">
+      <div class="listPopup">
+        <div class="list hotspots-list visible">
+          <span class="isAnnotations">Hide annotation</span><br>
+          <span class="isAutoplay"> start autoplay</span>
+          <div class="setBgColor">
+            <span class="colorDiv" id="black"></span>
+            <span class="colorDiv" id="gray"></span>
+            <span class="colorDiv" id="coral"></span>
+            <span class="colorDiv" id="fuchsia"></span>'
+          </div>
+          <ul class="js-scrollable">
+            <li class="link" id="link_1"><span class="index">1</span>Pistil</li>
+            <li class="link" id="link_2"><span class="index">2</span>Stigma</li>
+          </ul>
+        </div>
+      </div>
+      <div class="pagination">
+        <button class="arrow arrow-left prev">◂</button>
+        <label class="labelTitle" id="label_1">Pistil</label>
+        <label class="labelTitle" id="label_2">Pistil</label>
+        <button class="arrow arrow-right next" >▸</button>
+      </div>
+    </div>
+
+    <div class="description-box">
+      <div class="description">
+        <p id="desTitle_'+(ctr)+'">Pistil</p>
+        <p id="description_'+(ctr)+'">Pistil: The ovule producing part of a flower. The ovary often supports a long style, topped by a stigma. The mature ovary is a fruit, and the mature ovule is a seed. Stigma: The part of the pistil where pollen germinates. Ovary: The enlarged basal portion of the pistil where ovules are produced.</p>
+      </div>
+    </div>
 
   </model-viewer>
 
