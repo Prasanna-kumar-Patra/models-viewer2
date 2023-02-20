@@ -186,12 +186,12 @@ var ModelViewer = function () {
         var htmlStr = '';
         let  = document.getElementsByClassName("title");
         let descriptions = document.getElementsByClassName("description");
-       //  htmlStr += '<div class="description">';
+        htmlStr += '<div class="description">';
         console.log("descriptions-------------",descriptions.length)
-            htmlStr += '<p class="description-title" id="desTitle_'+(ctr)+'">'+titles[ctr].textContent+'</p>'
+            htmlStr += '<p id="desTitle_'+(ctr)+'">'+titles[ctr].textContent+'</p>'
             htmlStr += '<p id="description_'+(ctr)+'">'+descriptions[ctr].textContent+'</p>';
-          // htmlStr += '</div>'
-        $(".description").html(htmlStr)
+            htmlStr += '</div>'
+        $(".description-box").html(htmlStr)
     }
 
 
@@ -218,12 +218,7 @@ var ModelViewer = function () {
         }
 
         audioElement = document.createElement("AUDIO");
-       // var audioUrl = new File("./audio/" + audNm + ".mp3");
-      let audioUrl = "./audio/" + audNm + ".mp3"
-      
-        console.log("audioUrl------>",audioUrl)
-       
-        
+        let audioUrl = "./audio/" + audNm + ".mp3"
 
         if (audioElement.canPlayType("audio/mpeg")) {
             // audioElement.setAttribute("src", "./audio/" + audNm + ".mp3");
@@ -261,7 +256,7 @@ var ModelViewer = function () {
     self.pauseAndResumeAudio = function () {
        // var count = 0;
         $(".labelTitle").click(function () {
-           // count++;
+            // count++;
             // if (count == 1) {
             //     audioElement.pause();
             //     self.createNavPopup();
@@ -269,12 +264,14 @@ var ModelViewer = function () {
             //     audioElement.play();
             //     count = 0;
             // }
+
             if(isAudioPlay){
                 audioElement.pause();
                 self.createNavPopup();
                 isAudioPlay = false
             }else{
                 audioElement.play();
+                self.createNavPopup();
                 isAudioPlay = true
             }
 

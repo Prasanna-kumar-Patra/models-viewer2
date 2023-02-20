@@ -218,10 +218,8 @@ var ModelViewer = function () {
         }
 
         audioElement = document.createElement("AUDIO");
-       // var audioUrl = new File("./audio/" + audNm + ".mp3");
       let audioUrl = "./audio/" + audNm + ".mp3"
       
-        console.log("audioUrl------>",audioUrl)
        
         
 
@@ -275,6 +273,7 @@ var ModelViewer = function () {
                 isAudioPlay = false
             }else{
                 audioElement.play();
+                self.createNavPopup();
                 isAudioPlay = true
             }
 
