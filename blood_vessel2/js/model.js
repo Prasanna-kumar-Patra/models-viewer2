@@ -275,6 +275,7 @@ var ModelViewer = function () {
                 isAudioPlay = false
             }else{
                 audioElement.play();
+                self.createNavPopup();
                 isAudioPlay = true
             }
 
