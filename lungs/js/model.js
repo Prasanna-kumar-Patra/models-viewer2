@@ -120,16 +120,16 @@ var ModelViewer = function () {
         htmlStr += '<div class="list hotspots-list visible">';
         // htmlStr += '<a href="#" data-action="toggle-visibility" class="annotations-visibility "><span class="isAnnotations">Hide annotation</span></a><br>';
         // htmlStr += '<a href="#" data-action="toggle-autopilot" class="annotations-autopilot "><span class="isAutoplay"> start autoplay</span></a>';
-        htmlStr += '<span class="isAnnotations">Hide annotation</span><br>';
-        htmlStr += '<span class="isAutoplay"> start autoplay</span>';
-        htmlStr += '<div class="setBgColor">';
-        htmlStr += '<span class="colorDiv" id="black"></span><span class="colorDiv" id="gray"></span><span class="colorDiv" id="coral"></span><span class="colorDiv" id="white"></span>';
-      //  htmlStr += '<span class="colorDiv" id="white"></span><span class="colorDiv" id="yellow"></span><span class="colorDiv" id="darkorange"></span><span class="colorDiv" id="greenyellow"></span>'
+        htmlStr += '<span class=" list-item isAnnotations"><span class="material-symbols-outlined"> visibility_off </span>Hide annotation</span><br>';
+        htmlStr += '<span class=" list-item isAutoplay"><span class="material-symbols-outlined"> autoplay </span> start autoplay</span>';
+        htmlStr += '<div class="setBgColor list-item">';
+        htmlStr += '<span class="colorDiv" id="black"></span><span class="colorDiv" id="gray"></span><span class="colorDiv" id="coral"></span><span class="colorDiv" id="fuchsia"></span>';
+        //htmlStr += '<span class="colorDiv" id="white"></span><span class="colorDiv" id="yellow"></span><span class="colorDiv" id="darkorange"></span><span class="colorDiv" id="greenyellow"></span>'
         htmlStr +='</div>';
         htmlStr += '<ul class="js-scrollable">';
         for (var i = 0; i < titles.length; i++) {
             console.log("titles i ------->", titles[i]);
-            htmlStr += '<li class="link" id="link_' + i + '"><span class="index">' + (i + 1) + '</span> ' + titles[i].textContent + '</li>'
+            htmlStr += '<li class="link list-item" id="link_' + i + '"><span class="index">' + (i + 1) + '</span> ' + titles[i].textContent + '</li>'
 
         }
         htmlStr += '</ul>'
