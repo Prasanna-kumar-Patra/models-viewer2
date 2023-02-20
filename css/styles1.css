@@ -227,21 +227,17 @@ model-viewer>#ar-prompt>img {
 .pagination{
     background: #484848c2;
     border-radius: 15px;
-    position: absolute;
-    width: 180px;
+    width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    position: absolute;
     bottom: 0;
     z-index: 999;
     color: #fff;
     font-family: Roboto Regular, Helvetica Neue, sans-serif;
     padding: 5px;
-    left: 50%;
-    bottom: 20px;
-    transform: translateX(-50%);
-
+    position: relative;
+    box-sizing: border-box;
 }
 .pagination .arrow{
     font-size: 16px;
@@ -257,42 +253,63 @@ model-viewer>#ar-prompt>img {
 .pagination label{
     color: #fff;
     font-size: 14px;
-    padding: 0 10px;
+    padding: 0 30px;
+    text-align: center;
+    width: 100%;
+    display: block;
 }
 
 .arrow-right {
     position: absolute;
-    right: 10px;
+    right: 0;
 }
 
 .arrow-left{
     position: absolute;
-    left: 11px;
+    left: 0;
 
 }
-
- .listPopup{
+.navigation{
     position: absolute;
-    top: 71%;
-    left: 643px;
+    bottom: 20px;
+    left: 20px;
+    width: 300px;
+    font-family: Roboto Regular, Helvetica Neue, sans-serif;
+    box-shadow: 0 0 10px #000;
+    padding: 20px;
+    font-size: 14px;
+    font-weight: 500;
+}
+ .listPopup{
+  
     /* overflow: auto; */
     color: white;
-    background-color: #0f0f0f;
-    opacity: 0.7;
-    width: 200px;
+    background-color: #0f0f0f93;
+    /* opacity: 0.7; */
+    width: 100%;
     border: 1px solid black;
     border-radius: 7px;
-  
+
 }
 
 .link li{
     display: list-item;
+
 }
 .js-scrollable{
     cursor: pointer;
 margin-top: 35px;
-}
 
+padding: 0;
+margin: 20px 0;
+font-size: 12px;
+max-height: 80px;
+overflow: auto;
+}
+.js-scrollable li{
+    list-style-position: inside;
+    padding: 0 0 6px;
+}
 .isAnnotations {
 cursor: pointer;
 }
@@ -301,16 +318,14 @@ cursor: pointer;
  }
 
 .setBgColor{
-    position: absolute;
-    width: 100%;
-    height: 23px;
+    
     margin-top: 10px;
 }
 .colorDiv{
     position: relative;
     display: inline-block;
-    width: 17px;
-    height: 10px;
+    width: 20px;
+    height: 14px;
     margin: 3px;
     border: 1px solid white;
     cursor: pointer;
@@ -340,3 +355,14 @@ cursor: pointer;
 #greenyellow{
     background-color:greenyellow ;
 }
+
+
+.list-item{
+    display: flex;
+    width: 100%;
+    gap: 10px;
+    align-items: center;
+    margin: 0 0 5px;
+}
+
+.list-item .material-symbols-outlined{font-size: 20px;}

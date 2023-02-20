@@ -9,6 +9,7 @@
   <link type="text/css" href="../css/styles1.css" rel="stylesheet" />
   <!-- OPTIONAL: The :focus-visible polyfill removes the focus ring for some input types -->
   <script src="../libs/focus-visible.js" defer></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
 </head>
 
 <body>
@@ -87,13 +88,17 @@
     <div class="navigation">
       <div class="listPopup">
         <div class="list hotspots-list visible">
-          <span class="isAnnotations">Hide annotation</span><br>
-          <span class="isAutoplay"> start autoplay</span>
+          <span class="list-item isAnnotations"><span class="material-symbols-outlined">
+            visibility_off
+            </span> Hide annotation</span> 
+          <span class="list-item isAutoplay"><span class="material-symbols-outlined">
+            autoplay
+            </span> start autoplay</span>
           <div class="setBgColor">
             <span class="colorDiv" id="black"></span>
             <span class="colorDiv" id="gray"></span>
             <span class="colorDiv" id="coral"></span>
-            <span class="colorDiv" id="fuchsia"></span>'
+            <span class="colorDiv" id="fuchsia"></span> 
           </div>
           <ul class="js-scrollable">
             <li class="link" id="link_1"><span class="index">1</span>Pistil</li>
