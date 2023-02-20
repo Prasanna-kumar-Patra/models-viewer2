@@ -5,7 +5,6 @@ var ModelViewer = function () {
     let isAnnotation = true;
     let isAutoplay = false;
     let isAudioPlay = false;
-    let isWindowClicked = false;
     var audioElement;
 
     self.modelViewer2 = document.querySelector("#mv1");
@@ -20,7 +19,6 @@ var ModelViewer = function () {
         self.slideNavigation(selectedNavIndex, e);
         console.log("selected nav Index--->", selectedNavIndex)
        self.onWindowsClick();
-       console.log("isWindowClicked------------>",isWindowClicked)
        
     }
 
@@ -61,7 +59,6 @@ var ModelViewer = function () {
 
         var htmlStr = '';
         htmlStr += '<button class="arrow arrow-left prev">◂</button>';
-       // htmlStr += '<label class="labelTitle" id="label_0">Select an Annotation</label>';
         for (var i = 0; i < titles.length; i++) {
             htmlStr += '<label class="labelTitle" id="label_' + i + '">' + titles[i].textContent + '</label>';
         }
@@ -96,24 +93,25 @@ var ModelViewer = function () {
     }
 
     self.slideNavigation = function (navIndex, e) {
-            console.log("selected nav Index--->", navIndex)
-            let title = document.getElementsByClassName("labelTitle");
-            let btn = document.getElementsByClassName("arrow");
-            navIndex = parseInt(navIndex)
-            for (i = 0; i < title.length; i++) {
-                if (i === navIndex) {
-                    title[i].style.display = "block";
-                    buttonsArr[i].classList.add('active')
-                    self.createDescriptionBox(i)
-                    if (e.type === "click") {
-                        self.annotationClicked(buttonsArr[i], "next-prev btn");
-                    }
-                } else {
-                    title[i].style.display = "none";
-                        buttonsArr[i].classList.remove('active');
-                    
+        console.log("selected nav Index--->", navIndex)
+        let title = document.getElementsByClassName("labelTitle");
+        let btn = document.getElementsByClassName("arrow");
+        navIndex = parseInt(navIndex)
+        for (i = 0; i < title.length; i++) {
+            if (i === navIndex) {
+                title[i].style.display = "block";
+                buttonsArr[i].classList.add('active')
+                self.createDescriptionBox(i)
+                if (e.type === "click") {
+                    self.annotationClicked(buttonsArr[i], "next-prev btn");
                 }
+            } else {
+                title[i].style.display = "none";
+                    buttonsArr[i].classList.remove('active');
+                
             }
+        }
+
     }
 
     self.createNavPopup = function () {
@@ -122,16 +120,16 @@ var ModelViewer = function () {
         htmlStr += '<div class="list hotspots-list visible">';
         // htmlStr += '<a href="#" data-action="toggle-visibility" class="annotations-visibility "><span class="isAnnotations">Hide annotation</span></a><br>';
         // htmlStr += '<a href="#" data-action="toggle-autopilot" class="annotations-autopilot "><span class="isAutoplay"> start autoplay</span></a>';
-        htmlStr += '<span class="isAnnotations">Hide annotation</span><br>';
-        htmlStr += '<span class="isAutoplay"> start autoplay</span>';
-        htmlStr += '<div class="setBgColor">';
-        htmlStr += '<span class="colorDiv" id="black"></span><span class="colorDiv" id="gray"></span><span class="colorDiv" id="coral"></span><span class="colorDiv" id="white"></span>';
-       // htmlStr += '<span class="colorDiv" id="white"></span><span class="colorDiv" id="yellow"></span><span class="colorDiv" id="darkorange"></span><span class="colorDiv" id="greenyellow"></span>'
+        htmlStr += '<span class=" list-item isAnnotations"><span class="material-symbols-outlined"> visibility_off </span>Hide annotation</span><br>';
+        htmlStr += '<span class=" list-item isAutoplay"><span class="material-symbols-outlined"> autoplay </span> start autoplay</span>';
+        htmlStr += '<div class="setBgColor list-item">';
+        htmlStr += '<span class="colorDiv" id="black"></span><span class="colorDiv" id="gray"></span><span class="colorDiv" id="coral"></span><span class="colorDiv" id="fuchsia"></span>';
+        //htmlStr += '<span class="colorDiv" id="white"></span><span class="colorDiv" id="yellow"></span><span class="colorDiv" id="darkorange"></span><span class="colorDiv" id="greenyellow"></span>'
         htmlStr +='</div>';
         htmlStr += '<ul class="js-scrollable">';
         for (var i = 0; i < titles.length; i++) {
             console.log("titles i ------->", titles[i]);
-            htmlStr += '<li class="link" id="link_' + i + '"><span class="index">' + (i + 1) + '</span> ' + titles[i].textContent + '</li>'
+            htmlStr += '<li class="link list-item" id="link_' + i + '"><span class="index">' + (i + 1) + '</span> ' + titles[i].textContent + '</li>'
 
         }
         htmlStr += '</ul>'
@@ -214,45 +212,45 @@ var ModelViewer = function () {
     self.playAudio = function (audNm, callee) {
 
 
-    if (audioElement) {
-        audioElement.pause()
-    }
-
-    audioElement = document.createElement("AUDIO");
-    let audioUrl = "./audio/" + audNm + ".mp3"
-
-    if (audioElement.canPlayType("audio/mpeg")) {
-        // audioElement.setAttribute("src", "./audio/" + audNm + ".mp3");
-        audioElement.setAttribute("src", audioUrl);
-    } else {
-        console.log("pkp:  ~ file: controls.js:121 ~ Controls ~ else xxxxxxxxx")
-        // audioElement.setAttribute("src", "horse.ogg");
-    }
-    document.body.appendChild(audioElement);
-    audioElement.removeEventListener("ended", onAudioEnd);
-    audioElement.addEventListener('ended', onAudioEnd);
-
-    audioElement.addEventListener('canplaythrough', soundLoaded, false);
-
-    function soundLoaded(evt, callee) {
-        console.log("pkp:  ~ file: controls.js:126 ~ soundLoaded ~ evt", evt)
-        if(audioUrl){
-            audioElement.play();
+        if (audioElement) {
+            audioElement.pause()
         }
-        
 
-    }
-    function onAudioEnd(evt, callee) {
-        console.log("pkp:  ~ file: controls.js:130 ~ onAudioEnd ~ evt", evt)
-        audioElement.pause();
-        if (audNm != "myAudio"+buttonsArr.length) {
-            if (isAutoplay) {
-                $(".next")?.click();
+        audioElement = document.createElement("AUDIO");
+        let audioUrl = "./audio/" + audNm + ".mp3"
+
+        if (audioElement.canPlayType("audio/mpeg")) {
+            // audioElement.setAttribute("src", "./audio/" + audNm + ".mp3");
+            audioElement.setAttribute("src", audioUrl);
+        } else {
+            console.log("pkp:  ~ file: controls.js:121 ~ Controls ~ else xxxxxxxxx")
+            // audioElement.setAttribute("src", "horse.ogg");
+        }
+        document.body.appendChild(audioElement);
+        audioElement.removeEventListener("ended", onAudioEnd);
+        audioElement.addEventListener('ended', onAudioEnd);
+
+        audioElement.addEventListener('canplaythrough', soundLoaded, false);
+
+        function soundLoaded(evt, callee) {
+            console.log("pkp:  ~ file: controls.js:126 ~ soundLoaded ~ evt", evt)
+            if(audioUrl){
+                audioElement.play();
             }
+            
 
         }
+        function onAudioEnd(evt, callee) {
+            console.log("pkp:  ~ file: controls.js:130 ~ onAudioEnd ~ evt", evt)
+            audioElement.pause();
+            if (audNm != "myAudio"+buttonsArr.length) {
+                if (isAutoplay) {
+                    $(".next")?.click();
+                }
+
+            }
+        }
     }
-}
 
     self.pauseAndResumeAudio = function () {
         var count = 0;
@@ -272,11 +270,11 @@ var ModelViewer = function () {
     self.onWindowsClick = function () {
 
         window.addEventListener('click', (e) => {
-            isWindowClicked = true;
             console.log("windows click-------------->", e)
             document.querySelectorAll('.Hotspot').forEach((hotspot) => {
                 hotspot.classList.remove('active')
             })
+
             $(".description-box").css("display", "none");
 
             if (e.target.classList.contains('labelTitle')) {
