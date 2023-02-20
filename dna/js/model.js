@@ -5,6 +5,7 @@ var ModelViewer = function () {
     let isAnnotation = true;
     let isAutoplay = false;
     let isAudioPlay = false;
+    let isMinimize = false;
     var audioElement;
 
     self.modelViewer2 = document.querySelector("#mv1");
@@ -185,12 +186,12 @@ var ModelViewer = function () {
         var htmlStr = '';
         let  = document.getElementsByClassName("title");
         let descriptions = document.getElementsByClassName("description");
-        htmlStr += '<div class="description">';
+       //  htmlStr += '<div class="description">';
         console.log("descriptions-------------",descriptions.length)
-            htmlStr += '<p id="desTitle_'+(ctr)+'">'+titles[ctr].textContent+'</p>'
+            htmlStr += '<p class="description-title" id="desTitle_'+(ctr)+'">'+titles[ctr].textContent+'</p>'
             htmlStr += '<p id="description_'+(ctr)+'">'+descriptions[ctr].textContent+'</p>';
-            htmlStr += '</div>'
-        $(".description-box").html(htmlStr)
+          // htmlStr += '</div>'
+        $(".description").html(htmlStr)
     }
 
 
@@ -217,7 +218,12 @@ var ModelViewer = function () {
         }
 
         audioElement = document.createElement("AUDIO");
-        let audioUrl = "./audio/" + audNm + ".mp3"
+       // var audioUrl = new File("./audio/" + audNm + ".mp3");
+      let audioUrl = "./audio/" + audNm + ".mp3"
+      
+        console.log("audioUrl------>",audioUrl)
+       
+        
 
         if (audioElement.canPlayType("audio/mpeg")) {
             // audioElement.setAttribute("src", "./audio/" + audNm + ".mp3");
@@ -253,15 +259,23 @@ var ModelViewer = function () {
     }
 
     self.pauseAndResumeAudio = function () {
-        var count = 0;
+       // var count = 0;
         $(".labelTitle").click(function () {
-            count++;
-            if (count == 1) {
+           // count++;
+            // if (count == 1) {
+            //     audioElement.pause();
+            //     self.createNavPopup();
+            // } else if (count == 2) {
+            //     audioElement.play();
+            //     count = 0;
+            // }
+            if(isAudioPlay){
                 audioElement.pause();
                 self.createNavPopup();
-            } else if (count == 2) {
+                isAudioPlay = false
+            }else{
                 audioElement.play();
-                count = 0;
+                isAudioPlay = true
             }
 
         })
@@ -291,6 +305,18 @@ var ModelViewer = function () {
             } else if(e.target.classList.contains('link')){
                 buttonsArr[selectedNavIndex].classList.add('active')
                 $(".description-box").css("display", "block");
+            }else if(e.target.classList.contains('action-btn')){
+                buttonsArr[selectedNavIndex].classList.add('active')
+                $(".description-box").css("display", "block");
+                if(isMinimize){
+                    isMinimize = false;
+                    $(".description").removeClass("hide");
+                    $(".action-btn").attr('src',"../css/svg/minimize.svg");
+                }else{
+                    isMinimize = true;
+                    $(".description").addClass("hide");
+                    $(".action-btn").attr('src',"../css/svg/maximize.svg");
+                }
             }
 
         })
