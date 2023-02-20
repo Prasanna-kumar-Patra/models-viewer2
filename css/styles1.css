@@ -227,21 +227,17 @@ model-viewer>#ar-prompt>img {
 .pagination{
     background: #484848c2;
     border-radius: 15px;
-    position: absolute;
-    width: 180px;
+    width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    position: absolute;
     bottom: 0;
     z-index: 999;
     color: #fff;
     font-family: Roboto Regular, Helvetica Neue, sans-serif;
     padding: 5px;
-    left: 50%;
-    bottom: 20px;
-    transform: translateX(-50%);
-
+    position: relative;
+    box-sizing: border-box;
 }
 .pagination .arrow{
     font-size: 16px;
@@ -257,42 +253,62 @@ model-viewer>#ar-prompt>img {
 .pagination label{
     color: #fff;
     font-size: 14px;
-    padding: 0 10px;
+    padding: 0 30px;
+    text-align: center;
+    width: 100%;
+    display: block;
 }
 
 .arrow-right {
     position: absolute;
-    right: 10px;
+    right: 0;
 }
 
 .arrow-left{
     position: absolute;
-    left: 11px;
+    left: 0;
 
 }
-
- .listPopup{
+.navigation{
     position: absolute;
-    top: 71%;
-    left: 643px;
-    /* overflow: auto; */
-    color: white;
-    background-color: #0f0f0f;
-    opacity: 0.7;
-    width: 200px;
-    border: 1px solid black;
-    border-radius: 7px;
+    width: 300px;
+    font-family: Roboto Regular, Helvetica Neue, sans-serif;
+    font-size: 14px;
+    left: 50%;
+    bottom: 20px;
+    transform: translateX(-50%);
+    z-index: 99;
+}
+ .listPopup{
   
+    /* overflow: auto; */
+    color: rgb(137, 137, 137);
+    background-color: #0000008c;
+    /* opacity: 0.7; */
+    width: 100%;
+    border: 1px solid black;
+    border-radius: 10px;
+    padding: 15px 10px;
+    box-sizing: border-box;
+    margin-bottom: 10px;
 }
 
 .link li{
     display: list-item;
+
 }
 .js-scrollable{
     cursor: pointer;
 margin-top: 35px;
-}
 
+padding: 0;
+margin: 10px 0 0;
+font-size: 12px;
+max-height: 104px;
+overflow: auto;
+list-style: none;
+}
+ 
 .isAnnotations {
 cursor: pointer;
 }
@@ -301,16 +317,14 @@ cursor: pointer;
  }
 
 .setBgColor{
-    position: absolute;
-    width: 100%;
-    height: 23px;
+    
     margin-top: 10px;
 }
 .colorDiv{
     position: relative;
     display: inline-block;
-    width: 40px;
-    height: 15px;
+    width: 20px;
+    height: 14px;
     margin: 3px;
     border: 1px solid white;
     cursor: pointer;
@@ -340,3 +354,25 @@ cursor: pointer;
 #greenyellow{
     background-color:greenyellow ;
 }
+
+
+.list-item{
+    display: flex;
+    width: 100%;
+    gap: 10px;
+    align-items: center;
+    padding: 5px 10px;
+    cursor: pointer;
+    min-height: 28px;
+    font-size: 14px;
+    border-radius: 5px;
+    transition: all 0.3s;
+    box-sizing: border-box;
+    margin-bottom: 6px;
+
+}
+.list-item:hover{
+    color: #fff;
+    background: #2f2f2fbf;
+}
+.list-item .material-symbols-outlined{font-size: 18px;}
