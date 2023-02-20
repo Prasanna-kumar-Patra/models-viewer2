@@ -186,12 +186,12 @@ var ModelViewer = function () {
         var htmlStr = '';
         let  = document.getElementsByClassName("title");
         let descriptions = document.getElementsByClassName("description");
-        htmlStr += '<div class="description">';
+       // htmlStr += '<div class="description">';
         console.log("descriptions-------------",descriptions.length)
             htmlStr += '<p id="desTitle_'+(ctr)+'">'+titles[ctr].textContent+'</p>'
             htmlStr += '<p id="description_'+(ctr)+'">'+descriptions[ctr].textContent+'</p>';
-            htmlStr += '</div>'
-        $(".description-box").html(htmlStr)
+         //   htmlStr += '</div>'
+        $(".description").html(htmlStr)
     }
 
 
