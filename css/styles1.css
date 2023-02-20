@@ -104,7 +104,8 @@ body {
     z-index: 999;
 }
 .description-box .title,
-.HotspotAnnotation .title{font-weight: 700; 
+.HotspotAnnotation .title{
+    font-weight: 700; 
     font-size: 14px;
     margin:5px
 }
@@ -121,7 +122,38 @@ body {
     width: 290px;
     font-family: Roboto Regular, Helvetica Neue, sans-serif;
     z-index: 99;
-    
+    font-size: 14px;
+}
+.description-title{
+    font-weight: 700; 
+    font-size: 14px;
+}
+.description-box .actions{
+    display: flex;
+    justify-content: end;
+    margin: -10px 0;
+}
+.description-box .action-btn{
+    border: 0;
+    background: none;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+    width: 30px;
+}
+.description-box p{
+    margin: 0 0 15px;
+    padding: 0;
+}
+.description-box p:last-child{
+    margin: 0;
+}
+.description-box .description{
+    transition: all 0.5s;
+}
+.description-box .description.hide{
+    height: 0;
+    overflow: hidden;
 }
 
 .progress-bar {
@@ -376,3 +408,4 @@ cursor: pointer;
     background: #2f2f2fbf;
 }
 .list-item .material-symbols-outlined{font-size: 18px;}
+
