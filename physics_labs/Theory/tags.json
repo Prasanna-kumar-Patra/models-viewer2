@@ -1,0 +1,22 @@
+{
+	"Optics_Compound_Microscope":[ "ray diagram", "optical instrument" ],
+	"Optics_Astronomical_Telescope":[ "ray diagram", "optical instrument", "reflecting", "Galileo telescope", "refracting" ],
+	"Optics_Converging_Lens": [ "convex",  "ray diagram", "refracting", "lens formula", "magnification"],
+	"Optics_Diverging_Lens": [ "concave",  "ray diagram", "refracting", "ray diagram", "lens formula", "magnification" ],
+	"Mechanics_Circular_Motion":["centripetal force", "Time Period","radial acceleration", "centripetal acceleration", "angular velocity", "frequency"],
+	"Mechanics_Projectile_Motion":["equation of motion", "projectile equations"],
+	"Mechanics_Banking_on_a_Road":["circular motion", "centripetal acceleration"],
+	"Mechanics_Periodic_Motion": ["spring harmonic motion", "time period"],
+	"Mechanics_Spring_Force":["spring constant", "force constant", "SHM", "spring harmonic motion", "Hooke's Law"],
+	"Mechanics_Simple_Pendulum":["time period", "SHM", "spring harmonic motion"],
+	"Magnetism_History_of_Electromagnetism":["oersted's law", "effect on a magnetic needle", "steady electric current"],
+	"Magnetism_Fleming's_Thumb_Rule":["Fleming right hand rule", "steady electric current"],
+	"Magnetism_Magnetic_Effect_due_to_Current": [ "magnetic effect due to a coil", "solenoid", "toroid", "straight wire" ],
+	"Magnetism_Force_on_a_Current_Carrying_Conductor":["elctric motor", "lorenz force", "DC motor"],
+	"Magnetism_Electromagnetic_Induction":["Lenz Law", "Ampere's Law", "electric generator", "AC generator"],
+	"Thermodynamics_Ideal_Gas_Equation":["Ideal Gas Equation", " Boltzmann equation", "thermodynamic", "statistical mechanics", "equilibrium distribution", "Boyle's Law", "Charles Law"],
+	"Thermodynamics_Kinetic_Theory_of_Gases":["Ideal Gas Equation", "Kinetic Theory of Gases", " Boltzmann equation", "thermodynamic", "statistical mechanics", "equilibrium distribution"],
+	"Thermodynamics_Hot_Air_Balloon":["Ideal Gas Equation", "Kinetic Theory of Gases", " Boltzmann equation", "thermodynamic", "statistical mechanics"],
+	"Quantum_Photoelectric_Effect":["Quantum effect", "stopping voltage", "modern physics", "cutoff wavelength", "curoff frequency", "formula"]
+
+}

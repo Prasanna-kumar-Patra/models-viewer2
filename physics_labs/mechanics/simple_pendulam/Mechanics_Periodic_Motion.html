@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Harmonic Motion</title>
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<link rel="shortcut icon" href="../files/favicon_white.ico" media="(prefers-color-scheme: dark)" />
+	<link rel="shortcut icon" href="../files/favicon.ico" media="(prefers-color-scheme: light)" />
+	<link rel="stylesheet" type="text/css" href="../../css/style-page.css">
+	<!-- Google tag (gtag.js) -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-0JWHY29KD2"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag() { dataLayer.push(arguments); }
+		gtag('js', new Date());
+
+		gtag('config', 'G-0JWHY29KD2');
+	</script>
+	<meta name="google-site-verification" content="mz0TRB59UNqdTxhwzmXmGdgVPh8pB4YqjuUr-aWNGIY">
+
+</head>
+
+<body>
+	<div id="topmenu">SIMPLE HARMONIC MOTION</div>
+	<div id="menu">
+		<strong>CONNECTION BETWEEN SIMPLE HARMONIC MOTION AND UNIFORM CIRCULAR MOTION </strong><br>
+
+		<a><input type="range" id="time" name="time" min="1" max="25" value="5" step="0.2">
+			<label for="time">Time Period = </label><a id="timeDisplay"> </a> s
+		</a><br>
+		Frequency = <a id="freqDisplay"></a> s<sup>-1</sup><br>
+		<a><input type="range" id="pos" name="pos" min="2" max="10" value="5" step="0.5">
+			<label for="pos">Position = </label><a id="posDisplay"> </a> m
+		</a><br>
+		<button id="stop">STOP</button>
+		<button id="reset">RESET</button><br>
+		<button onClick="pendulumSite()">The Pendulum</button>
+		<button onClick="springSite()">The Spring </button>
+		<button onClick="theorySite()">THEORY</button>
+	</div>
+
+	<script>
+		function pendulumSite() {
+
+			window.open("index.html", "_self")
+		}
+		function springSite() {
+
+			window.open("Mechanics_Spring_Force.html", "_self")
+		}
+		function theorySite() {
+
+			window.open("../../../Theory/Mechanics/Mechanics_Periodic_Motion.html", "_self")
+		}
+	</script>
+	<script type="module">
+
+		import * as THREE from '../../build/three.module.js';
+		import { OrbitControls } from '../../jsm/controls/OrbitControls.js';
+
+		let camera, scene, renderer, clock;
+		let t = 0, line = new THREE.Group(), group = new THREE.Group();
+		
+		let sphere, dirGroup, ring, requestID, stop = false;
+		let params = {
+			freq: 1.256,
+			pos: 5,
+			time: .02,
+			T: 5
+		}
+
+		let presentPoint = new THREE.Vector3(params.pos, 0, 2);
+		let nextPoint = new THREE.Vector3(params.pos, 0, 2);
+		init();
+		animate();
+		let stopButton = document.getElementById('stop');
+		let resetButton = document.getElementById('reset');
+		let timeSelect = document.getElementById('time');
+		let posSelect = document.getElementById('pos');
+		timeDisplay.innerText = params.T;
+		freqDisplay.innerText = params.freq;
+		posDisplay.innerText = params.pos;
+
+		stopButton.addEventListener('click', function () {
+			stop = !stop;
+
+			if (!stop) {
+				periodicProjection()
+				stopButton.innerHTML = 'STOP'
+			} else {
+				cancelAnimationFrame(requestID);
+				stopButton.innerHTML = 'START'
+			}
+		})
+		resetButton.addEventListener('click', reset)
+		timeSelect.addEventListener('change', function () {
+			t = 0;
+			presentPoint = new THREE.Vector3(params.pos, 0, 2);
+			nextPoint = new THREE.Vector3(params.pos, 0, 0);
+			scene.remove(group)
+			line = new THREE.Group();
+			params.T = timeSelect.valueAsNumber;
+			params.freq = (6.28 * (1 / params.T)).toFixed(2);
+			// console.log(timeSelect.valueAsNumber, params.freq);
+			timeDisplay.innerText = params.T;
+			freqDisplay.innerText = params.freq;
+			scene.add(group);
+
+		})
+		posSelect.addEventListener('change', function () {
+			t = 0;
+			ring.rotation.y = 0;
+			presentPoint = new THREE.Vector3(params.pos, 0, 2);
+			nextPoint = new THREE.Vector3(params.pos, 0, 0);
+			scene.remove(group)
+			line = new THREE.Group();
+			params.pos = posSelect.valueAsNumber;
+			// console.log(posSelect.valueAsNumber);
+			posDisplay.innerText = params.pos;
+			sphere.position.x = params.pos;
+			scene.add(group);
+		})
+
+		function reset() {
+			t = 0;
+			presentPoint = new THREE.Vector3(params.pos, 0, 2);
+			nextPoint = new THREE.Vector3(params.pos, 0, 0);
+			scene.remove(group)
+			line = new THREE.Group();
+			group = new THREE.Group();
+			params.time = .02;
+			scene.add(group);
+		}
+
+		function init() {
+			camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
+			camera.position.set(0, 32, 37);
+
+			scene = new THREE.Scene();
+			scene.background = new THREE.Color('skyblue');
+			scene.fog = new THREE.Fog(0x222244, 50, 100);
+			periodicScene();
+			renderer = new THREE.WebGLRenderer({ antialias: true });
+			renderer.setPixelRatio(window.devicePixelRatio);
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			renderer.shadowMap.enabled = true;
+			renderer.shadowMap.type = THREE.VSMShadowMap;
+			// renderer.shadowMap.type = THREE.BasicShadowMap;
+			document.body.appendChild(renderer.domElement);
+			clock = new THREE.Clock();
+			scene.add(group)
+			// Mouse control
+			const controls = new OrbitControls(camera, renderer.domElement);
+			controls.target.set(0, 2, 0);
+			controls.update();
+			window.addEventListener('resize', onWindowResize);
+			periodicProjection()
+		}
+
+		function periodicProjection() {
+			const delta = clock.getDelta();
+			ring.rotation.y += params.freq * params.time;
+			if (t < 18) {
+				nextPoint = new THREE.Vector3(params.pos * Math.cos(ring.rotation.y), 0, t + 2);
+				// console.log( delta, params.time)
+				line = initLine({
+					points: [presentPoint, nextPoint],
+					lineMaterial: new THREE.LineBasicMaterial({ color: "rgb(100%, 0%, 0%)" }),
+					yRotation: 0,
+					x: 0,
+					y: 0,
+					z: 0
+				});
+				presentPoint = nextPoint;
+				group.add(line)
+			}
+
+			t += params.time;
+			requestID = requestAnimationFrame(periodicProjection)
+		}
+
+		function periodicScene() {
+
+			// Lights
+
+			scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+			let dirLight = new THREE.DirectionalLight(0xffffff);
+			dirLight.position.set(0, 25, 0);
+			dirLight.castShadow = true;
+			dirLight.shadow.camera.near = 0.1;
+			dirLight.shadow.camera.far = 500;
+			dirLight.shadow.camera.right = 17;
+			dirLight.shadow.camera.left = - 17;
+			dirLight.shadow.camera.top = 17;
+			dirLight.shadow.camera.bottom = - 17;
+			dirLight.shadow.mapSize.width = 512;
+			dirLight.shadow.mapSize.height = 512;
+			dirLight.shadow.radius = 3;
+			dirLight.shadow.bias = - 0.0005;
+
+			dirGroup = new THREE.Group();
+			dirGroup.add(dirLight);
+			scene.add(dirGroup);
+
+			// Geometry
+
+			const geometry = new THREE.SphereGeometry(0.5, 16, 24);
+			const material = new THREE.MeshPhongMaterial({
+				color: 0xff0000,
+				shininess: 0,
+				specular: 0x222222
+			});
+
+			sphere = new THREE.Mesh(geometry, material);
+			sphere.position.x = params.pos;
+			sphere.castShadow = true;
+			sphere.receiveShadow = true;
+
+			const cylinderGeometry = new THREE.CylinderGeometry(10, 10, 0.5, 32).translate(0, -0.5, 0);
+			const material1 = new THREE.MeshPhongMaterial({
+				color: 0x0000f3,
+				shininess: 0,
+				specular: 0x00ee22
+			});
+			ring = new THREE.Mesh(cylinderGeometry, material1);
+			ring.rotation.set(1.57, 0, 0);
+			ring.position.set(0, 10, 0);
+			ring.castShadow = true;
+			ring.receiveShadow = true;;
+
+			scene.add(ring);
+			ring.add(sphere);
+			let centralGeometry = new THREE.CylinderGeometry(.2, .2, 0.5, 3);
+			let centralPos = new THREE.Mesh(centralGeometry, material);
+			centralPos.rotation.set(1.57, 0, 0);
+			centralPos.position.y = 10;
+			centralPos.castShadow = true;
+			centralPos.receiveShadow = true;
+			scene.add(centralPos)
+			const planeGeometry = new THREE.PlaneGeometry(50, 50).translate(0, 0, -2);
+			const planeMaterial = new THREE.MeshPhongMaterial({
+				color: 'grey',
+				shininess: 0,
+				specular: 0x111111
+			});
+
+			const ground = new THREE.Mesh(planeGeometry, planeMaterial);
+			ground.rotation.x = - Math.PI / 2;
+			ground.castShadow = true;
+			ground.receiveShadow = true;
+			scene.add(ground);
+
+		}
+
+		function onWindowResize() {
+
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+
+			renderer.setSize(window.innerWidth, window.innerHeight);
+
+		}
+
+		function animate() {
+
+			requestAnimationFrame(animate);
+			renderer.render(scene, camera);
+
+		}
+
+		function initLine(data) {
+			let lineGeometry = new THREE.BufferGeometry().setFromPoints(data.points);
+			line = new THREE.Line(lineGeometry, data.lineMaterial);
+
+			line.rotation.y = data.yRotation;
+			line.position.x = data.x;
+			line.position.y = data.y;
+			line.position.z = data.z;
+			return line;
+		}
+	</script>
+</body>
+
+</html>

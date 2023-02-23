@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>The Photoelectric Effect</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel="shortcut icon" href="../../files/favicon_white.ico" media="(prefers-color-scheme: dark)" />
+    <link rel="shortcut icon" href="../../files/favicon.ico" media="(prefers-color-scheme: light)" />
+    <link rel="stylesheet" type="text/css" href="../../css/style-theory.css">
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-7VWWT4ZKR6"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-7VWWT4ZKR6');
+    </script>
+    <meta name="google-site-verification" content="mz0TRB59UNqdTxhwzmXmGdgVPh8pB4YqjuUr-aWNGIY">
+
+</head>
+
+
+<!-- Here is our page's main content -->
+
+<article>
+    <div id="part1" onclick="simSite()" class="content">
+        <h2>Physics 3D Interactive Simulation </h2>
+        <button onclick="simSite()"><span><strong>3D SIMULATION</strong> </span></button>
+        Press the button to visualise 'The Photoelectric Effect' in 3D
+
+        <div id="part2" class="content">
+           
+            <h2>Photoelectric Effect </h2>
+            <dl>
+                <dt>
+                    &#160 &#xa0 &#10148 When light of high enough frequency
+                    falls on a clean metal surface, electrons are emitted from the surface by photon-electron
+                    interactions within the metal.
+                </dt>
+            </dl>
+            <dl>
+                <dt>
+                    &#160 &#xa0 &#10148 The governing relation is $$ h\nu = K_{max} + \phi $$
+                    in which \(h\nu\) is the photon energy, \(K_{max}\) is the kinetic energy of the most energetic
+                    emitted electrons, and \(\phi\) is the work function of the target material—that is, the minimum
+                    energy an electron must have if it is to emerge from the surface of the target. If \(h\nu\) is less
+                    than \(\phi\), electrons are not emitted.
+                </dt>
+            </dl>
+
+            <h2>Light Quanta—Photons</h2>
+            <dl>
+                <dt>
+                    &#160 &#xa0 &#10148 An electromagnetic wave (light) is quantized, and its quanta are called photons.
+                    For a light wave of frequency \(\nu\) and wavelength \(\lambda\), the energy \(E\) and momentum
+                    magnitude \(p\) of a photon are
+                    $$E = h\nu$$
+                    and $$p = \frac{E}{c} = \frac{h\nu}{c} = \frac{h}{\lambda}$$
+
+                </dt>
+            </dl>
+            <h2>Problem Visualisation</h2>
+            <dl>
+                <dt>
+                    <strong>Question:- Light strikes a sodium surface, causing photoelectric
+                    emission. The stopping potential for the ejected electrons is 5.0 V,
+                    and the work function of sodium is 2.2 eV. What is the wavelength
+                    of the incident light?</strong>
+                    $$\begin{aligned} K_{max} &= 5 \text{ eV} \\
+                    \phi &= 2.2 \text{ eV}\\
+                    h c &= 12.41 \times 10^{-7} \text{ eV}\\
+                    \text{Wavelength of the incident light,} \\
+                    \frac{hc}{\lambda} &= K_{max} + \phi  \\
+                    \lambda &= \frac{hc}{K_{max} + \phi} \\
+                    &= 1.72 \times 10^{-7} \text{ m}\\
+                    \lambda &= 172 \text{ nm} \end{aligned}$$
+
+                    </p>
+                </dt>
+
+            </dl>
+          
+        </div>
+</article>
+
+<!-- And here is our main footer that is used across all the pages of our website -->
+
+<footer>
+    <p id="footer"></p>
+    <p id="email"></p>
+</footer>
+<script>
+calWavelength(2.2, 5)
+    function calWavelength(W, K) {
+        let hc = 12.408e-7;
+        let speed = 3e9;
+        let x = (hc) / (K + W);
+        let y = speed/x;
+        let wavelength  = Number.parseFloat(x).toExponential(2);
+        let frequency = Number.parseFloat(y).toExponential(2);
+        console.log((wavelength*1e9), (frequency*1e-15).toFixed(2))
+    }
+
+    function simSite() {
+
+        window.open("../../Simulations/Quantum_Photoelectric_Effect.html", "_self")
+    }
+</script>
+
+<script type="module" src="../footer.js"></script>

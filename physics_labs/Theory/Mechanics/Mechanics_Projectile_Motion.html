@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Physics of Projectile in Motion </title>
+  <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+  <link rel="shortcut icon" href="../../files/favicon_white.ico" media="(prefers-color-scheme: dark)" />
+  <link rel="shortcut icon" href="../../files/favicon.ico" media="(prefers-color-scheme: light)" />
+  <link rel="stylesheet" type="text/css" href="../../css/style-theory.css">
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-7VWWT4ZKR6"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'G-7VWWT4ZKR6');
+  </script>
+  <meta name="google-site-verification" content="mz0TRB59UNqdTxhwzmXmGdgVPh8pB4YqjuUr-aWNGIY">
+
+</head>
+
+
+<!-- Here is our page's main content -->
+
+<article>
+  <div id="part1" onclick="simSite()" class="content">
+    <h2> Physics 3D Interactive Simulation</h2>
+    <button onclick="simSite()"><span><strong>3D SIMULATION</strong> </span></button>
+    Press the button to visualise 'Projectile Motion' in 3D
+    <p id="part1" class="content">
+      Adjust the launch parameters of the projectile in the control to visualize the motion.
+
+      Press SHOOT button to launch the object.
+      Press DATA button to get the calculated values using the projectile equations.
+    </p>
+    <div id="part2" class="content">
+
+      <h2>Physics of Projectile in Motion</h2>
+      <p>
+        A projectile is an object propelled by the application of an external force,
+        which is allowed to move freely under the influence of gravity
+        <strike>(and air resistance) </strike>. The object is launched into the air with a
+        speed \( v_0 \) and at an angle \(\theta\) (as measured from a horizontal x-axis).
+        The velocity vector <strong> \(\vec{ v_0 } \) </strong> can be resolved into two components
+        $$ \text{Horizontal components, } v_x = v_0 \cos\theta $$
+        $$ \text{Vertical components, } v_y = v_0 \sin\theta$$
+        During flight, the projectile is acted upon by the acceleration due to gravity \(g\) alone. Hence,
+        $$ \text{Horizontal components, } a_x = 0$$
+        $$ \text{Vertical components, } a_y = g$$
+        resulting in a changing vertical velocity \( v_y \) value where as the horizontal components
+        \( v_x \) remains the same.
+      </p>
+    </div>
+    <div id="part3" class="content">
+      <h2>Projectile Equations</h2>
+      <p>The trajectory of the projectile is given by the eqn.,
+        $$ y = y_0 + (\tan \theta )x - {gx^2 \over 2(v_0 \cos \theta)^2}$$
+
+        The trajectory of the projectile is given by the eqn.,
+        $$ y = y_0 + (\tan \theta )x - {gx^2 \over 2(v_0 \cos\theta)^2}$$
+
+        where \(g\), \(y_0\), \(\theta\), and \( v_0 \) are constants.
+      </p>
+      <p>
+        Maximum vertical height \(H\) is given by the eqn.
+        $$ H = y_0 + {(v_0 \sin \theta)^2 \over 2g}$$
+      </p>
+      <p>
+        The time of flight \(T\) for the projectile is given by the eqn.,
+        $$ T = 2 {v_0 \sin \theta \over g} $$
+        (or twice the time taken to achieve the maximum vertical height \(H\).)
+      </p>
+
+      <p>
+        When the launch height is \(y_0 = 0\), the maximum horizontal range \( R \) is given by the eqns
+
+        $$R = (v_0 \cos &#952) t$$
+        and
+        $$0 = (v_0 \sin &#952)t - {1 \over 2} gt^2$$
+        Equating the above two eqns.
+
+        $$ R = {v_0^2 \over g}\sin 2&#952 $$
+
+        The maximum horizontal range \(R\) can also be calulated from the total time of flight \(T\) and horizontal
+        component of initial velocity \(\vec{ v_0 } \)
+        $$ R = {\text{speed} \times \text{time}} = {v_0 \cos \theta \times T }$$
+      </p>
+
+    </div>
+</article>
+<footer>
+  <p id="footer"></p>
+  <p id="email"></p>
+</footer>
+<script>
+  function simSite() {
+
+    window.open("../../Simulations/Mechanics_Projectile_Motion.html", "_self")
+  }
+  function openTable() {
+
+    table.rows[0].cells[2].innerHTML = localStorage['Launch Height'].split('.')[0];
+    table.rows[0].cells[3].innerHTML = '.' + localStorage['Launch Height'] % 1 + " m";
+    table.rows[1].cells[2].innerHTML = localStorage['Launch Speed'].split('.')[0];
+    table.rows[1].cells[3].innerHTML = '.' + localStorage['Launch Speed'] % 1 + " m";
+    // table.rows[2].cells[2].innerHTML = localStorage['Launch Angle'].split('.')[0] + "&#176";
+    table.rows[2].cells[3].innerHTML = localStorage['Launch Angle'].split('.')[0] + "&#176";;
+    table.rows[3].cells[2].innerHTML = localStorage['Speed along x-axis'].split('.')[0];
+    table.rows[3].cells[3].innerHTML = '.' + localStorage['Speed along x-axis'].split('.')[1] + " m/s";
+    table.rows[4].cells[2].innerHTML = localStorage['Maximum Height'].split('.')[0];
+    table.rows[4].cells[3].innerHTML = '.' + localStorage['Maximum Height'].split('.')[1] + " m";
+    table.rows[5].cells[2].innerHTML = localStorage['Maximum Range'].split('.')[0];
+    table.rows[5].cells[3].innerHTML = '.' + localStorage['Maximum Range'].split('.')[1] + " m";
+    table.rows[6].cells[2].innerHTML = localStorage['Time of Flight'].split('.')[0];
+    table.rows[6].cells[3].innerHTML = '.' + localStorage['Time of Flight'].split('.')[1] + " s";
+  }
+</script>
+
+<script type="module" src="../footer.js"></script>

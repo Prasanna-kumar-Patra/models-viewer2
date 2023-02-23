@@ -1,0 +1,286 @@
+* {
+
+  padding: 0;
+}
+
+body {
+  margin: 0;
+  background-color: whitesmoke;
+}
+
+
+#drawing-canvas {
+  position: absolute;
+  background-color: #000000;
+  top: 0px;
+  left: 0px;
+  z-index: 3000;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+#menu {
+  position: fixed;
+  float: bottom;
+  bottom: 20px;
+  width: 100%;
+  text-align: left;
+  padding: 0;
+  margin: 0;
+  margin-bottom: -20px;
+  pointer-events: none;
+}
+/* #menu button {
+  pointer-events:visible;
+} */
+
+#topmenu {
+  position: absolute;
+  float: top;
+  top: 5px;
+  width: 100%;
+  text-align: center;
+  font-weight: bold;  
+  text-decoration: underline; 
+  font-size: 125%; 
+  padding-bottom: 2px;
+}
+
+#sidemenu {
+  height: 100%;
+  width: 250pt;
+  position: fixed;
+  top: 75px;
+  left: 5px;
+  box-sizing: border-box;
+  text-align: justify;
+  pointer-events: none;
+}
+
+#sidemenu input {
+  pointer-events:visible;
+}
+#footmenu {
+  position: absolute;
+  bottom: 1px;
+  width: 100%;
+  text-align: center;
+}
+
+button {
+  color: rgba(253, 251, 251, 0.75);
+  background: rgb(3, 108, 156);
+  outline: 1px solid rgba(131, 10, 36, 0.75);
+  border: 10px;
+  margin: 5px;
+  border-radius: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+button:hover {
+
+  background-color: rgba(243, 44, 87, 0.75);
+}
+
+button:active {
+
+  background-color: rgba(131, 10, 36, 0.75);
+}
+
+#sidemenu button {
+  display: block;
+  position: relative;
+  top: 450px;
+  outline: 1px solid black;
+  float: unset;
+  padding: 1em;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: .5em;
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+a,
+button,
+input,
+select {
+  pointer-events:visible;
+}
+
+select {
+  margin-bottom: 10px;
+  margin-top: 10px;
+  outline: 0;
+  background: rgb(3, 108, 156);;
+  color: #fff;
+  border: 1px solid rgba(131, 10, 36, 0.75);
+  padding: 4px;
+  border-radius: 9px;
+}
+
+input {
+  border: 2px solid #049EF4;
+  border-radius: 8px;
+  text-align: center;
+}
+
+#dot {
+  height: 25px;
+  width: 25px;
+  background-color: darkred;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+#labels {
+  position: absolute;
+  /* let us position ourself inside the container */
+  left: 0;
+  /* make our position the top left of the container */
+  top: 0;
+
+}
+
+.label {
+
+  margin-left: 25px;
+  font-size: 20px;
+}
+
+caption {
+  display: table-caption;
+  text-align: center;
+}
+
+.eqn {
+  padding: 0 2em;
+  text-align: left;
+}
+
+/* display fraction */
+.fraction {
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0 0.2em 0.4em;
+  text-align: center;
+  font-size: 1em;
+}
+
+.fraction>span {
+  display: block;
+  padding-top: 0.15em;
+}
+
+.fraction span.fdn {
+  border-top: thin solid black;
+}
+
+.fraction span.bar {
+  display: none;
+}
+
+#footermenu {
+  padding-left: 50px;
+  visibility: visible;
+  width: 300px;
+  float: inline-end;
+  align-items: center;
+  justify-content: center;
+  background-color: whitesmoke;
+  padding-left: 50px;
+}
+
+/* annotation */
+.annotation {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  padding: 1em;
+  width: 250px;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: .5em;
+  font-size: 12px;
+  line-height: 1.2;
+  transition: opacity .5s;
+  overflow-y: auto;
+}
+
+
+#number {
+  position: absolute;
+  z-index: -1;
+}
+
+.labelparts {
+  text-align: center;
+  font-size: 14px;
+  padding: .1em;
+  border-radius: 5px;
+  color: #fff;
+  font-family: sans-serif;
+  background: rgba(0, 0, 0, .6);
+}
+
+
+@media only screen and (max-width:800px) {
+ 
+  #topmenu{
+    font-size: 10px;
+    float: right;
+  }
+ button{
+    font-size: 10px;
+    font-weight: bold;
+    border: 5px;
+    margin: 2px;
+    border-radius: 2px;
+    padding: 2px 3px;
+  }
+  #menu {
+    position: absolute;
+    float: bottom;
+    font-size: 14px;
+    padding: 0;
+    margin: 0;
+    margin-bottom: -20px;
+  }
+
+  .annotation {
+    display: none;
+    width: 200px;
+    background: rgb(0, 0, 0);
+    overflow-y: auto;
+    z-index: 1;
+  }
+
+  .fraction {
+    font-size: 14px;
+  }
+}
+
+@media only screen and (max-width:500px) {
+  #topmenu{
+    font-size: 10px;
+  }
+  #menu {
+    position: absolute;
+    float: bottom;
+    bottom: 20px;
+    font-size: 14px;
+    padding: 0;
+    margin: 0;
+    margin-bottom: -20px;
+  }
+  .annotation {
+    display: none;
+    width: 150px;
+    background: rgb(0, 0, 0);
+    overflow-y: auto;
+    z-index: 1;
+  }
+}

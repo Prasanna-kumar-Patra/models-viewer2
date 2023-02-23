@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Hot-air balloon</title>
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link rel="shortcut icon" href="../../files/favicon_white.ico" media="(prefers-color-scheme: dark)"/>
+		<link rel="shortcut icon" href="../../files/favicon.ico" media="(prefers-color-scheme: light)" />
+		<link rel="stylesheet" type="text/css"  href="../../css/style-theory.css">
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+		<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-7VWWT4ZKR6"></script>
+		<script>
+		  window.dataLayer = window.dataLayer || [];
+		  function gtag(){dataLayer.push(arguments);}
+		  gtag('js', new Date());
+	
+		  gtag('config', 'G-7VWWT4ZKR6');
+		</script>
+		<meta name="google-site-verification" content="mz0TRB59UNqdTxhwzmXmGdgVPh8pB4YqjuUr-aWNGIY">
+		
+	</head>
+   
+
+    <!-- Here is our page's main content -->
+   
+  <article>
+    <div id="part1" class="content"> 
+        <h2>Physics 3D Interactive Simulation </h2>	
+          <button onclick="simSite()"><span><strong>3D SIMULATION</strong> </span></button>
+          Press the button to visualise 'hot-air balloon' in 3D
+    </div> 
+          <div id="part2" class="content">
+          
+          <p>The mass of a hot-air balloon and its cargo (not including the air inside) is 200kg. The air outside is at 10.0°C and 101kPa. The volume of the balloon is 400m<sup>3</sup>. To what temperature must the air in the balloon be heated before the balloon will lift off? (Air density at 10.0°C is 1.25kg/m<sup>3</sup>.)</p>
+          <h3>Formulas used in hot-air balloon solution</h3>
+            <dl>
+                <dt>
+                    &#160 &#xa0 &#10148 Buoyant Force is equal to the weight of air displaced by the hot-air balloon $$\begin{aligned} \text{Buoyant Force} &=\text{Pressure}\times \text{Area} \\ \text{B} &= (\rho_{\text{cold}}- \rho_{\text{hot}}) gh\times A  \\  &= (\rho_{\text{cold}}- \rho_{\text{hot}}) gV  \end{aligned}$$
+                </dt>
+            </dl>
+            
+            <dl>
+                <dt>
+                    &#160 &#xa0 &#10148<strong>Gas law equation</strong> 
+                    $$\begin{aligned} PV &= nRT \\ \frac{n}{V} &= \frac{P}{RT} \\ \frac{\text{m}_{air}}{V} &= \frac{\text{M}_{air}P}{RT} \\ \frac{\text{m}_{air}}{V} &= \frac{\text{const}}{T}\\ \text{density, &rho;} &= \frac{\text{const}}{T}\\ \text{&rho;} &&Proportional; \frac{1}{T} \\ \text{ (Density of air, &rho;}& &rArr; \text{ inversely proportional to temperature )}\\ \text{&rho;}_{\text{hot}} &=\frac{\text{&rho;}_{\text{cold}}  T_{\text{cold}}}{T_{\text{hot}}} = \frac{\text{&rho;}_{\text{c}}  T_{\text{c}}}{T_{\text{h}}}\end{aligned}$$
+                </dt>
+            </dl>
+           
+           
+            <dl>
+                <dt>
+                    $$\begin{aligned} \textbf{B} &= \Big(\rho_{\text{c}}- \frac{\rho_{\text{c}}  T_{\text{c}}}{T_{\text{h}}}\Big) gV \\ \textbf{B} &= \rho_{\text{c}} \Big[ 1 - \frac{T_{\text{c}}}{T_{\text{h}}} \Big]gV\end{aligned}$$ 
+                </dt>
+            </dl>  
+            <dl>
+                <dt>
+                    when Buoyant Force is greater than the Weight, the Hot-Air Balloon lifts. i.e
+                    $$\begin{aligned} \textbf{B} &= mg \\ \rho_{\text{c}} \Big[ 1 - \frac{T_{\text{c}}}{T_{\text{h}}} \Big]gV &= mg\\ or, \Big[ 1 - \frac{T_{\text{c}}}{T_{\text{h}}} \Big]&= \frac{m}{\rho_{\text{c}} V} \end{aligned}$$ 
+                   <strong>Calculation:</strong><br>
+                   Given:-  density, &rho; = 1.25 kg/m<sup>3</sup>; mass, m = 200 kg; volume, V = 400 m<sup>3</sup>; T<sub>c</sub>= 10+273 = 283K 
+                   $$\begin{aligned}  1 - \frac{T_{\text{c}}}{T_{\text{h}}}  &=\Big( \frac{200}{1.25 \times 400}\Big) \\ 1 - \frac{T_{\text{c}}}{T_{\text{h}}}  &= \frac{1}{2.50} \\ 1 - \frac{283}{T_{\text{h}}} &= 0.4 \\ 0.6 &=  \frac{283}{T_{\text{h}}} \\  T_{\text{h}} &= \frac{283}{0.6} \\ T_{\text{h}} &= 472K \\or, T_{\text{h}} &= 472 -273 = 199\text{°C}\end{aligned}$$ 
+                  
+                </dt>
+            </dl>
+            <dl>
+                <dt>
+                    Formulas used
+                </dt>
+            </dl>
+            <dl>
+                <dt>
+                    &#160 &#xa0 &#10148 Pressure = Force/Area 
+                    &#160 &#xa0 &#10148 Pressure = &rho;gh
+                    &#160 &#xa0 &#10148 Density, &rho; = \(\frac{\text{mass}}{\text{volume}}\) 
+                </dt>
+            </dl>
+            <dl>
+                <dt>
+                    <strong>where</strong> 
+                      $$\begin{aligned} \text{M}_{air} &=\text{Molecular Mass of air} \\  \text{m}_{air} &= \text{Given mass of air} \\ {{\text{m}_{air}}\over{\text{M}_{air}}} &= n \text{ , No. of moles }\end{aligned}$$
+                </dt>
+            </dl>
+</article>
+  
+<!-- And here is our main footer that is used across all the pages of our website -->
+
+<footer >
+  <p id="footer"></p>
+<p id="email"></p>
+</footer>
+<script>
+    console.log(283/0.6 )
+     function simSite() {
+
+        window.open("../../Simulations/Thermodynamics_Hot_Air_Balloon.html", "_self")
+    }
+  </script>
+
+<script type="module" src="../footer.js"></script>    

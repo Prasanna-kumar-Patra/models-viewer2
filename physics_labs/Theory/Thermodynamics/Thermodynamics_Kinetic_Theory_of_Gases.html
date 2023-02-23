@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Kinetic Theory of Gases</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel="shortcut icon" href="../../files/favicon_white.ico" media="(prefers-color-scheme: dark)" />
+    <link rel="shortcut icon" href="../../files/favicon.ico" media="(prefers-color-scheme: light)" />
+    <link rel="stylesheet" type="text/css" href="../../css/style-theory.css">
+
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-7VWWT4ZKR6"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-7VWWT4ZKR6');
+    </script>
+    <meta name="google-site-verification" content="mz0TRB59UNqdTxhwzmXmGdgVPh8pB4YqjuUr-aWNGIY">
+
+</head>
+
+
+<!-- Here is our page's main content -->
+
+<article>
+    <div id="part1" onclick="simSite()" class="content">
+        <h2>Physics 3D Interactive Simulation </h2>
+        <button onclick="simSite()"><span><strong>3D SIMULATION</strong> </span></button>
+        Press the button to visualise 'Kinetic Theory of Gases' in 3D
+
+    </div>
+    <div id="part2" class="content">
+        <h2>Question:</h2>
+        <a>A cylinder contains a mixture of He and Ar gas in equilibrium at 150 °C.(a)What is the average kinetic energy
+            (K.E) for each type of gas molecule? (b) What is the root-mean-square speed of each type of molecule.</a>
+        <p>
+
+    </div>
+
+    <dl>
+        <dt>
+            <table id="caltable" style="margin-left:auto; margin-right:auto; text-align: right;">
+                <caption style="font-size: 24px; text-decoration: underline;">Average Kinetic Energy Data</caption>
+                <tr>
+                    <td>Boltzmann Constant, k<sub>B</sub> </td>
+                    <td> = </td>
+                    <td style="text-align: left;"> 1.38 x 10<sup>-23</sup> J/K</td>
+
+                </tr>
+                <tr>
+                    <td id="atom1">Atomic Mass of He, m<sub>He</sub> </td>
+                    <td> = </td>
+                    <td style="text-align: left;"><input type="data" id="mass1" name="mass1" min="1" max="400" value="4"
+                            step="0.1" size="3">&nbsp;g</td>
+
+                </tr>
+                <tr>
+                    <td id="atom2">Atomic Mass of Ar, m<sub>Ar</sub> </td>
+                    <td> = </td>
+                    <td style="text-align: left;"><input type="data" id="mass2" name="mass2" min="1" max="400"
+                            value="39.9" step="0.1" size="3">&nbsp;g</td>
+
+                </tr>
+                <tr>
+                    <td>Temperature, T </td>
+                    <td> = </td>
+                    <td style="text-align: left;"><input type="data" id="tempC" name="tempC" min="-273" max="400"
+                            value="150" step="10" size="3">&nbsp;°C</td>
+
+                </tr>
+
+                <tr>
+                    <td> or, T </td>
+                    <td> = </td>
+                    <td style="text-align: left;"><input type="data" id="tempK" name="tempK" min="0" max="700"
+                            value="423" step="10" size="3">&nbsp;K</td>
+
+                </tr>
+            </table>
+            <strong>Enter the values to calculate for different mixture and temperature</strong><br>
+           
+            <table style="margin-left:auto; margin-right:auto; text-align: right;">
+                <caption style="font-size: 20px; ">
+
+                </caption>
+                <tr>
+                    <td>\(\overline {K.E} \)</td>
+                    <td>=</td>
+                    <td style="text-align: left;">
+                        <div class="fraction">
+                            <span class="fup"> 1</span>
+                            <span class="bar">/</span>
+                            <span class="fdn"> 2</span>
+                        </div> mv<sup>2</sup><sub>rms</sub> = <div class="fraction">
+                            <span class="fup"> 3</span>
+                            <span class="bar">/</span>
+                            <span class="fdn"> 2</span>
+                        </div>k<sub>B</sub>T
+                    </td>
+                </tr>
+                <tr>
+                    <td>\(\overline {K.E} \)</td>
+                    <td>=</td>
+                    <td style="text-align: left;">
+                        <div class="fraction">
+                            <span class="fup"> 3</span>
+                            <span class="bar">/</span>
+                            <span class="fdn"> 2</span>
+                        </div>k<sub>B</sub>T
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>=</td>
+                    <td style="text-align: left; ">
+                        <div class="fraction">
+                            <span class="fup"> 3</span>
+                            <span class="bar">/</span>
+                            <span class="fdn"> 2</span>
+                        </div>x 1.38 x 10<sup>-23</sup> x <a style="text-decoration-line: underline;"
+                            id="temp-el">423</a> J
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>=</td>
+                    <td id="KE-el" style="text-align: left; text-decoration-line:underline;">8.76 x 10<sup>-21</sup> J
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="fraction">
+                            <span class="fup"> 1</span>
+                            <span class="bar">/</span>
+                            <span class="fdn"> 2</span>
+                        </div> mv<sup>2</sup><sub>rms</sub>
+                    </td>
+                    <td>=</td>
+                    <td id="TKE1-el" style="text-align: left;">8.76 x 10<sup>-21</sup> J</td>
+                </tr>
+
+                <tr>
+                    <td>v<sup>2</sup><sub>rms</sub></td>
+                    <td>=</td>
+                    <td style="text-align: left; ">
+                        <div class="fraction">
+                            <span class="fup"> 2 x <a id="TKE2-el"> 8.76 x 10<sup>-21</sup></a></span>
+                            <span class="bar">/</span>
+                            <span class="fdn"> m</span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+            where m is the mass of the gas particles.
+        </dt>
+    </dl>
+    <dl>
+        <dt>
+            <table style="margin-left:auto; margin-right:auto; text-align: right;">
+                <caption></caption>
+                <tr>
+                    <td>For He atom, m<sub>He</sub></td>
+                    <td>=</td>
+                    <td style="text-align: left;">
+                        <div class="fraction">
+                            <span class="fup"> M<sub>He</sub></span>
+                            <span class="bar">/</span>
+                            <span class="fdn"> N<sub>A</sub></span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>=</td>
+                    <td style="text-align: left;">
+                        <div class="fraction">
+                            <span class="fup"> <a id="atM1"></a></span>
+                            <span class="bar">/</span>
+                            <span class="fdn">6.022 x 10<sup>23</sup></span>
+                        </div>
+                    </td>
+                    <td style="text-align: left;">g/atom</td>
+                </tr>
+                <tr>
+                <tr>
+                    <td></td>
+                    <td>=</td>
+                    <td id="atom1M" style="text-align: left;">6.64 x 10<sup>-27</sup></td>
+                    <td style="text-align: left;">kg/atom</td>
+                </tr>
+                <tr>
+                    <td>For He, v<sup>2</sup><sub>rms</sub></td>
+                    <td>=</td>
+                    <td style="text-align: left;">
+                        <div class="fraction">
+                            <span class="fup"><a id="v1-el">1.752 x 10<sup>-20</sup></a></span>
+                            <span class="bar">/</span>
+                            <span class="fdn"> <a id="M1-el"></a></span>
+                        </div>
+                    </td>
+                    <td style="text-align: left;"></td>
+                </tr>
+                <tr>
+                    <td>v<sub>rms</sub></td>
+                    <td>=</td>
+                    <td style="text-align: left;font-weight: bolder;" id="rmsV1"></td>
+                    <td style="text-align: left;">m/s</td>
+                </tr>
+               <tr>
+                   
+               </tr>
+                <tr>
+                    <td>For Ar atom, m<sub>Ar</sub></td>
+                    <td>=</td>
+                    <td style="text-align: left;">
+                        <div class="fraction">
+                            <span class="fup"> M<sub>Ar</sub></span>
+                            <span class="bar">/</span>
+                            <span class="fdn"> N<sub>A</sub></span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>=</td>
+                    <td style="text-align: left;">
+                        <div class="fraction">
+                            <span class="fup"><a id="atM2"></a></span>
+                            <span class="bar">/</span>
+                            <span class="fdn">6.022 x 10<sup>23</sup></span>
+                        </div>
+                    </td>
+                    <td style="text-align: left;">g/atom</td>
+                </tr>
+                <tr>
+                <tr>
+                    <td></td>
+                    <td>=</td>
+                    <td id="atom2M" style="text-align: left;">6.63 x 10<sup>-26</sup></td>
+                    <td style="text-align: left;">kg/atom</td>
+                </tr>
+                <tr>
+
+                <tr>
+                    <td>v<sup>2</sup><sub>rms</sub></td>
+                    <td>=</td>
+                    <td style="text-align: left;">
+                        <div class="fraction">
+                            <span class="fup"> <a id="v2-el">1.752 x 10<sup>-21</sup></a></span>
+                            <span class="bar">/</span>
+                            <span class="fdn"> <a id="M2-el"></a></span>
+                        </div>
+                    </td>
+                    <td style="text-align: left;"></td>
+                </tr>
+                <tr>
+                    <td>v<sub>rms</sub></td>
+                    <td>=</td>
+                    <td style="text-align: left; font-weight: bolder;" id="rmsV2"></td>
+                    <td style="text-align: left;">m/s</td>
+                </tr>
+            </table>
+        </dl>
+   
+
+</article>
+
+<!-- And here is our main footer that is used across all the pages of our website -->
+
+<footer>
+    <p id="footer"></p>
+    <p id="email"></p>
+</footer>
+
+<script>
+
+    const B = 1.38e-23;
+    const N = 6.022e23;
+    let mass1 = document.getElementById("mass1");
+    let mass2 = document.getElementById('mass2');
+    let tempC = document.getElementById('tempC');
+    let tempK = document.getElementById('tempK');
+    let tempEl = document.getElementById("temp-el");
+    let KE = document.getElementById('KE-el');
+    let v1 = document.getElementById('v1-el');
+    let rmsV1 = document.getElementById('rmsV1');
+    let v2 = document.getElementById('v2-el');
+    let rmsV2 = document.getElementById('rmsV2');
+    let TKE1 = document.getElementById('TKE1-el');
+    let TKE2 = document.getElementById('TKE2-el');
+    let atom1M = document.getElementById("atom1M");
+    let M1 = document.getElementById('M1-el');
+    let atom2M = document.getElementById("atom2M");
+    let M2 = document.getElementById('M2-el');
+
+    let atM1 = document.getElementById("atM1");
+    let atM2 = document.getElementById("atM2");
+
+    let a = 2 * 1.5 * B * tempK.value ;
+    let b = mass1.value/N * Math.pow(10, (-3));
+    let c = a / b;
+    let d = mass2.value/N * Math.pow(10, (-3));
+    let e = a / d;
+    rmsV1.innerHTML = Math.pow(c, (1/2)).toFixed(2); 
+    rmsV2.innerHTML = Math.pow(e, (1/2)).toFixed(2); 
+
+    atM1.innerHTML = mass1.value;
+    atM2.innerHTML = mass2.value;
+    M1.innerHTML = atom1M.innerHTML;
+    M2.innerHTML = atom2M.innerHTML;
+
+
+    tempK.addEventListener("input", function (event) {
+        tempC.value = Number.parseFloat(tempK.value) - 273;
+        tempEl.innerHTML = tempK.value;
+        let A = (1.5 * B * tempK.value );
+        let a = 2 * A;
+        let b = mass1.value/N * Math.pow(10, (-3));
+        let c = a / b;
+        let d = mass2.value/N * Math.pow(10, (-3));
+        let e = a / d;
+        let Y1 = Math.pow(c, (1/2));
+        let Y2 = Math.pow(e, (1/2));
+       
+        let x = A.toString().split('e')[0];
+        let y1 = Y1.toString().split('e')[0];
+        let y2 = Y2.toString().split('e')[0];
+        console.log(tempC.value);
+        KE.innerHTML = Number.parseFloat(x).toFixed(2) + ' x 10<sup>' + A.toString().split('e')[1] + '</sup> J';
+        TKE1.innerHTML = Number.parseFloat(x).toFixed(2) + ' x 10<sup>' + A.toString().split('e')[1] + '</sup> J';
+        TKE2.innerHTML = Number.parseFloat(x).toFixed(2) + ' x 10<sup>' + A.toString().split('e')[1] + '</sup> J';
+        v1.innerHTML = Number.parseFloat(x).toFixed(2) * 2 + ' x 10<sup>' + A.toString().split('e')[1] + '</sup>';
+        v2.innerHTML = Number.parseFloat(x).toFixed(2) * 2 + ' x 10<sup>' + A.toString().split('e')[1] + '</sup>';
+        rmsV1.innerHTML = Number.parseFloat(y1).toFixed(2) ;
+        rmsV2.innerHTML = Number.parseFloat(y2).toFixed(2) ;
+    })
+   
+    tempC.addEventListener("input", function (event) {
+       
+        tempK.value = Number.parseFloat(tempC.value) + 273;
+        // console.log(tempK.value);
+        tempEl.innerHTML = tempK.value;
+        let A = (1.5 * B * tempK.value );
+        let a = 2 * A;
+        let b = mass1.value/N * Math.pow(10, (-3));
+        let c = a / b;
+        let d = mass2.value/N * Math.pow(10, (-3));
+        let e = a / d;
+        let Y1 = Math.pow(c, (1/2));
+        let Y2 = Math.pow(e, (1/2));
+       
+        let x = A.toString().split('e')[0];
+        let y1 = Y1.toString().split('e')[0];
+        let y2 = Y2.toString().split('e')[0];
+        
+        KE.innerHTML = Number.parseFloat(x).toFixed(2) + ' x 10<sup>' + A.toString().split('e')[1] + '</sup> J';
+        TKE1.innerHTML = Number.parseFloat(x).toFixed(2) + ' x 10<sup>' + A.toString().split('e')[1] + '</sup> J';
+        TKE2.innerHTML = Number.parseFloat(x).toFixed(2) + ' x 10<sup>' + A.toString().split('e')[1] + '</sup> J';
+        v1.innerHTML = Number.parseFloat(x).toFixed(2) * 2 + ' x 10<sup>' + A.toString().split('e')[1] + '</sup>';
+        v2.innerHTML = Number.parseFloat(x).toFixed(2) * 2 + ' x 10<sup>' + A.toString().split('e')[1] + '</sup>';
+        rmsV1.innerHTML = Number.parseFloat(y1).toFixed(2) ;
+        rmsV2.innerHTML = Number.parseFloat(y2).toFixed(2) ;
+    })
+   
+    mass1.addEventListener("input", function (event) {
+        
+        atM1.innerHTML = mass1.value;
+        atM2.innerHTML = mass2.value;
+        
+        let A = (1.5 * B * tempK.value );
+        let a = 2 * A;
+        let b = mass1.value/N * Math.pow(10, (-3));
+        console.log(b)
+        let c = a / b;
+        let d = mass2.value/N * Math.pow(10, (-3));
+        let e = a / d;
+        let Y1 = Math.pow(c, (1/2));
+        let Y2 = Math.pow(e, (1/2));
+       
+        let x = A.toString().split('e')[0];
+        let y1 = Y1.toString().split('e')[0];
+        let y2 = Y2.toString().split('e')[0];
+        atom1M.innerHTML = Number.parseFloat(b.toString().split('e')[0]).toFixed(2) + ' x 10<sup>' + b.toString().split('e')[1] + '</sup>';
+
+        M1.innerHTML = atom1M.innerHTML;
+        M2.innerHTML = atom2M.innerHTML;
+        KE.innerHTML = Number.parseFloat(x).toFixed(2) + ' x 10<sup>' + A.toString().split('e')[1] + '</sup> J';
+        TKE1.innerHTML = Number.parseFloat(x).toFixed(2) + ' x 10<sup>' + A.toString().split('e')[1] + '</sup> J';
+        TKE2.innerHTML = Number.parseFloat(x).toFixed(2) + ' x 10<sup>' + A.toString().split('e')[1] + '</sup> J';
+        v1.innerHTML = Number.parseFloat(x).toFixed(2) * 2 + ' x 10<sup>' + A.toString().split('e')[1] + '</sup>';
+        v2.innerHTML = Number.parseFloat(x).toFixed(2) * 2 + ' x 10<sup>' + A.toString().split('e')[1] + '</sup>';
+        rmsV1.innerHTML = Number.parseFloat(y1).toFixed(2) ;
+        rmsV2.innerHTML = Number.parseFloat(y2).toFixed(2) ; })
+
+    mass2.addEventListener("input", function (event) {
+        
+        atM1.innerHTML = mass1.value;
+        atM2.innerHTML = mass2.value;
+        
+        let A = (1.5 * B * tempK.value );
+        let a = 2 * A;
+        let b = mass1.value/N * Math.pow(10, (-3));
+        console.log(b)
+        let c = a / b;
+        let d = mass2.value/N * Math.pow(10, (-3));
+        let e = a / d;
+        let Y1 = Math.pow(c, (1/2));
+        let Y2 = Math.pow(e, (1/2));
+       
+        let x = A.toString().split('e')[0];
+        let y1 = Y1.toString().split('e')[0];
+        let y2 = Y2.toString().split('e')[0];
+        atom1M.innerHTML = Number.parseFloat(b.toString().split('e')[0]).toFixed(2) + ' x 10<sup>' + b.toString().split('e')[1] + '</sup>';
+        atom2M.innerHTML = Number.parseFloat(b.toString().split('e')[0]).toFixed(2) + ' x 10<sup>' + b.toString().split('e')[1] + '</sup>';
+        M1.innerHTML = atom1M.innerHTML;
+        M2.innerHTML = atom2M.innerHTML;
+        KE.innerHTML = Number.parseFloat(x).toFixed(2) + ' x 10<sup>' + A.toString().split('e')[1] + '</sup> J';
+        TKE1.innerHTML = Number.parseFloat(x).toFixed(2) + ' x 10<sup>' + A.toString().split('e')[1] + '</sup> J';
+        TKE2.innerHTML = Number.parseFloat(x).toFixed(2) + ' x 10<sup>' + A.toString().split('e')[1] + '</sup> J';
+        v1.innerHTML = Number.parseFloat(x).toFixed(2) * 2 + ' x 10<sup>' + A.toString().split('e')[1] + '</sup>';
+        v2.innerHTML = Number.parseFloat(x).toFixed(2) * 2 + ' x 10<sup>' + A.toString().split('e')[1] + '</sup>';
+        rmsV1.innerHTML = Number.parseFloat(y1).toFixed(2) ;
+        rmsV2.innerHTML = Number.parseFloat(y2).toFixed(2) ; })
+
+    function simSite() {
+
+        window.open("../../Simulations/Thermodynamics_Kinetic_Theory_of_Gases.html", "_self")
+    }
+
+
+</script>
+
+<script type="module" src="../footer.js"></script>

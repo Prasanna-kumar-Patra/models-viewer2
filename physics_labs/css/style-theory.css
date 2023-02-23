@@ -1,0 +1,212 @@
+* {
+    box-sizing: border-box;
+}
+
+h1 {
+    text-align: center;
+    font-size: 16px;
+
+}
+
+#header {
+    margin-top: -10px;
+    margin-bottom: -10px;
+    padding-top: 16px;
+    padding-bottom: 16px;
+    position: relative;
+    z-index: 100;
+    left: 0px;
+    width: 100%;
+    border-right: 1px solid #E8E8E8;
+    flex-direction: column;
+    text-transform: uppercase;
+    background-color: #049EF4;
+    color: white;
+    font-weight: bold;
+    text-shadow: 2px 2px 10px black;
+}
+
+.main {
+    position: relative;
+    width: 50%
+}
+
+article {
+    float: left;
+    padding: 20px;
+    width: 100%;
+    background-color: #f1f1f1;
+
+}
+
+.row {
+    display: -ms-flexbox; /* IE10 */
+    display: flex;
+    -ms-flex-wrap: wrap; /* IE10 */
+    flex-wrap: wrap;
+    padding: 0 8px;
+    
+  }
+   .title{
+    width:100%;
+    font-size: 1.2rem;
+    margin: .5rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    background-color: rgba(0, 164, 240, 0.8);
+    color: white;
+    text-shadow: 2px 2px 10px black;
+    padding-left: 60px;
+   }
+  
+  /* Create four equal columns that sits next to each other */
+  .column {
+    position: relative;
+    float: flex;
+    max-width: 25%;
+    padding: 0 8px;
+    cursor:pointer;
+  }
+  .column img {
+    opacity: 1;
+    margin-top: 16px;
+    vertical-align: middle;
+    width: 100%;
+    z-index: 1;
+  }
+  
+  .column:hover img {
+    opacity: 0.3;
+  }
+  
+  .middle {
+    transition: .5s ease;
+    opacity: 0;
+    width: 90%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    text-align: center;
+  }
+  
+  .column:hover .middle {
+    opacity: 1;
+  }
+  .text {
+    font-weight: bolder;
+    font-size: 14px;
+    padding: 2px 4px;
+    background-color: rgb(78, 192, 245);
+  }
+
+  button {
+    color: rgba(253, 251, 251, 0.75);
+    background: rgb(3, 108, 156);
+    outline: 1px solid rgba(131, 10, 36, 0.75);
+    border: 10px;
+    margin: 5px;
+    border-radius: 5px;
+    padding: 5px 10px;
+    text-align: center;
+    font-size: 16px;
+    transition:0.5s  all ;
+    cursor: pointer;
+  }
+  
+  button{
+    cursor: pointer;
+    display: inline-block;
+    position: relative;
+    transition: 0.5s;
+  }
+  
+  button:after {
+    content: '\00ab';
+    float:left;
+    opacity: 0.5;  
+    top: 14px;
+    right: 20px;
+    transition: 0.5s;
+  }
+  
+  button:hover{
+    background-color:  rgba(243, 44, 87, 0.75);
+    padding-right: 24px;
+    padding-left: 24px;
+  }
+  
+  button:hover:after {
+    opacity: 1;
+    right: 10px;
+  }
+dl {
+  padding: 10px;
+  background-color:rgba(78, 192, 245, 0.3);
+}
+
+input {
+  border: 2px solid #049EF4;
+  border-radius: 8px;
+  text-align: center;
+}
+
+select {
+  margin-bottom: 10px;
+  margin-top: 10px;
+  outline: 0;
+  background: rgb(3, 108, 156);;
+  color: #fff;
+  border: 1px solid rgba(131, 10, 36, 0.75);
+  padding: 4px;
+  border-radius: 9px;
+}
+
+.label {
+  font-weight: bold;
+  font-size: 16px;
+  margin-left: 0px;
+  ;
+
+}
+
+.fraction {
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0 0.2em 0.4em;
+  text-align: center;
+  font-size: 1em;
+}
+
+.fraction>span {
+  display: block;
+  padding-top: 0.15em;
+}
+
+.fraction span.fdn {
+  border-top: thin solid black;
+}
+
+.fraction span.bar {
+  display: none;
+}
+  footer {
+    background-color:  rgba(78, 192, 245,.4);
+    font-size: 13px;
+    text-align: center;
+    float: bottom;
+    /* z-index: 500; */
+    
+}
+@media (max-width: 650px) {
+    #header {
+        display: none;
+    }
+    body {
+        font-size: 14px;
+    }
+    .column {      
+      max-width: 50%;
+    }
+}

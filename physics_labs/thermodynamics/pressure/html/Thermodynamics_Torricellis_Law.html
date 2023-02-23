@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Variation of Pressure with Depth</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel="shortcut icon" href="../files/favicon_white.ico" media="(prefers-color-scheme: dark)" />
+    <link rel="shortcut icon" href="../files/favicon.ico" media="(prefers-color-scheme: light)" />
+    <link rel="stylesheet" type="text/css" href="../css/style-page.css">
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-7VWWT4ZKR6"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-7VWWT4ZKR6');
+    </script>
+    <meta name="google-site-verification" content="mz0TRB59UNqdTxhwzmXmGdgVPh8pB4YqjuUr-aWNGIY">
+
+</head>
+
+<body>
+
+    <div style="font-weight: normal;  text-decoration-line: none; padding-bottom: 2px;" id="topmenu">
+        <div>Variation of Fluid Speed with Depth</div>
+
+    </div>
+    <div id="sidemenu">
+
+        <strong>Pressure, P = h &rho; g + P<sub>o</sub>
+            <br>
+            P<sub>o</sub> = 1 atm &
+            <br>
+            1 atm = 101325 Pa ~ 1.01 &times; 10<sup>5</sup> Pa,
+            <br>
+            <table style="border: 5px; background-color: aqua; font-size:medium">
+                <tr>
+                    <td>P =</td>
+                    <td><a id="unitAtm"> 1.00 atm </a></td>
+                </tr>
+                <tr>
+                    <td>P =</td>
+                    <td><a id="unitPa"> 1.01 </a> &times; 10<sup>5</sup> Pa</td>
+                </tr>
+
+            </table>
+
+    </div>
+
+
+    <div id="menu">
+        <a id="message-el"><strong>Visualise underlying physics action </strong></a><br>
+        <table style="display:block" id="visualEL">
+            <tr>
+                <td> <label for="fluidH"><strong>Fluid Height,</strong></label></td>
+                <td> <strong>H</strong></td>
+                <td> = </td>
+                <td style="text-align: right;"><input type="range" id="fluidH" name="fluidH" min="5" max="100"
+                        value="40" step="5">,</td>
+                <td><input id="fluidHEl" size="4"> </td>
+                <td>m</td>
+            </tr>
+            <tr>
+                <td> <label for="nozzleH"><strong>Nozzle Position,</strong></label></td>
+                <td> <strong>h</strong></td>
+                <td> = </td>
+                <td style="text-align: right;"><input type="range" id="nozzleH" name="nozzleH" min="2" max="45"
+                        value="20" step="2">,</td>
+                <td><input id="nozzleHEl" size="4"> </td>
+                <td>m</td>
+            </tr>
+            <tr>
+                <td> <label for="tankR"><strong>Tank Radius, </strong></label></td>
+                <td> <strong>R</strong></td>
+                <td> = </td>
+                <td style="text-align: right;"><input type="range" id="tankR" name="tankR" min="5" max="25" value="10"
+                        step="1">,</td>
+                <td> <input id="tankREl" size="4"></td>
+                <td>m</td>
+            </tr>
+            <tr>
+                <td> <label for="nozzleR"><strong>Nozzle Radius,</strong></td>
+                <td> <strong>r</strong></td>
+                <td> = </td>
+                <td style="text-align: right;"><input type="range" id="nozzleR" name="nozzleR" min="0.25" max="10"
+                        value="0.5" step="0.25">,</td>
+                <td> <input id="nozzleREl" size="4"></td>
+                <td>m</td>
+            </tr>
+            <tr>
+                <td> <label for="fluidV"><strong>Fluid Speed,</strong></td>
+                <td> <strong>v</strong></td>
+                <td> = </td>
+                <td style="text-align: center;"><strong>&Sqrt;</strong><a style="text-decoration: overline;">
+                        2g(H-h)</a> = </td>
+                <td> <input id="fluidVEl" size="4"></td>
+                <td>m/s</td>
+            </tr>
+        </table>
+        <button id="law">TORRICELLI'S LAW</button>
+        <button id="reset">RESET</button>
+
+        <button onClick="pressure()">PRESSURE</button>
+    </div>
+    <script>
+
+        function pressure() {
+
+            window.open("Thermodynamics_Pressure.html", "_self")
+        }
+
+    </script>
+    <script type="module">
+        import * as THREE from '../build/three.module.js';
+        import { OrbitControls } from '../jsm/controls/OrbitControls.js';
+        import { TransformControls } from '../jsm/controls/TransformControls.js';
+        import { GUI } from '../jsm/libs/lil-gui.module.min.js';
+
+
+        let camera, aspect, fov;
+        let scene, renderer, controls, transformControls, fluid, valve;
+        let reserveTank, cylinder, flowMesh, base, indicator;
+        let fluidMaterial, greyMaterial, redMaterial, material;
+        let pressureMaterial, pressureLabel, pressureDisplay, pressureGauge, labelGeometry;
+        let flowParabola, flowPoints, flowSpline;
+        let hDist, HDist;
+        let hdisplayValue, HdisplayValue, hdisplayMaterial, HdisplayMaterial;
+        let t = 0;
+        let line = new THREE.Group(), group = new THREE.Group(), label = new THREE.Group();
+        let clock = new THREE.Clock();
+        let v = new THREE.Vector3();
+        let X;
+
+        let earth;
+        let data = [], pathPoints = [];
+        const g = 9.8;
+        const atm = 101325;
+        let presentPoint = new THREE.Vector3(-6, 0, 0);
+        let nextPoint = new THREE.Vector3(-6, 0, 0);
+        let params = {
+            h: 20, //position of nozzle from ground
+            H: 40, //fluid height from ground
+            R: 15, // radius of fluid tank
+            r: 3,   //radius of nozzle
+            V: 0,
+            posH: 30,
+            Fdensity: 1000,
+            factor1: 9.8692e-6,
+            factor2: 1e-5
+        }
+        let visualEl = document.getElementById("visualEL");
+        let fluidHInput = document.getElementById("fluidH");
+        let fluidHEl = document.getElementById("fluidHEl");
+        let nozzleHInput = document.getElementById("nozzleH");
+        let nozzleHEl = document.getElementById("nozzleHEl");
+        let tankRInput = document.getElementById("tankR");
+        let tankREl = document.getElementById("tankREl");
+        let nozzleRInput = document.getElementById("nozzleR");
+        let nozzleREl = document.getElementById("nozzleREl");
+        let fluidVEl = document.getElementById("fluidVEl");
+        fluidHEl.value = fluidHInput.value;
+        nozzleHEl.value = nozzleHInput.value;
+        tankREl.value = tankRInput.value;
+        nozzleREl.value = nozzleRInput.value;
+        fluidHInput.min = Number(nozzleHEl.value) + 5;
+        fluidVEl.value = flowPath();
+        params.H = Number(fluidHInput.value);
+        params.h = Number(nozzleHInput.value);
+        params.R = Number(tankRInput.value);
+        params.r = Number(nozzleRInput.value);
+        params.V = Number(fluidVEl.value);
+        let buttonAction = document.getElementById("action");
+        let buttonReset = document.getElementById("reset");
+        let buttonLaw = document.getElementById("law");
+        let atmEl = document.getElementById("unitAtm");
+        let paEl = document.getElementById("unitPa");
+        init()
+        animate()
+
+        function guiControls() {
+            let gui = new GUI();
+            // gui.close()
+            // camera control adjust
+            // console.log(camera.position)
+            let controlFolder = gui.addFolder("Control");
+            controlFolder.add(controls.target, 'x', -100, 100);
+            controlFolder.add(controls.target, 'y', -100, 100);
+            controlFolder.add(controls.target, 'z', -100, 100);
+            // // let cameraFolder = gui.addFolder("Camera");
+            gui.add(camera.position, 'x', -100, 100);
+            gui.add(camera.position, 'y', -100, 100);
+            gui.add(camera.position, 'z', -100, 100);
+
+        }
+
+        function flowPath() {
+
+            let vel = Number(Math.pow(2 * (params.H - params.h) * g, 0.5).toFixed(2))
+            let a = params.h < 15 ? params.h / 10 : params.h / 20;
+            for (let i = params.h; i >= -3; i = i - a) {
+
+                let X = Number(Math.pow(((2 * (params.h - i)) / g), 0.5).toFixed(3));
+                let D = Number((X * vel).toFixed(3));
+
+                pathPoints.push(new THREE.Vector3(D, i, 0));
+            }
+            return vel
+        }
+
+        function torricelliLaw(h) {
+            pathPoints = [];
+            let vel = Number(Math.pow(2 * (params.H - h) * g, 0.5).toFixed(3));
+            let a = h < 15 ? h / 10 : h / 20;
+            for (let i = h; i >= -3; i = i - a) {
+                let X = Number(Math.pow(((2 * (h - i)) / g), 0.5).toFixed(3));
+                let D = Number((X * vel).toFixed(3));
+                pathPoints.push(new THREE.Vector3(D, i, 0));
+            }
+            return pathPoints
+        }
+
+        function labelDisplay() {
+            scene.remove(label);
+
+            label = new THREE.Group()
+
+            scene.add(label);
+            label.add(hdisplayValue, HdisplayValue);
+
+            hDist = initLine({
+                points: [new THREE.Vector3(-params.R * 2 - 4, 0, 0), new THREE.Vector3(-params.R * 2 - 4, params.h, 0)],
+                lineMaterial: new THREE.LineBasicMaterial({ color: "rgb(0%, 60%, 0%)" })
+            });
+            label.add(hDist);
+            HDist = initLine({
+                points: [new THREE.Vector3(-params.R * 2 - 8, 0, 0), new THREE.Vector3(-params.R * 2 - 8, params.H, 0)],
+                lineMaterial: new THREE.LineBasicMaterial({ color: "rgb(60%, 0%, 0%)" })
+            });
+            label.add(HDist);
+
+
+            hdisplayValue.position.set(-params.R * 2 - 8, params.h / 2, 0);
+            HdisplayMaterial.map = new THREE.CanvasTexture(makeLabelCanvas(32, '   h = ' + params.h + ' m   ', "rgba(0, 0, 0, 0.3)", 'black'));
+
+
+            HdisplayValue.position.set(-params.R * 2 - 10, params.H / 2, 0);
+            hdisplayMaterial.map = new THREE.CanvasTexture(makeLabelCanvas(32, '   H = ' + params.H + ' m   ', "rgba(0, 1, 0, 0.8)", 'white'));
+        }
+
+        function init() {
+            //scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xbfd1e5);
+
+            //camera
+            createCamera(11.5, 20, 60);
+            createRenderer();
+            // createControls(7, 14, 0);
+            createLights();
+            // flowPath();
+            let scaleHorizontal = new THREE.GridHelper(160, 160);
+            scene.add(scaleHorizontal);
+            let texture = new THREE.TextureLoader().load('./assets/gravity/waterNormal.jpg')
+
+            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+            material = new THREE.MeshPhongMaterial({
+                color: 'aqua',
+                map: texture,
+                side: THREE.BackSide,
+                transparent: true,
+                opacity: 0.6
+            });
+            redMaterial = new THREE.MeshPhongMaterial({
+                color: 0xff0000,
+                side: THREE.DoubleSide,
+                shininess: 1,
+                specular: 0x222222
+            });
+            const labelMaterial = new THREE.MeshBasicMaterial({
+
+                side: THREE.DoubleSide,
+                transparent: true,
+            });
+
+            pressureMaterial = new THREE.MeshBasicMaterial({
+
+                side: THREE.DoubleSide,
+                transparent: true,
+            });
+
+            hdisplayMaterial = new THREE.MeshBasicMaterial({
+
+                side: THREE.DoubleSide,
+                transparent: true,
+            });
+
+            HdisplayMaterial = new THREE.MeshBasicMaterial({
+
+                side: THREE.DoubleSide,
+                transparent: true,
+            });
+
+            greyMaterial = new THREE.MeshPhongMaterial({
+                color: 'grey',
+                side: THREE.DoubleSide,
+                shininess: 0,
+                specular: 0x222222
+            });
+            pressureGauge = createPipe(10, .5, 32, false, 1.57, 3.14, greyMaterial, 1.57, -6)
+            pressureGauge.position.set(25, params.posH, 0)
+            scene.add(pressureGauge)
+            labelGeometry = new THREE.PlaneBufferGeometry(10, 10);
+            pressureGauge.add(makeText(0, 6, .5, 32, labelMaterial, 'Pressure Gauge', "rgba(0, 0, 0, 0.8)", 'white'))
+            pressureLabel = makeText(0, 10, .5, 32, pressureMaterial, '0.00' + ' kPa ', "rgba(0, 0, 0, 0)", 'black')
+            pressureGauge.add(pressureLabel)
+
+            reserveTank = createBox(80, 50, params.H, material, new THREE.Vector3(40, -50, 0), true);
+            scene.add(reserveTank)
+
+
+            let measureSpline = new THREE.CatmullRomCurve3(pathPoints);
+            let tubeGeometry = new THREE.TubeGeometry(measureSpline, 16, params.r, 8, false);
+            let material1 = new THREE.MeshLambertMaterial({ color: 0xb00000, wireframe: false });
+            flowMesh = new THREE.Mesh(tubeGeometry, material);
+            group.add(flowMesh)
+
+
+            hdisplayValue = makeText(0, 0, .5, 32, HdisplayMaterial, '   h = ' + 0 + ' m   ', "rgba(0, 1, 0, 0)", 'red')
+            HdisplayValue = makeText(0, 0, .5, 32, hdisplayMaterial, '   H = ' + 0 + ' m   ', "rgba(0, 1, 0, 0)", 'red')
+            //fluid and the cylindrical tank
+            cylinder = createPipe(params.R + 0.3, params.H + 5, 32, true, 0, 4.14, redMaterial, 0, 0)
+            cylinder.position.set(-params.R - 0.15, (params.H + 5) / 2, 0);
+            cylinder.rotation.y = 1.2;
+            group.add(cylinder);
+
+            fluid = createPipe(params.R, params.H, 32, false, 0, Math.PI * 2, material, 0, 0)
+            fluid.position.set(-params.R, params.H / 2, 0)
+            group.add(fluid);
+
+            // let base = createPipe(params.R + 0.3, 3, 32, false, 0, Math.PI * 2, redMaterial)
+            base = createBox(params.R * 2 + 0.5, 3, params.R * 2 + 0.5, redMaterial, new THREE.Vector3(-params.R - 0.5, -3.1, 0), true)
+            // base.position.set(-params.R - 0.15, -1.5, 0)
+            group.add(base);
+            valve = createPipe(params.r + 0.1, 2, 16, true, 0, 6.28, redMaterial, 0, 0);
+            valve.position.set(0.5, params.h - 0.1, 0);
+            valve.rotation.set(0, 0, 1.57);
+            group.add(valve);
+            scene.add(group)
+
+            // Add speed indicator
+            let bodyGeometry = new THREE.BoxGeometry(1.5, params.r + 0.1, params.r + 0.1);
+            indicator = new THREE.Mesh(bodyGeometry, redMaterial);
+            scene.add(indicator);
+
+            changeFlow()
+
+
+            labelDisplay()
+
+            buttonControls()
+            transformControls = new TransformControls(camera, renderer.domElement);
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enablePan = true;
+            controls.enableZoom = true;
+            controls.target.set(7, 18, 0);
+
+            transformControls.addEventListener('change', function () {
+                let A = pressureGauge.position.y;
+
+                let X = params.H - A;
+
+                if (pressureGauge.position.y < 0 && pressureGauge.position.x < 0) {
+                    pressureGauge.position.y = 0
+                } else if (pressureGauge.position.y < -50) {
+                    pressureGauge.position.y = -50
+                }
+
+
+            });
+
+            transformControls.addEventListener('dragging-changed', function (event) {
+                controls.enabled = !event.value
+
+                let X = Number(params.H - pressureGauge.position.y).toFixed(2);
+                // console.log(pressureGauge.position.y, reserveTank.position)
+                if (pressureGauge.position.x > -2 * params.R && pressureGauge.position.x < 0 && pressureGauge.position.z > -params.R && pressureGauge.position.z < params.R && pressureGauge.position.y >= 0) {
+                    pressureCal(X)
+                } else if (pressureGauge.position.x > 0 && pressureGauge.position.x < 80 && pressureGauge.position.z > -25 && pressureGauge.position.z < 25 && pressureGauge.position.y < 0) {
+                    let Y = (- pressureGauge.position.y).toFixed(2)
+                    pressureCal(Y)
+                } else {
+                    pressureCal(0)
+
+                }
+
+            });
+
+            transformControls.size = 0.5;
+            scene.add(transformControls);
+            transformControls.attach(pressureGauge)
+
+            // guiControls()
+            document.body.appendChild(renderer.domElement);
+            // planetMovement()
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function buttonControls() {
+
+            fluidHInput.addEventListener('input', function () {
+                fluidHInput.min = params.h + 5;
+                fluidHEl.value = fluidHInput.value;
+                params.H = Number(fluidHInput.value);
+
+                changeHeight()
+                changeFlow()
+                labelDisplay()
+            })
+
+            nozzleHInput.addEventListener('input', function () {
+                nozzleHInput.max = Number(params.H) - 5;
+                nozzleHEl.value = nozzleHInput.value;
+                params.h = Number(nozzleHInput.value);
+                fluidHInput.min = params.h + 5;
+
+                if (params.r >= (params.H - params.h)) {
+                    nozzleHInput.max = params.H - params.r - 2;
+                    changeFlow()
+                } else {
+                    nozzleHInput.max = Number(params.H) - 5;
+                    nozzleRInput.max = Number(params.R) / 2 - 4;
+                    changeFlow()
+                }
+                labelDisplay()
+            })
+
+            tankRInput.addEventListener('input', function () {
+                tankREl.value = tankRInput.value;
+                params.R = Number(tankRInput.value);
+                tankRInput.min = params.r + 6;
+                changeHeight()
+            })
+
+            nozzleRInput.addEventListener('input', function () {
+                nozzleREl.value = nozzleRInput.value;
+                params.r = Number(nozzleRInput.value);
+                nozzleRInput.max = Number(params.R) / 2 - 2;
+                valveRadius()
+                changeFlow()
+            })
+
+            buttonLaw.addEventListener('click', function () {
+                cancelAnimationFrame(indicatorMovement)
+                indicator.visible = false;
+                fluidHInput.value = 70;
+                fluidHEl.value = 70;
+                params.H = 70;
+                nozzleHInput.value = 65;
+                nozzleHEl.value = 65;
+                params.h = 65;
+                tankRInput.value = 10;
+                tankREl.value = 10;
+                params.R = 10;
+                scene.remove(group);
+                group = new THREE.Group();
+                changeHeight();
+                visualEl.style.display = 'none';
+                for (let i = 2; i < params.H; i = i + 5) {
+                    data = []
+                    data = torricelliLaw(i)
+                    const measureSpline = new THREE.CatmullRomCurve3(data);
+                    let tubeGeometry = new THREE.TubeGeometry(measureSpline, 16, 1, 8, false);
+                    let material1 = new THREE.MeshLambertMaterial({ color: 0xb00000, wireframe: false });
+                    let mesh = new THREE.Mesh(tubeGeometry, material);
+                    line.add(mesh)
+                    valve = createPipe(1.1, 2, 16, true, 0, 6.28, redMaterial, 0, 0)
+                    line.add(valve);
+                    valve.rotation.set(0, 0, -1.57);
+                    valve.position.set(0.5, i - 0.1, 0);
+
+
+                }
+                scene.add(line, group)
+                camera.position.set(3, 25, 75);
+                controls.target.set(7, 25, 0);
+            })
+
+            buttonReset.addEventListener('click', function () {
+                scene.remove(group, line);
+                group = new THREE.Group();
+                indicator.visible = true;
+                fluidHInput.value = 40;
+                fluidHEl.value = 40;
+                params.H = 40;
+                nozzleHInput.value = 20;
+                nozzleHEl.value = 20;
+                params.h = 20;
+                tankRInput.value = 10;
+                tankREl.value = 10;
+                params.R = 10;
+                nozzleRInput.value = 0.5;
+                nozzleREl.value = 0.5;
+                params.r = 0.5;
+                valve = createPipe(params.r + 0.1, 2, 16, true, 0, 6.28, redMaterial, 0, 0);
+                valve.position.set(0.5, params.h - 0.1, 0);
+                valve.rotation.set(0, 0, 1.57);
+                group.add(valve);
+                scene.add(group);
+                visualEl.style.display = 'block';
+                changeHeight();
+                changeFlow();
+                labelDisplay();
+            })
+        }
+
+        function changeHeight() {
+
+            group.remove(fluid, cylinder, base)
+            cylinder = createPipe(params.R + 0.3, params.H + 5, 32, true, 0, 4.14, redMaterial, 0, 0)
+            cylinder.position.set(-params.R - 0.15, (params.H + 5) / 2, 0);
+            cylinder.rotation.y = 1.2;
+            group.add(cylinder);
+            fluid = createPipe(params.R, params.H, 32, false, 0, Math.PI * 2, material, 0, 0);
+            fluid.position.set(-params.R, params.H / 2, 0)
+            group.add(fluid);
+            base = createBox(params.R * 2 + 0.5, 3, params.R * 2 + 0.5, redMaterial, new THREE.Vector3(-params.R - 0.5, -3.1, 0), true);
+            group.add(base);
+
+        }
+
+        function changeFlow() {
+            group.remove(flowMesh);
+            valve.position.set(0.5, params.h - 0.1, 0);
+            pathPoints = [];
+            fluidVEl.value = flowPath();
+            params.V = Number(fluidVEl.value)
+            flowSpline = new THREE.CatmullRomCurve3(pathPoints);
+            let tubeGeometry = new THREE.TubeGeometry(flowSpline, 16, params.r, 8, false);
+
+            flowMesh = new THREE.Mesh(tubeGeometry, material);
+            group.add(flowMesh)
+            flowSpline = new THREE.CatmullRomCurve3(pathPoints);
+            flowPoints = flowSpline.getPoints(50);
+            const geometry = new THREE.BufferGeometry().setFromPoints(flowPoints);
+
+            const m = new THREE.LineBasicMaterial({ color: 0xff0000 });
+
+            // Create the final object to add to the scene
+
+            flowParabola = new THREE.Line(geometry, m);
+
+
+            indicatorMovement()
+        }
+
+        function valveRadius() {
+            group.remove(valve)
+            valve = createPipe(params.r + 0.1, 2, 16, true, 0, 6.28, redMaterial, 0, 0)
+            valve.position.set(0.5, params.h - 0.1, 0);
+            valve.rotation.set(0, 0, 1.57);
+            group.add(valve)
+        }
+
+        function createPipe(r, h, vertex, boolean, angle1, angle2, tex, theta, A) {
+
+            let cylinderGeometry = new THREE.CylinderGeometry(r, r, h, vertex, 1, boolean, angle1, angle2).translate(0, 0, A).rotateX(theta);
+
+            let pipe = new THREE.Mesh(cylinderGeometry, tex)
+            // pipe.rotation.y = 1.2;
+            return pipe
+        }
+
+        function createBox(x, y, z, mat, loc, boolean) {
+            let geometry = new THREE.BoxGeometry(x, y, z).translate(0, y / 2, 0);
+
+
+            let box = new THREE.Mesh(geometry, mat);
+            box.position.copy(loc)
+            return box
+        }
+
+        function createCamera(x, y, z) {
+            fov = 75;
+            const aspect = window.innerWidth / window.innerHeight;
+            const near = 0.1;
+            const far = 1500;
+
+            camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+
+            camera.position.set(x, y, z);
+        }
+
+        function createControls(x, y, z) {
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enablePan = true;
+            controls.enableZoom = true;
+            controls.target.set(x, y, z);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.rotateSpeed = 0.1;
+            controls.update();
+            controls.addEventListener('change', render);
+        }
+
+        function createRenderer() {
+            // create the renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.alpha = true;
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.outputEncoding = THREE.sRGBEncoding;
+            document.body.appendChild(renderer.domElement);
+
+        }
+
+        function createLights() {
+            let hemiLight = new THREE.AmbientLight(0xffffff, .20);
+            hemiLight.position.set(0, 20, 0);
+            scene.add(hemiLight);
+
+            let dirLight = new THREE.DirectionalLight(0xffffff, 1);
+            dirLight.position.set(-30, 50, -30);
+            scene.add(dirLight);
+
+            scene.add(new THREE.AmbientLight(0xffffff, .4));
+        }
+
+        function onWindowResize() {
+
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+
+        }
+
+        function addLabels(name, col, x, y) {
+
+            let text = document.createElement('div');
+            text.className = 'label';
+            text.innerHTML = name;
+            text.style.color = col;
+
+            let label = new CSS2DObject(text);
+            label.position.x = x;
+            label.position.y = y;
+
+            return label
+        }
+
+        function render() {
+
+            renderer.render(scene, camera);
+
+        }
+
+        function animate() {
+
+            requestAnimationFrame(animate);
+            camera.lookAt(scene.position);
+            controls.update();
+
+            render();
+            // console.log(weight.position.y, spring.scale.y, mark.position.y)
+
+        }
+
+        function initLine(data) {
+            let lineGeometry = new THREE.BufferGeometry().setFromPoints(data.points);
+            line = new THREE.Line(lineGeometry, data.lineMaterial);
+            return line;
+        }
+
+        function makeLabelCanvas(size, name, backgdCol, color) {
+            const borderSize = 2;
+            const ctx = document.createElement('canvas').getContext('2d');
+            const font = `${size}px bold sans-serif`;
+            ctx.font = font;
+            // measure how long the name will be
+            const doubleBorderSize = borderSize * 2;
+            const width = ctx.measureText(name).width + doubleBorderSize;
+            const height = size + doubleBorderSize;
+            ctx.canvas.width = width;
+            ctx.canvas.height = height;
+
+            // need to set font again after resizing canvas
+            ctx.font = font;
+            ctx.textBaseline = 'top';
+
+            ctx.fillStyle = backgdCol;
+            ctx.fillRect(0, 0, width, height);
+            ctx.fillStyle = color;
+            ctx.fillText(name, borderSize, borderSize);
+
+            return ctx.canvas;
+        }
+
+        function makeText(x, y, z, size, material, name, backgdCol, color) {
+            const canvas = makeLabelCanvas(size, name, backgdCol, color);
+            material.map = new THREE.CanvasTexture(canvas);
+
+            const root = new THREE.Object3D();
+            root.position.set(x, y, z);
+
+            const label = new THREE.Mesh(labelGeometry, material);
+            root.add(label);
+            const labelBaseScale = 0.01;
+            label.scale.x = canvas.width * labelBaseScale;
+            label.scale.y = canvas.height * labelBaseScale;
+
+            scene.add(root);
+            return root;
+        }
+
+        function pressureCal(pos) {
+            let A = Number(pos).toFixed(2)
+            let diff = A < 0 ? 0 : A;
+
+
+            let P = diff * params.Fdensity * g
+            let pValue = (P / 1000).toFixed(2)
+            pressureMaterial.map = new THREE.CanvasTexture(makeLabelCanvas(32, pValue + ' kPa', "rgba(0, 0, 0, 0)", 'black'));
+            atmEl.innerHTML = Number((P + atm) * params.factor1).toFixed(2) + ' atm'
+            paEl.innerHTML = Number((P + atm) * params.factor2).toFixed(2)
+            // return P
+            // console.log(pos, params.H - pos, diff, P)
+        }
+
+        function indicatorMovement() {
+            const N0 = new THREE.Vector3(0, 1, 0), N = new THREE.Vector3(0, -1, 0), B = new THREE.Vector3();
+            let matrix3 = new THREE.Matrix3();
+            let matrix4 = new THREE.Matrix4();
+            let P = new THREE.Vector3();
+
+            t = (clock.getElapsedTime() * (5 / params.h)) % 1;
+
+            let X = flowSpline.getTangent(t);
+            B.crossVectors(X, N);
+            N.crossVectors(X, B.negate());
+
+            matrix3.set(-X.x, N.x, B.x, - X.y, N.y, B.y, -X.z, N.z, B.z); // transposed arranged
+            matrix4.setFromMatrix3(matrix3);
+
+            P = flowSpline.getPoint(t);
+
+            indicator.setRotationFromMatrix(matrix4);
+            indicator.position.set(P.x, P.y, P.z);
+            requestAnimationFrame(indicatorMovement);
+        }
+
+        function addParabola() {
+
+
+            let pathPoints = [];
+            for (let i = 50; i >= -3; i = i - 1.5) {
+
+                let X = Number(Math.pow(((2 * (50 - i)) / 10), 0.5).toFixed(3));
+                let D = Number((X * 20).toFixed(3));
+
+                pathPoints.push(new THREE.Vector3(D, i, 0));
+            }
+
+
+            const spline = new THREE.CatmullRomCurve3(pathPoints);
+
+            const points = spline.getSpacedPoints(50);
+            const geometry = new THREE.BufferGeometry().setFromPoints(points);
+
+            const material = new THREE.LineBasicMaterial({ color: 'green' });
+
+            // Create the final object to add to the scene
+            const parabola = new THREE.Line(geometry, material);
+
+            return { spline, points, parabola }
+
+        }
+
+    </script>
+</body>
+
+</html>

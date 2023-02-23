@@ -1,0 +1,46 @@
+{
+	"Eyepiece": [
+		"Eyepiece (ocular lens)",
+		"It's a cylinder containing two or more lenses; its function is to bring the image into focus for the eye. "	
+	],
+
+	"Coarse_knob": [
+		"Coarse Knob",
+		"Adjustment knobs move the stage up and down with separate adjustment for coarse and fine focusing. The same controls enable the microscope to adjust to specimens of different thickness. "
+	],
+
+	"Objective_lens": [
+		"Objective Lens",
+		"The set of objective lenses are part of the Objective turret, revolver, or revolving nose piece. Microscope objectives are characterized by two parameters, namely, magnification and numerical aperture. The former typically ranges from 5× to 100× while the latter ranges from 0.14 to 0.7, corresponding to focal lengths of about 40 to 2 mm, respectively."
+	],
+
+	"Light_source": [
+		"Light Source",
+		"Many sources of light can be used. At its simplest, daylight is directed via a mirror. Most microscopes, however, have their own adjustable and controllable light source."
+	],
+
+	"Focus_stop": [
+		"Focus Stop",
+		"Focus stop for the objective lenses movement."
+	],
+
+	"Condenser": [
+		"Condenser",
+		"The condenser is a lens designed to focus light from the illumination source onto the sample. The condenser may also include other features, such as a diaphragm and/or filters, to manage the quality and intensity of the illumination."
+	],
+
+	"Sample_stage": [
+		"Sample Stage",
+		"The stage is a platform below the objective lens which supports the specimen being viewed. In the center of the stage is a hole through which light passes to illuminate the specimen. The stage usually has arms to hold slides."
+	],
+
+	"Fine_knob": [
+		"Fine Knob",
+		"Adjustment knobs move the stage up and down with separate adjustment for coarse and fine focusing. The same controls enable the microscope to adjust to specimens of different thickness."
+	],
+	
+	"Frame": [
+		"Frame",
+		"The whole of the optical assembly is traditionally attached to a rigid arm, which in turn is attached to a robust U-shaped foot to provide the necessary rigidity. The arm angle may be adjustable to allow the viewing angle to be adjusted. The frame provides a mounting point for various microscope controls. "
+	]
+}

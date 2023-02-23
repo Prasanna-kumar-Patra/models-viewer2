@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        .row::after {
+            content: "";
+            clear: both;
+            display: table;
+        }
+
+        [class*="col-"] {
+            float: left;
+            padding: 15px;
+        }
+
+        .col-3 {
+            width: 40%;
+        }
+
+        .header {
+            background-color: #9933cc;
+            color: #ffffff;
+            padding: 15px;
+        }
+
+        .menu ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .menu li {
+            height: 65px;
+            text-align: center;
+            padding: 21px;
+            margin-bottom: 22px;
+            background-color: #33b5e5;
+            color: #ffffff;
+            font-size: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+        }
+
+        .menu li:hover {
+            background-color: #0099cc;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h2 style="text-align: center;">Physics lab</h2>
+    </div>
+
+
+    <div class="row">
+        <div class="col-3 menu">
+            <ul>
+                <a href="optics/microscope/Optics_Compound_Microscope.html">
+                    <li> Compound Microscope </li>
+                </a>
+                <a href="optics/conversing_lens/Optics_Converging_Lens.html">
+                    <li>Converging Lens </li>
+                </a>
+                <a href="thermodynamics/pressure/index.html">
+                    <li> Pressure </li>
+                </a>
+                <a href="mechanics/simple_pendulam/index.html">
+                    <li> Simple Pendulam </li>
+                </a>
+
+            </ul>
+        </div>
+
+</body>
+
+</html>

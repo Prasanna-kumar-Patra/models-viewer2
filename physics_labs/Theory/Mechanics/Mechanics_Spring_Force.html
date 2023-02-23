@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Spring Force (Hook's Law) </title>
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link rel="shortcut icon" href="../../files/favicon_white.ico" media="(prefers-color-scheme: dark)"/>
+		<link rel="shortcut icon" href="../../files/favicon.ico" media="(prefers-color-scheme: light)" />
+		<link rel="stylesheet" type="text/css"  href="../../css/style-theory.css">
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+		<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-7VWWT4ZKR6"></script>
+		<script>
+		  window.dataLayer = window.dataLayer || [];
+		  function gtag(){dataLayer.push(arguments);}
+		  gtag('js', new Date());
+	
+		  gtag('config', 'G-7VWWT4ZKR6');
+		</script>
+		<meta name="google-site-verification" content="mz0TRB59UNqdTxhwzmXmGdgVPh8pB4YqjuUr-aWNGIY">
+		
+	</head>
+   
+
+    <!-- Here is our page's main content -->
+   
+  <article>
+    <div id="part1" onclick="simSite()" class="content"> 
+      <h2> Physics 3D Interactive Simulation</h2>
+
+<button onclick="simSite()"><span><strong>3D SIMULATION</strong> </span></button>
+Press the button to visualise 'Spring Force' in 3D 
+   </div>
+ 
+ <div id="part2" class="content">
+         
+          <h2>Spring Force (Hook's Law)</h2>
+          <p> In physics, Hooke's law is an empirical law which states that the force, \(F_{s}\) needed to 
+            extend a spring by some distance \(d\) scales linearly with respect to that distance,
+              $$ \vec{F_{s}} = -k\vec{d}  $$ 
+            
+           
+              where \(k\) is a constant factor characteristic of the spring ((a measure of the spring's stiffness), 
+              and \(\vec{d}\) is the displacement of the spring's free end from its position when 
+              the spring is in its <b>relaxed state</b> (neither compressed nor
+              extended) also \(d\) is small compared to the total possible deformation of the spring.
+              <dl>
+                <dt>
+                    &#160 &#xa0 &#10148    Hooke's law: the force is proportional to the extension 
+               </dt>
+           </dl> 
+           <dl>
+            <dt>
+                &#160 &#xa0 &#10148     The direction of the restoring force is opposite to that of the displacement.
+           </dt>
+          </dl>            
+              <dl>
+                  <dt>
+                      &#160 &#xa0 &#10148     A spring force is thus a variable force: It varies with the
+                      displacement of the spring's free end.  
+                 </dt>
+             </dl>  
+          </p>
+      </div>
+      <div id="part3" class="content">
+            <h2>Work done by the Spring Force</h2>
+            If an object is attached to the spring's free end, the work \(W_{s}\) done on the 
+            object by the spring force when the object is moved from an initial position 
+            to a final position \(x\) is given by
+                  \[W_{s}= -\frac{1}{2}kx^{2}\]        
+        
+      </div>
+          
+          <div id="part4" class="content">
+              
+              <h2>Work Done by an Applied Force</h2>
+              <p>
+                If a weight block that is attached to a spring is stationary before and after a displacement,
+                then the work done on it by the applied force displacing it is the negative of the
+                work done on it by the spring force.
+                \[W_{a}= -W_{s} \]
+              </p>
+          
+           <h2>Spring Energy</h2>
+           <p>
+             The potential energy stored in the spring,
+             \[U_{s}= \frac{1}{2}kx^{2}\]  
+           </p>
+  
+           <dl>
+            <dt>
+                &#160 &#xa0 &#10148  Work done on the spring is stored in the spring as the Spring Potenial Energy.
+           </dt>
+       </dl>
+          </div>
+          <div id="part5" class="content">
+              
+            <h2> SIMPLE HARMONIC MOTION</h2>
+
+             
+           <h2> Understanding simple harmonic motion (SHM)</h2>
+           <div> <iframe src="../Simulations/Mechanics_Spring_Force.html" name="iframe" height="550px" width="100%" style="border:none;" title="simulation"></iframe></div>
+          
+            <p>
+              Any motion that repeats at regular intervals is called periodic motion or harmonic motion. 
+              Here we are interested in a periodic motion of simple harmonic motion (SHM) type which can be
+              represented using a sinusoidal function of time \(t\). In simple harmonic motion (SHM), the 
+              displacement \(x(t)\) of a particle from its equilibrium position is described by the equation
+              $$ x = x_{m} \cos(\omega t + \phi) $$
+              in which \(x_{m}\) is the amplitude of the displacement, \((\omega t + \phi)\) is
+              the phase of the motion, and \(\phi\) is the phase constant. The
+              angular frequency \(\omega\) is related to the period and frequency of
+              the motion by 
+              $$\omega = \frac{2\pi}{T} = 2\pi f$$
+             
+              Differentiating \(x(t)\) leads to equations for the particle's SHM velocity and acceleration 
+              as functions of time:
+              <p>
+                velocity
+                $$v = - \omega x_{m} \sin(\omega t + \phi)  $$
+              </p>
+              <p>
+               acceleration
+                $$ a = -\omega^{2} x_{m} \cos(\omega t + \phi)  $$
+              </p>
+              In the velocity function, the positive quantity \(\omega x_{m} \) is the velocity amplitude \(v_{m} \).
+              In the acceleration function, the positive quantity \(\omega^{2} x_{m} \) is the acceleration amplitude \(a_{m} \).
+              <h2> SHM in a Spring </h2>
+              <dl>
+                <dt>
+                  &#160 &#xa0 &#10148 In SHM, the net force of the system, is proportional to the displacement and acts in the opposite direction of the displacement.
+                     
+               </dt>
+              </dl> 
+              
+              A particle with mass \(m\) that moves under the influence of a
+              Hooke's law restoring force given by \(F = -kx\) is a linear simple harmonic 
+              oscillator with
+              <p>
+                Angular frequency,
+                $$\omega = \sqrt \frac{k}{m} $$
+              </p>
+             <p>
+               and Time Period,
+              $$ T = \frac{2\pi}{\omega} = 2\pi\sqrt \frac{m}{k} $$
+             </p>
+              
+             The mechanical energy of a linear oscillating spring is given by the sum of 
+             potential energy and kinetic energy.
+             
+             \[E = U(t) + K (t)\]
+  
+             \[U(t) = \frac{1}{2}kx^{2} = \frac{1}{2}kx_{m}^{2} \cos^{2}(\omega t+\phi) \] 
+             \[K(t) = \frac{1}{2}mv^{2} = \frac{1}{2}m\omega^{2}x_{m}^{2}\sin^{2}(\omega t +\phi)\]
+             where the potential energy and kinetic energy of a linear oscillator are 
+             functions of time \(t\)
+             <dl>
+              <dt>
+                  &#160 &#xa0 &#10148  Angular frequency \(\omega = \sqrt \frac{k}{m}\) gives 
+                  spring constant \(k=\omega^{2}m\)
+                   
+             </dt>
+            </dl> 
+            
+            Thus, the mechanical energy in an oscillating spring is
+            \[E = \frac{1}{2} kx_{m}^{2} \]
+            <dl>
+              <dt>
+                  &#160 &#xa0 &#10148  The mechanical energy of a linear oscillator is constant and independent of
+                  time.
+                   
+             </dt>
+            </dl> 
+        </div>
+        
+       </p>
+</article>
+  
+<!-- And here is our main footer that is used across all the pages of our website -->
+
+<footer >
+  <p id="footer"></p>
+<p id="email"></p>
+</footer>
+<script>
+     function simSite() {
+
+        window.open("../../../mechanics/simple_pendulam/Mechanics_Spring_Force.html", "_self")
+    }
+  </script>
+
+<script type="module" src="../footer.js"></script>    
