@@ -7,7 +7,7 @@ var Controls = function (annotationClicked) {
   //self.audios ;
 
 
-  self.init = function () {
+  self.init = function (e) {
     self.create();
     self.createCOntrols();
     self.pauseAndResumeAudio();
