@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 
@@ -21,7 +22,10 @@
         }
 
         .col-3 {
-            width: 40%;
+            width: 15%;
+        }
+        .col-9{
+            width: 85%;
         }
 
         .header {
@@ -44,12 +48,14 @@
             background-color: #33b5e5;
             color: #ffffff;
             font-size: 20px;
+            cursor: pointer;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
         }
 
         .menu li:hover {
             background-color: #0099cc;
         }
+       
     </style>
 </head>
 
@@ -61,23 +67,37 @@
 
     <div class="row">
         <div class="col-3 menu">
-            <ul>
-                <a href="optics/microscope/Optics_Compound_Microscope.html">
-                    <li> Compound Microscope </li>
-                </a>
-                <a href="optics/converging_lens/Optics_Converging_Lens.html">
-                    <li>Converging Lens </li>
-                </a>
-                <a href="thermodynamics/pressure/index.html">
-                    <li> Pressure </li>
-                </a>
-                <a href="mechanics/simple_pendulum/index.html">
-                    <li> Simple Pendulum </li>
-                </a>
+            <ul id="ulList">
+                <li class="list" value="optics/microscope/Optics_Compound_Microscope.html"> Compound Microscope </li>
+                <li class="list" value="optics/converging_lens/Optics_Converging_Lens.html">Converging Lens </li>
+                <li class="list" value="optics/reflection_of_light/index.html">Reflection Of Light</li>
+                <li class="list" value="thermodynamics/pressure/index.html"> Pressure </li>
+                <li class="list" value="mechanics/simple_pendulum/index.html"> Simple Pendulum </li>
+                
 
             </ul>
         </div>
+        <div class="col-9 iframe" >
+            <iframe id="labPlayer" src="" style="width: 100%; height: 840px;"></iframe>
+        </div>
+    </div>
 
+    <script>
+        var ulList = document.querySelector("#ulList")
+        var iframePlayer = document.getElementById("labPlayer")
+        console.log("list-->",ulList)
+        ulList.querySelectorAll("li.list").forEach((list) => {
+            list.addEventListener('click', () => playIframe(list));
+        });
+
+        function playIframe(data){
+            console.log("data come from list click---->",data)
+            let url = data.getAttribute("value");
+            console.log("url--->",url);
+            iframePlayer.src = url;
+           // iframePlayer.setAttribute("src",url);
+        }
+    </script>
 </body>
 
 </html>

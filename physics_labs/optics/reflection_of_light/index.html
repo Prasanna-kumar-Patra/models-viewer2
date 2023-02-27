@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title> Reflection</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel="shortcut icon" href="../files/favicon_white.ico" media="(prefers-color-scheme: dark)" />
+    <link rel="shortcut icon" href="../files/favicon.ico" media="(prefers-color-scheme: light)" />
+    <link rel="stylesheet" type="text/css" href="../../css/style-page.css">
+    <style>
+        input[type=data] {
+            border: 2px solid #049EF4;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .label {
+            font-weight: bold;
+            font-size: 16px;
+            margin-left: 0px;
+            ;
+
+        }
+    </style>
+    <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-0JWHY29KD2"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-0JWHY29KD2');
+</script>
+    <meta name="google-site-verification" content="mz0TRB59UNqdTxhwzmXmGdgVPh8pB4YqjuUr-aWNGIY">
+
+</head>
+
+<body>
+
+    <div id="container">
+        <div id="topmenu">
+            <div>
+                Reflection</div>
+
+        </div>
+
+        <div id="sidemenu">
+
+
+
+        </div>
+
+        <div id="menu">
+            <strong>Click to select an object. <br>
+                Press 'T' to Translate & 'R' to Rotate .</strong><br>
+                <button id="moveEl">
+                    TRANSLATE
+                </button>
+                <button id="rotEl">
+                    ROTATE
+                </button>
+                <button id="lawEl">
+                    LAW OF REFLECTION
+                </button>
+        </div>
+
+    </div>
+
+    <script type="module">
+        import * as THREE from '../../build/three.module.js';
+        import { OrbitControls } from '../../jsm/controls/OrbitControls.js';
+        import { Reflector } from '../../jsm/objects/Reflector.js';
+        import { TransformControls } from '../../jsm/controls/TransformControls.js';
+        import Stats from '../../jsm/libs/stats.module.js';
+        // import { GUI } from '../jsm/libs/lil-gui.module.min.js';
+
+        let scene, camera, renderer, controls;
+        let sphere, earth, rod, image = new THREE.Object3D();
+        let mirror, mirrorBack;
+        let incidentRay, reflectedRay;
+        let width = window.innerWidth, height = window.innerHeight;
+        let enableSelection = false, law = false;
+        let SELECTED;
+        let transformControls;
+        const objects = [];
+        let eye;
+        let group = new THREE.Group();
+        const mouse = new THREE.Vector2(), raycaster = new THREE.Raycaster();
+
+        let params = {
+            ideg: 30,
+            irad: 30*(Math.PI/180),
+            pos: 9
+        }
+        let buttonMove = document.getElementById("moveEl");
+        let buttonRotate = document.getElementById("rotEl");
+        let buttonLaw = document.getElementById("lawEl");
+        
+
+        function createCamera() {
+            // Create a Camera
+            const fov = 50; // AKA Field of View
+            const aspect = width / height;
+            const near = 0.1; // the near clipping plane
+            const far = 1000; // the far clipping plane
+
+            camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+
+            camera.position.set(-20, 10, 20);
+            // camera.position.set(-10, 3, 40);
+        }
+
+        function createLights() {
+            // Create a directional light
+            const ambientLight = new THREE.HemisphereLight(0xddeeff, 0x202020, .3);
+            const mainLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            scene.add(ambientLight);
+
+            // move the light back and up a bit
+            mainLight.position.set(0, 10, 0);
+
+            // remember to add the light to the scene
+            scene.add(ambientLight, mainLight);
+        }
+
+        function createRenderer() {
+            // create the renderer
+            renderer = new THREE.WebGLRenderer({
+                antialias: true
+            });
+            renderer.alpha = true;
+            renderer.setSize(width, height);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFShadowMap;
+            document.body.appendChild(renderer.domElement);
+        }
+
+        function init() {
+            scene = new THREE.Scene;
+            scene.background = new THREE.Color(0xbfd1e5);
+            createCamera();
+            createLights();
+            createRenderer();
+            const geometry = new THREE.CylinderGeometry(.5, .5, 6, 6);
+            rod = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({color:'red'}) )
+            scene.add(rod)
+            rod.position.y = 3;
+            rod.position.x = 3;
+
+            let sphereGeometry = new THREE.SphereGeometry(2, 22, 16)           
+            let sphereMaterial = new THREE.MeshPhongMaterial({ color:'grey'});
+            sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+            scene.add(sphere);
+            sphere.position.y = 2;
+
+            let texture1 = new THREE.TextureLoader().load('../../assets/gravity/earth.jpg');
+            earth = new THREE.Mesh(new THREE.SphereGeometry(2, 22, 16), 
+            new THREE.MeshBasicMaterial({ map: texture1}))
+            scene.add(earth);
+            earth.position.y = 2;
+            earth.position.set(-5,2,15);
+
+            mirror = new Reflector(
+                new THREE.PlaneBufferGeometry(15, 15),
+                {
+                    color: new THREE.Color(0x7f7f7f),
+                    textureWidth: window.innerWidth * window.devicePixelRatio,
+                    textureHeight: window.innerHeight * window.devicePixelRatio
+                }
+            )
+
+            
+            scene.add(mirror)
+            mirrorBack = new THREE.Mesh(
+                new THREE.PlaneBufferGeometry(16, 16),
+                new THREE.MeshPhongMaterial({
+                    color: new THREE.Color(0x7f7f7f)
+                })
+            )
+            mirror.add(mirrorBack);
+            mirrorBack.position.z = -0.01;
+            mirror.rotation.x = 0;
+            mirror.position.set(0,8,-7.5);
+            
+            let Plane = new THREE.Mesh(new THREE.BoxBufferGeometry(), new THREE.MeshPhongMaterial({ color: 0xf9c834 }));
+            Plane.position.y = -0.52;
+            Plane.scale.set(70, 1, 70);
+            Plane.castShadow = true;
+            Plane.receiveShadow = true;
+            scene.add(Plane);
+            const axesHelper = new THREE.AxesHelper(8);
+            scene.add(axesHelper);
+            objects.push(earth)
+            objects.push(rod);
+            objects.push(sphere);
+
+            scene.add(image)
+            const scaleHorizontal = new THREE.GridHelper(70, 70);
+            scene.add(scaleHorizontal);
+            scaleHorizontal.position.y = -0.02;
+
+            transformControls = new TransformControls( camera, renderer.domElement);
+
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enablePan = true;
+            controls.enableZoom = true;
+            controls.target.set(0, 5, 0);
+
+            // transformControls.addEventListener('drag', render);
+            transformControls.addEventListener( 'change', function() {
+                // console.log(event, earth.position)
+                render
+                if (earth.position.y <= 2) {earth.position.y = 2} 
+                if (earth.position.z <= -5.5) {earth.position.z = -5.5} 
+                if (sphere.position.y <= 2) {sphere.position.y = 2} 
+                if (sphere.position.z <= -5.5) {sphere.position.z = -5.5} 
+                if (rod.position.y <= 3) {rod.position.y = 3} 
+                if (rod.position.z <= -2) {rod.position.z = -2} 
+                
+            }  );
+
+            transformControls.addEventListener( 'dragging-changed', function ( event ) {
+                // console.log(event, earth.position)
+					controls.enabled = ! event.value;
+                    if (law) {
+                    console.log(sphere.position)
+                    image.position.x = -sphere.position.x;
+                    image.position.y = sphere.position.y;
+                    image.position.z = -sphere.position.z;
+                    adjustRays(incidentRay,  sphere.position);
+                    adjustRays(reflectedRay, image.position);
+                    // scene.add(addLines(new THREE.Vector3(0, 0, 0), sphere.position, 'red'));
+                }
+				} );
+
+            transformControls.attach(earth);
+			scene.add( transformControls );
+            document.body.appendChild(renderer.domElement);
+
+            window.addEventListener('resize', onWindowResize);
+            window.addEventListener( 'keydown', function ( event ) {
+                // console.log( event.keyCode )
+                switch ( event.keyCode ) {
+                        case 84: // W
+                            transformControls.setMode( 'translate' );
+							break;
+
+						case 82: // E
+                            transformControls.setMode( 'rotate' );
+							break;
+                }
+            })
+
+            buttonMove.addEventListener('click', function() {
+                // console.log('translate')
+                transformControls.setMode( 'translate' );
+                
+            });
+
+            buttonRotate.addEventListener('click', function() {
+                // console.log('Rotate')
+                transformControls.setMode( 'rotate' );
+            });
+
+            buttonLaw.addEventListener('click', reflectionLaw);
+            document.addEventListener( 'click', onClick );
+
+        }
+
+        function onClick(event){ 
+            // console.log(event); 
+            event.preventDefault(); 
+
+            mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1; 
+            mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1; 
+            
+            raycaster.setFromCamera(mouse, camera); 
+            var intersects = raycaster.intersectObjects(objects, true); 
+             if(intersects.length > 0){ 
+                SELECTED = intersects[ 0 ].object; 
+                console.log(SELECTED); 
+            if (SELECTED.constructor === THREE.SpotLightHelper) { 
+                transformControls.attach(SELECTED.light); 
+            } else { 
+            transformControls.attach(SELECTED); 
+            } 
+    }
+}
+
+        window.onload = function () {
+
+            init();
+            controls.update()
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.rotateSpeed = 0.1;
+            animate();
+          
+            // eyeShow()
+        }
+
+        function reflectionLaw() {
+            law= !law
+            if (law) {
+                buttonLaw.innerText = 'INTRODUCTION'
+                mirror.rotation.x = -1.57;
+                mirror.position.set(0,0,0);
+                transformControls.attach(sphere);
+                sphere.scale.set(.1,.1,.1);
+                sphere.position.set( params.pos*params.irad, params.pos, 0 );
+                image.position.set( -params.pos*params.irad, params.pos, 0 )
+                // console.log(sphere.position);
+                incidentRay = addLines(new THREE.Vector3(0, 0, 0), sphere.position, 'red');
+                group.add(incidentRay);
+                reflectedRay = addLines(new THREE.Vector3(0, 0, 0), image.position, 'blue'); 
+                group.add( reflectedRay);
+                scene.add(group)
+                rod.visible = false;
+                // eye.visible = true;
+            } else{
+                buttonLaw.innerText = 'LAW OF REFLECTION'
+                mirror.rotation.x = 0;
+                mirror.position.set(0,8,-7.5);
+                transformControls.attach(earth);
+                sphere.scale.set(1,1,1);
+                sphere.position.set(0,2,0);
+                rod.visible = true;
+                scene.remove(group)
+                group = new THREE.Group()
+                // eye.visible = false;
+            }
+            
+                console.log('Law of Reflection')
+            
+        }
+        function render() {
+            camera.aspect = innerWidth / innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(innerWidth, innerHeight);
+            renderer.render(scene, camera);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+
+            render();
+        }
+
+        function onWindowResize() {
+
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            render();
+
+        }
+
+        function guiControls() {
+            const gui = new GUI({ width: 250 });
+            gui.close();
+        }
+
+        function addRays(length, col) {
+            let rayGeometry = new THREE.CylinderBufferGeometry(.05, .05, length).translate(0, length / 2, 0);
+            // rayGeometry.rotateX(Math.PI / 2);
+
+            rayLine = new THREE.Mesh(rayGeometry, new THREE.MeshBasicMaterial({ color: col }));
+            let coneGeometry = new THREE.ConeGeometry(.3, .5, 6).translate(0, -length / 2, 0);
+            coneGeometry.rotateX(Math.PI);
+            rayArrow = new THREE.Mesh(coneGeometry, new THREE.MeshBasicMaterial({ color: 'red' }));
+
+            return { rayLine, rayArrow }
+        }
+
+        function addLines(vector1, vector2, col) {
+            let linepoints = [vector1, vector2];
+            let lineMaterial = new THREE.LineBasicMaterial({ color: col });
+
+            let lineGeometry = new THREE.BufferGeometry().setFromPoints(linepoints);
+            let axis = new THREE.Line(lineGeometry, lineMaterial);
+            // group.add(axis)
+            return axis
+        }
+        
+        function adjustRays(obj, vector) {
+            obj.geometry.dispose();
+            
+            let linepoints = [new THREE.Vector3(0, 0, 0), vector];
+            let objGeometry = new THREE.BufferGeometry().setFromPoints(linepoints); 
+            obj.geometry = objGeometry;
+        } 
+        function eyeShow() {
+
+            const map1 = new THREE.TextureLoader().load('./assets/img/eyeIconUp.png');
+            const material1 = new THREE.SpriteMaterial({ map: map1, color: 0xffffff });
+
+            eye = new THREE.Sprite(material1);
+            // eye.scale.set(5, 5, 5);
+
+            scene.add(eye);
+            eye.visible = false;
+        }
+    </script>
+</body>
+</html>
