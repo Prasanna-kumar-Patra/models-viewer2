@@ -51,10 +51,16 @@
             cursor: pointer;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
         }
+         ul#ulList .selected{
+        background-color: yellowgreen;
+        }
 
         .menu li:hover {
             background-color: #0099cc;
         }
+
+        
+
        
     </style>
 </head>
@@ -71,7 +77,11 @@
                 <li class="list" value="optics/microscope/Optics_Compound_Microscope.html"> Compound Microscope </li>
                 <li class="list" value="optics/converging_lens/Optics_Converging_Lens.html">Converging Lens </li>
                 <li class="list" value="optics/reflection_of_light/index.html">Reflection Of Light</li>
+                <li class="list" value="optics/refraction_of_light/index.html">Refraction Of Light</li>
                 <li class="list" value="thermodynamics/pressure/index.html"> Pressure </li>
+                <li class="list" value="thermodynamics/ideal_gas_equation/index.html"> Ideal Gas Equation </li>
+                <li class="list" value="magnetism/magnetic_effect_due_to_current/index.html"> Magnetic Effect Due To Current </li>
+                <li class="list" value="quantum/photoelectric_effect/index.html"> Photo Electric Effect </li>
                 <li class="list" value="mechanics/simple_pendulum/index.html"> Simple Pendulum </li>
                 
 
@@ -83,15 +93,15 @@
     </div>
 
     <script>
+        var isselected = false;
         var ulList = document.querySelector("#ulList")
         var iframePlayer = document.getElementById("labPlayer")
-        console.log("list-->",ulList)
-        ulList.querySelectorAll("li.list").forEach((list) => {
-            list.addEventListener('click', () => playIframe(list));
+        ulList.querySelectorAll("li.list").forEach((list,key) => {
+           // list.classList.remove("selected")
+            list.addEventListener('click', () =>playIframe(list,key));
         });
 
-        function playIframe(data){
-            console.log("data come from list click---->",data)
+        function playIframe(data , key){
             let url = data.getAttribute("value");
             console.log("url--->",url);
             iframePlayer.src = url;

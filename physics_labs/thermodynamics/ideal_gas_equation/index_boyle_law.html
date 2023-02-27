@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Boyle's Law</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel="shortcut icon" href="../files/favicon_white.ico" media="(prefers-color-scheme: dark)" />
+    <link rel="shortcut icon" href="../files/favicon.ico" media="(prefers-color-scheme: light)" />
+    <link rel="stylesheet" type="text/css" href="../../css/style-page.css">
+    <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-0JWHY29KD2"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-0JWHY29KD2');
+</script>
+    <meta name="google-site-verification" content="mz0TRB59UNqdTxhwzmXmGdgVPh8pB4YqjuUr-aWNGIY">
+
+</head>
+
+<body>
+
+    <div id="topmenu">
+        <div style="font-weight: bold;  text-decoration-line: underline; font-size: 125%; padding-bottom: 2px;">
+            Boyle's Law
+        </div>
+
+    </div>
+
+
+
+    <div id="menu">
+
+        <a id="message-el">
+            Ideal Gas Law, PV = nRT <br>
+            <strong>Boyle's Law</strong><br>
+            Case 1: Constant T (Isothermal), P &Proportional; 1/V <br>
+            At lower volume (higher pressure), the gases deviates from the ideal gas behaviour.
+
+        </a><br>
+        <a><input type="range" id="volume" name="volume" min="1" max="30" value="10" step="0.25">
+            <label for="volume"><strong>Change Volume</strong></label>
+        </a><br>
+        
+        <button id="atom-el">ATOM</button>
+        <button id="mole-el">MOLECULES</button>
+        <button id="reset-el">RESET </button>
+        <button  onClick="idealLaw()">IDEAL GAS</button>
+        <button onClick="charlesLaw()">CHARLE'S LAW</button>
+    </div>
+    <script>
+        
+        function idealLaw() {
+
+            window.open("index.html", "_self")
+        }
+
+        function charlesLaw() {
+
+            window.open("index_charle_law.html", "_self")
+        }
+    </script>
+    <script id="vertexShader" type="x-shader/x-vertex">
+    varying vec2 vUv;
+    void main() {
+      vUv = uv;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1);
+    }
+  </script>
+
+    <script id="fragmentShader" type="x-shader/x-fragment">
+    uniform vec3 color1;
+    uniform vec3 color2;
+    varying vec2 vUv;
+    void main() {
+      gl_FragColor = vec4(mix(color1, color2, vUv.y), 1.0);
+    }
+  </script>
+    <script type="module">
+        import * as THREE from '../../build/three.module.js';
+        import { CSS2DRenderer, CSS2DObject } from '../../jsm/renderers/CSS2DRenderer.js';
+        import { OrbitControls } from '../../jsm/controls/OrbitControls.js';
+        import Stats from '../../jsm/libs/stats.module.js';
+        import { GUI } from '../../jsm/libs/lil-gui.module.min.js';
+        import { TWEEN } from '../../jsm/libs/tween.module.min.js';
+
+        let camera, aspect, fov, stats, clock, gui;
+        let scene, renderer, labelRenderer, controls, container;
+        let box, slider1, slider2, pressurePointer, plane, indicatorMaterial;
+        const spheres = [];
+        let mixed = false;
+        let atoms = true;
+        let cell = new THREE.Group();
+        let t = 0.00035;
+        let params = {
+            A: 10,
+            Molecules: function () {
+                addMolecules(20);
+                pressurePointer.rotation.z += -0.25;
+                // console.log('Atom/Molecules');
+            },
+            Atoms: function () {
+                addAtoms(20)
+                pressurePointer.rotation.z += -0.2;
+            },
+            Clear: function () {
+                clearParticles();
+            }
+        }
+
+        //button and html elements
+        let volume = document.getElementById('volume');
+        let message = "";
+        let messageEl = document.getElementById("message-el");
+        const buttonAtom = document.getElementById('atom-el');
+        const buttonMole = document.getElementById('mole-el');
+        const buttonReset = document.getElementById('reset-el');
+
+        init()
+        animate()
+
+        function buttonAction() {
+            // change volume space and pressure indicator
+            volume.addEventListener("input", function (event) {
+                console.log(volume.valueAsNumber);
+                let value = volume.valueAsNumber;
+                params.A = volume.valueAsNumber;
+                box.geometry.dispose();
+                let newGeometry = new THREE.BoxGeometry((params.A + 0.4) * 2, 10.8, 10.8);
+                box.geometry = newGeometry;
+                slider1.position.x = -params.A - 1;
+                slider2.position.x = params.A + 1;
+                if (value > 3) {
+                    let x = 10 / (value);
+                    // console.log(value, x)
+                    pressurePointer.rotation.set(0, 0, -x)
+                } else if (3 > value > 1) {
+
+                    let x = 2.86 + 0.02 * value;
+                    // console.log(value, x)
+                    pressurePointer.rotation.set(0, 0, -x)
+                }
+            });
+            buttonAtom.addEventListener("click", function (event) {
+                console.log('Add atoms')
+                addAtoms(20)
+                pressurePointer.rotation.z += -0.2;
+            });
+
+            buttonMole.addEventListener("click", function (event) {
+
+                addMolecules(20)
+                pressurePointer.rotation.z += -0.25;
+            });
+
+            buttonReset.addEventListener("click", function (event) {
+
+                clearParticles();
+            });
+        }
+
+        function init() {
+            //scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xbfd1e5);
+
+            //camera
+            createCamera(12, 2, 30);
+
+            //renderer
+            createRenderer();
+
+            //cameracontrols
+            createControls(0, 3, 0);
+
+            //create light 
+            createLights();
+
+            //create controls
+            // guiControls();
+            addAxes(new THREE.Vector3(0, 0, 0));
+
+            //Gas Container Box
+            let geometry = new THREE.BoxGeometry((params.A + 0.4) * 2, 10.8, 10.8);
+            const material = new THREE.MeshPhongMaterial(
+                {
+                    color: 'green',
+                    transparent: true,
+                    opacity: 0.25
+                })
+            box = new THREE.Mesh(geometry, material);
+            scene.add(box);
+
+            let uniforms = {
+                "color1": {
+                    type: "c",
+                    value: new THREE.Color(0xffff00)
+                },
+                "color2": {
+                    type: "c",
+                    value: new THREE.Color(0xff0000)
+                },
+            };
+
+            let fShader = document.getElementById('fragmentShader').text;
+            let vShader = document.getElementById('vertexShader').text;
+
+            // Create gradient material
+            indicatorMaterial = new THREE.ShaderMaterial({
+                uniforms: uniforms,
+                vertexShader: vShader,
+                fragmentShader: fShader
+            });
+
+            //Pressure indicator
+            addPressure();
+            addAtoms(20);
+            buttonAction();
+            // gradientSphere()
+            document.body.appendChild(renderer.domElement);
+
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function addPressure() {
+
+            let sliderMaterial = new THREE.MeshPhongMaterial({ color: 0x035400 });
+            slider1 = new THREE.Mesh(new THREE.BoxGeometry(1, 13, 12), sliderMaterial);
+            slider2 = slider1.clone();
+            scene.add(slider1, slider2);
+            slider1.position.x = -params.A - 1;
+            slider2.position.x = params.A + 1;
+            plane = new THREE.Mesh(new THREE.BoxGeometry(5, 10, .4).translate(-2, 0, -0.22), new THREE.MeshPhongMaterial({ color: 0x000314 }));
+            let indicatorGeometry = new THREE.RingGeometry(2, 4, 32, 1, 1.57, 3.14);
+            let indicator = new THREE.Mesh(indicatorGeometry, indicatorMaterial);
+            scene.add(indicator);
+            indicator.rotation.set(0, 0, -1.57);
+            indicator.position.set(0, 7.6, -6.5)
+            indicator.add(plane)
+            let rodGeometry = new THREE.CircleGeometry(3.5, 3, 1.57, .08).translate(0, -3.4, 0.1);
+            let rodMaterial = new THREE.MeshPhongMaterial({ color: 'black' })
+            pressurePointer = new THREE.Mesh(rodGeometry, rodMaterial);
+            // rod.position.set(0,0,0.1)
+
+            indicator.add(pressurePointer)
+            pressurePointer.rotation.set(0, 0, -1)
+
+            indicator.add(addLabels('PRESSURE', 'black', -6, -4));
+        }
+
+        function guiControls() {
+            gui = new GUI();
+            gui.close()
+            // camera control adjust
+            // console.log(camera.position)
+            // let controlFolder = gui.addFolder("Control");
+            // controlFolder.add(controls.target, 'x', -100, 100);
+            // controlFolder.add(controls.target, 'y', -100, 100);
+            // controlFolder.add(controls.target, 'z', -100, 100);
+            // // let cameraFolder = gui.addFolder("Camera");
+            // gui.add(camera.position, 'x', -100, 100);
+            // gui.add(camera.position, 'y', -100, 100);
+            // gui.add(camera.position, 'z', -100, 100);
+
+            // change volume space and pressure indicator
+            gui.add(params, 'A', 1, 30, 0.25).onChange((value) => {
+                // console.log(value)
+                box.geometry.dispose();
+                let newGeometry = new THREE.BoxGeometry((params.A + 0.4) * 2, 10.8, 10.8);
+                box.geometry = newGeometry;
+                slider1.position.x = -params.A - 1;
+                slider2.position.x = params.A + 1;
+                if (value > 3) {
+                    let x = 10 / (value);
+                    // console.log(value, x)
+                    pressurePointer.rotation.set(0, 0, -x)
+                } else if (3 > value > 1) {
+
+                    let x = 2.86 + 0.02 * value;
+                    // console.log(value, x)
+                    pressurePointer.rotation.set(0, 0, -x)
+                }
+
+            }).listen();
+
+            gui.add(params, 'Molecules');
+            gui.add(params, 'Atoms');
+            gui.add(params, 'Clear').name('RESET');
+            // render();
+        }
+
+        function createCamera(x, y, z) {
+
+            fov = 55;
+            const aspect = window.innerWidth / window.innerHeight;
+            const near = 0.1;
+            const far = 1500;
+
+            camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+
+            camera.position.set(x, y, z);
+        }
+
+        function createControls(x, y, z) {
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enablePan = true;
+            controls.enableZoom = true;
+            controls.target.set(x, y, z);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.rotateSpeed = 0.1;
+            controls.update();
+            controls.addEventListener('change', render);
+        }
+
+        function createRenderer() {
+            // create the renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.alpha = true;
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.outputEncoding = THREE.sRGBEncoding;
+            document.body.appendChild(renderer.domElement);
+
+            labelRenderer = new CSS2DRenderer();
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.domElement.style.position = 'absolute';
+            labelRenderer.domElement.style.top = '0px';
+            labelRenderer.domElement.style.pointerEvents = 'none';
+            document.body.appendChild(labelRenderer.domElement);
+        }
+
+        function createLights() {
+            let hemiLight = new THREE.AmbientLight(0xffffff, .20);
+            hemiLight.position.set(0, 20, 0);
+            scene.add(hemiLight);
+
+            let dirLight = new THREE.DirectionalLight(0xffffff, 1);
+            dirLight.position.set(-30, 50, -30);
+            dirLight.castShadow = true;
+            dirLight.shadow.camera.top = 70;
+            dirLight.shadow.camera.bottom = -70;
+            dirLight.shadow.camera.left = -70
+            dirLight.shadow.camera.right = 70;
+            dirLight.shadow.mapSize.width = 2048;
+            dirLight.shadow.mapSize.height = 2048;
+            scene.add(dirLight);
+
+            scene.add(new THREE.AmbientLight(0xffffff, .4));
+        }
+
+        function onWindowResize() {
+
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+
+        }
+
+        function addLabels(name, col, x, y) {
+
+            let text = document.createElement('div');
+            text.className = 'label';
+            text.textContent = name;
+            text.style.color = col;
+
+            let label = new CSS2DObject(text);
+            label.position.x = x;
+            label.position.y = y;
+
+            return label
+        }
+
+        function render() {
+
+            renderer.render(scene, camera);
+            labelRenderer.render(scene, camera);
+        }
+
+        function addAxes(pos) {
+            let axes = new THREE.Group();
+            const axesHelper = new THREE.AxesHelper(20);
+            axes.add(axesHelper);
+            const axesHelper1 = new THREE.AxesHelper(-20);
+            axes.add(axesHelper1);
+            axes.position.copy(pos)
+            scene.add(axes)
+        }
+
+        function addParticles(N) {
+            atoms = !atoms;
+
+            if (atoms) {
+                addAtoms(N);
+
+            } else {
+                addMolecules(N);
+            }
+
+
+        }
+
+        function clearParticles() {
+
+            for (let i = 0; i < spheres.length; i++) {
+                scene.remove(spheres[i])
+            }
+            addAtoms(20);
+            params.A = 10;
+            pressurePointer.rotation.set(0, 0, -1);
+            box.geometry.dispose();
+            let newGeometry = new THREE.BoxGeometry((params.A + 0.4) * 2, 10.8, 10.8);
+            box.geometry = newGeometry;
+            slider1.position.x = -params.A - 1;
+            slider2.position.x = params.A + 1;
+            volume.value = params.A;
+        }
+
+        function addAtoms(N) {
+            const geometry = new THREE.SphereGeometry(0.1, 32, 16);
+            const material = new THREE.MeshPhongMaterial({ color: 'blue' });
+
+            for (let i = 0; i < N; i++) {
+
+                const mesh = new THREE.Mesh(geometry, material);
+
+                mesh.position.x = Math.random() * 10 - 5;
+                mesh.position.y = Math.random() * 10 - 5;
+                mesh.position.z = Math.random() * 10 - 5;
+                mesh.rotation.x = Math.random() * 1.57;
+                mesh.rotation.y = 0;
+                mesh.rotation.z = Math.random() * 1.57;
+                mesh.scale.x = mesh.scale.y = mesh.scale.z = 3;
+
+                scene.add(mesh);
+
+                spheres.push(mesh);
+
+            }
+        }
+
+        function addMolecules(N) {
+            const geometry1 = new THREE.OctahedronGeometry(0.2, 3).translate(0.15, 0, 0);
+            const geometry2 = new THREE.OctahedronGeometry(0.2, 3).translate(-0.15, 0, 0);
+            const material1 = new THREE.MeshPhongMaterial({ color: 'red' });
+
+            for (let i = 0; i < N; i++) {
+                let molecule = new THREE.Group()
+                molecule.add(new THREE.Mesh(geometry2, material1), new THREE.Mesh(geometry1, material1));
+                // scene.add(molecule)
+                molecule.position.x = Math.random() * 10 - 5;
+                molecule.position.y = Math.random() * 10 - 5;
+                molecule.position.z = Math.random() * 10 - 5;
+                molecule.rotation.x = Math.random() * 3.14;
+                molecule.rotation.y = Math.random() * 3.14;
+                molecule.rotation.z = Math.random() * 3.14;
+                scene.add(molecule);
+
+                spheres.push(molecule);
+
+            }
+
+        }
+
+        function addArrow() {
+            const dir = new THREE.Vector3(mesh.rotation.x, mesh.rotation.y, mesh.rotation.z);
+
+            //normalize the direction vector (convert to vector of length 1)
+            dir.normalize();
+
+            const arrowHelper = new THREE.ArrowHelper(dir,
+                new THREE.Vector3(0, 0, 0), 0.6, 0xff0000);
+            // const arrowHelper = new THREE.ArrowHelper( new THREE.Vector3( 1, 0, 0 ), 
+            //                             new THREE.Vector3( 0, 0, 0 ), 0.6, 0xff0000 );
+            mesh.add(arrowHelper);
+        }
+
+        function animate() {
+
+            requestAnimationFrame(animate);
+            const timer = t * Date.now();
+
+            camera.lookAt(scene.position);
+
+            for (let i = 0; i < spheres.length; i++) {
+
+                const sphere = spheres[i];
+
+                sphere.position.x = params.A * Math.cos(timer + i);
+                sphere.position.y = 5 * Math.sin(timer + i * 1.1);
+
+                // sphere.position.z = A * Math.cos(timer + i);
+                // sphere.rotation.x += 0.004
+                // sphere.rotation.y += 0.005
+
+            }
+
+            for (let i = spheres.length / 2; i < spheres.length; i++) {
+
+                const sphere = spheres[i];
+                sphere.position.y = 5 * Math.sin(timer + i * 0.9);
+
+
+            }
+            controls.update();
+            render();
+
+        }
+
+    </script>
+</body>
+
+</html>

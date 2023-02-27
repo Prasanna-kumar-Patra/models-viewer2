@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Apparent Depth</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel="shortcut icon" href="../files/favicon_white.ico" media="(prefers-color-scheme: dark)" />
+    <link rel="shortcut icon" href="../files/favicon.ico" media="(prefers-color-scheme: light)" />
+    <link rel="stylesheet" type="text/css" href="../../css/style-page.css">
+    
+    <!-- Google tag (gtag.js) -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-0JWHY29KD2"></script>
+	<script>
+ 		window.dataLayer = window.dataLayer || [];
+  		function gtag(){dataLayer.push(arguments);}
+  		gtag('js', new Date());
+
+  		gtag('config', 'G-0JWHY29KD2');
+	</script>
+    <meta name="google-site-verification" content="mz0TRB59UNqdTxhwzmXmGdgVPh8pB4YqjuUr-aWNGIY">
+
+</head>
+
+<body>
+
+    <div id="container">
+        <div id="topmenu">
+            <div>Apparent Depth</div>
+
+        </div>
+
+
+
+        <div id="menu">
+            <a><input type="range" id="incident" name="incident" min="0" max="70" value="60" step=".5"><br>
+                <label for="incident">Angle of Incidence, <em>i</em> = </label><a id="incidentDisplay"> <a><sup>o</sup></a>
+            </a>
+            <br>
+            <a>Refractive Index of water, <em>n<sub>w</sub></em> = 1.333
+               
+            </a><br>
+            <a>Angle of Refraction, <em>r</em> = <a id="refractDisplay"></a> <sup>o</sup>
+            </a><br>
+
+            <button id="apparent">Show Apparent Depth</button>
+            <button id="theorybutton" onClick="theorySite()">Laws of Refraction</button>
+        </div>
+
+    </div>
+    <script>
+        let sideMenu = document.getElementById('sidemenu');
+        let theoryButton = document.getElementById('theorybutton');
+
+        function displayOn() {
+
+            if (sideMenu.style.display === 'block') {
+                sideMenu.style.display = 'none';
+            } else {
+                sideMenu.style.display = 'block';
+            }
+        };
+
+        function theorySite() {
+
+            window.open("index.html", "_self")
+        }
+    </script>
+
+
+    <script type="module">
+        import * as THREE from '../../build/three.module.js';
+        import { OrbitControls } from '../../jsm/controls/OrbitControls.js';
+        import { CSS2DRenderer, CSS2DObject } from '../../jsm/renderers/CSS2DRenderer.js';
+        import Stats from '../../jsm/libs/stats.module.js';
+
+        let scene, camera, renderer, controls, labelRenderer;
+        let incidentRay, emergentRay, refractedRay;
+        let incidentArrow, emergentArrow, refractedArrow;
+        let iAngle, r1Angle, r2Angle;
+        let normalRay1, normalRay2;
+        let rayLine, rayArrow, eye, depth;
+        const thickness = 5;
+        let pointA, pointB, pointC, pointD, normal1;
+        let width = window.innerWidth, height = window.innerHeight;
+        let irayLabel, rrayLabel, erayLabel, normal1Label, apparentLabel, realLabel;
+        let iangleLabel, r1angleLabel, r2angleLabel;
+        let itext, r1text, r2text, etext;
+        let group = new THREE.Group();
+        let labelGroup = new THREE.Group();
+
+        let params = {
+            i: (Math.PI / 180) * 60,
+            r: (Math.PI / 180) * 40.5,
+            n: 1.333,
+            ideg: 60,
+            rdeg: 40.5,
+            apparent: false
+        }
+
+        let materialIndex = {
+            Air: 1.0003,
+            Ice: 1.31,
+            Water: 1.33,
+            Alcohol: 1.36,
+            Kerosene: 1.44,
+            Quartz: 1.46,
+            Oil: 1.47,
+            Benzene: 1.50,
+            Glass: 1.52,
+            Flint: 1.65,
+            Ruby: 1.71,
+            Sapphire: 1.77,
+            Diamond: 2.42,
+            Cinnabar: 3.2
+        }
+
+        let incident = document.getElementById('incident');
+        let apparent = document.getElementById('apparent');
+        let incidentDisplay = document.getElementById('incidentDisplay');
+        let refractDisplay = document.getElementById('refractDisplay');
+        let X = Math.sin(incident.value * (Math.PI / 180)) / 1.333;
+        refractDisplay.innerHTML = params.rdeg;
+        incidentDisplay.innerHTML = params.ideg;
+        let incidentAngle = document.getElementById('incidentAngle');
+        let refractedAngle = document.getElementById('refractedAngle');
+
+
+        function createCamera() {
+            // Create a Camera
+            const fov = 50; // AKA Field of View
+            const aspect = width / height;
+            const near = 0.1; // the near clipping plane
+            const far = 1000; // the far clipping plane
+
+            camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+
+            camera.position.set(-15, 10, 18);
+            // camera.position.set(-10, 3, 40);
+        }
+
+        function createLights() {
+            // Create a directional light
+            const ambientLight = new THREE.HemisphereLight(0xddeeff, 0x202020, .3);
+            const mainLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            scene.add(ambientLight);
+
+            // move the light back and up a bit
+            mainLight.position.set(10, 10, 10);
+
+            // remember to add the light to the scene
+            scene.add(ambientLight, mainLight);
+        }
+
+        function createRenderer() {
+            // create the renderer
+            renderer = new THREE.WebGLRenderer({
+                antialias: true
+            });
+            renderer.alpha = true;
+            renderer.setSize(width, height);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            document.body.appendChild(renderer.domElement);
+
+            labelRenderer = new CSS2DRenderer();
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.domElement.style.position = 'absolute';
+            labelRenderer.domElement.style.top = '0px';
+
+            labelRenderer.domElement.style.pointerEvents = 'none';
+            document.body.appendChild(labelRenderer.domElement);
+        }
+
+        //ray diagram constructor
+        function addRays(length, col) {
+            let rayGeometry = new THREE.CylinderBufferGeometry(.05, .05, length).translate(0, length / 2, 0);
+            // rayGeometry.rotateX(Math.PI / 2);
+
+            rayLine = new THREE.Mesh(rayGeometry, new THREE.MeshBasicMaterial({ color: col }));
+            let coneGeometry = new THREE.ConeGeometry(.3, .5, 6).translate(0, -length / 2, 0);
+            coneGeometry.rotateX(Math.PI);
+            rayArrow = new THREE.Mesh(coneGeometry, new THREE.MeshBasicMaterial({ color: 'red' }));
+
+            return { rayLine, rayArrow }
+        }
+
+        //incident and refracted angle measure and label adjustment with change
+        function adjustAngle(ang, start, end, text, value) {
+            // console.log( angtext, angLabel );
+            ang.geometry.dispose();
+            let newangleGeometry = new THREE.RingBufferGeometry(2.1, 2, 11, 1, start, end);
+            ang.geometry = newangleGeometry;
+            text.innerHTML = value + '&deg;';
+        }
+
+        //refracted ray adjusted for various incidence
+        function adjustRefract() {
+            refractedRay.geometry.dispose();
+            let newangleGeometry = new THREE.CylinderBufferGeometry(.05, .05, -thickness / Math.cos(params.r))
+                .translate(0, (-thickness / Math.cos(params.r)) / 2, 0);
+            refractedRay.geometry = newangleGeometry;
+            refractedRay.rotation.set(0, 0, -params.r);
+        }
+
+
+        function init() {
+            scene = new THREE.Scene;
+            scene.background = new THREE.Color(0xbfd1e5);
+
+            createCamera();
+            createLights();
+            createRenderer();
+
+            // create ground
+            let plane = new THREE.Mesh(new THREE.BoxGeometry(12, 1, 6).translate(0, -0.5, 0), new THREE.MeshBasicMaterial({
+                color: 0x4F7942, side: THREE.DoubleSide
+            }));
+            scene.add(plane);
+
+            pointA = new THREE.Vector3(0, 5, 0);
+            pointB = new THREE.Vector3(thickness * Math.tan(params.r), 0, 0);
+            pointC = new THREE.Vector3(0, 0, 0);
+            normal1 = new THREE.Vector3(0, 0, 0);
+            incidentRay = addRays(6, 'blue').rayLine;
+            incidentArrow = addRays(6, 'blue').rayArrow;
+
+            let A = params.i;
+            iAngle = addAngle(1.57, -A);
+            iAngle.position.copy(pointA)
+            scene.add(iAngle)
+            eye = eyeShow()
+
+            // eye.position.copy(incidentRay.position);
+            itext = document.createElement('div');
+            itext.className = 'label';
+            itext.innerHTML = params.ideg + '&deg;';
+
+            iangleLabel = new CSS2DObject(itext);
+            iangleLabel.position.copy(new THREE.Vector3(0.6, 1, 0));
+            iAngle.add(iangleLabel);
+
+            incidentRay.rotation.set(0, 0, -A);
+            incidentRay.position.copy(pointA)
+            incidentRay.add(incidentArrow);
+            scene.add(incidentRay)
+            incidentRay.add(eye)
+            eye.position.set(0, 3, 0);
+            normalRay1 = addRays(10, 'black').rayLine;
+            normalRay1.position.copy(normal1)
+            scene.add(normalRay1);
+
+            refractedRay = addRays(-thickness / Math.cos(params.r), 'green').rayLine;
+            refractedArrow = addRays(-thickness / Math.cos(params.r), 'green').rayArrow;
+            refractedRay.position.copy(pointA);
+            let B = params.r;
+            refractedRay.rotation.set(0, 0, -B);
+
+            r1Angle = addAngle(-1.57, -B);
+            r1Angle.position.copy(pointA);
+            scene.add(r1Angle)
+            scene.add(refractedRay);
+            refractedRay.add(refractedArrow);
+
+            r1text = document.createElement('div');
+            r1text.className = 'label';
+            r1text.innerHTML = params.rdeg + '&deg;';
+
+            r1angleLabel = new CSS2DObject(r1text);
+            r1angleLabel.position.copy(new THREE.Vector3(-0.3, -1.4, 0));
+            r1Angle.add(r1angleLabel);
+
+            let slab = new THREE.Mesh(
+                new THREE.BoxGeometry(10, thickness, 5).translate(0, thickness / 2, 0),
+                new THREE.MeshPhongMaterial({
+                    color: 'aqua',
+                    transparent: true,
+                    opacity: 0.55
+                }));
+            scene.add(slab)
+            const scaleHorizontal = new THREE.GridHelper(70, 70);
+            scene.add(scaleHorizontal);
+
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enablePan = true;
+            controls.enableZoom = true;
+            controls.target.set(0, 2, -2);
+
+
+            //display apparent depth
+            emergentRay = addRays(-thickness / Math.cos(params.i) + 5, 'red').rayLine;
+            emergentArrow = addRays(-thickness / Math.cos(params.i) + 5, 'red').rayArrow;
+            emergentRay.position.copy(pointA);
+            emergentRay.rotation.set(0, 0, -params.i);
+            scene.add(emergentRay);
+            emergentRay.add(emergentArrow);
+            depth = new THREE.Mesh(
+                new THREE.BoxGeometry(10, .2, 5),
+                new THREE.MeshPhongMaterial({
+                    color: 'aqua',
+                    side: THREE.DoubleSide
+                }));
+            scene.add(depth);
+            let C = ((-thickness / Math.cos(params.i) + 5) * Math.sin(params.i)) / Math.tan(params.i);
+            
+            depth.position.set(0, -C, 0);
+            apparentLabel = addLabels('Apparent Depth');
+            depth.add(apparentLabel);
+            apparentLabel.position.copy(new THREE.Vector3(0, 1, 2.5))
+
+            incident.addEventListener('change', function (e) {
+                // console.log(e)
+                displayRefract();
+                params.apparent = false
+                apparentDepth()
+            })
+            apparent.addEventListener('click', function (e) {
+                params.apparent = !params.apparent;
+                apparentDepth()
+            })
+
+            document.body.appendChild(renderer.domElement);
+
+            showLabels();
+            apparentDepth();
+            window.addEventListener('resize', onWindowResize);
+        }
+        
+        function displayRefract() {
+
+            let X = Math.sin(incident.value * (Math.PI / 180)) / 1.333;
+            let Y = Math.asin(X);
+
+            // refract.value = ((Y * 180) / Math.PI).toFixed(1);
+            params.i = (Math.PI / 180) * incident.value;
+            params.r = Y;
+            params.ideg = incident.value;
+            params.rdeg =  ((Y * 180) / Math.PI).toFixed(1);
+            incidentDisplay.innerHTML  = incident.value;
+            refractDisplay.innerHTML = params.rdeg;
+            let A = params.i;
+            pointB = new THREE.Vector3(thickness * Math.tan(params.r), 0, 0);
+            let B = params.r;
+            incidentRay.rotation.set(0, 0, -A);
+            emergentRay.rotation.set(0, 0, -A);
+
+            let C;
+            if (params.i == 0) {
+                C = 0
+            } else {
+                C = ((-thickness / Math.cos(params.i) + 5) * Math.sin(params.i)) / Math.tan(params.i);
+            }
+            depth.position.set(0, -C, 0);
+            adjustAngle(iAngle, 1.57, -A, itext, params.ideg);
+            adjustAngle(r1Angle, -1.57, -B, r1text, params.rdeg);
+            adjustRefract();
+            showLabels();
+            render()
+        }
+
+        //the arc representing the incidence and refracted angle
+        function addAngle(start, end, value) {
+            let angleGeometry = new THREE.RingBufferGeometry(2.1, 2, 11, 1, start, end);
+            let angleMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.DoubleSide })
+            let angleMeasure = new THREE.Mesh(angleGeometry, angleMaterial);
+
+            return angleMeasure
+        }
+
+        function apparentDepth() {
+            if (params.apparent) {
+                emergentRay.visible = true;
+                apparentLabel.visible = true;
+                depth.visible = true;
+            } else {
+                emergentRay.visible = false;
+                apparentLabel.visible = false;
+                depth.visible = false;
+            }
+        }
+
+        function showLabels() {
+            //labels
+            irayLabel = addLabels('Incident Ray');
+            rrayLabel = addLabels('Refracted Ray');
+
+            normal1Label = addLabels('Normal');
+
+            realLabel = addLabels('Real Depth');
+
+            let medium1Label = addLabels('Air');
+            let medium2Label = addLabels('Water');
+
+            irayLabel.position.copy(new THREE.Vector3(0, 6.5, 0));
+            incidentRay.add(irayLabel);
+            realLabel.position.copy(new THREE.Vector3(0, 0, 2.5));
+
+            rrayLabel.position.copy(new THREE.Vector3(0, -5, 0));
+            refractedRay.add(rrayLabel);
+
+
+            normal1Label.position.copy(new THREE.Vector3(0, 8, 0));
+            normalRay1.add(normal1Label);
+
+            scene.add(medium1Label);
+            medium1Label.position.copy(new THREE.Vector3(5, 10, 0));
+            scene.add(medium2Label);
+            medium2Label.position.copy(new THREE.Vector3(3, 3, 0));
+
+            scene.add(realLabel);
+
+        }
+
+        //const label for the diagram
+        function addLabels(name) {
+
+            let text = document.createElement('div');
+            text.className = 'label';
+            // text.textContent = name;
+            text.innerHTML = name;
+            let label = new CSS2DObject(text);
+            group.add(label);
+            return label
+        }
+
+        window.onload = function () {
+
+            init();
+            controls.update()
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.rotateSpeed = 0.1;
+            animate();
+            eyeShow();
+        }
+
+        function initPoint(data) {
+            let pointGeometry = new THREE.BufferGeometry();
+            pointGeometry.setAttribute('position', new THREE.BufferAttribute(data.vertices, 3));
+            let pointMaterial = data.material;
+            let point = new THREE.Points(pointGeometry, pointMaterial);
+
+            point.position.x = data.x;
+            point.position.y = data.y;
+            point.position.z = data.z;
+            return point;
+        }
+
+        function render() {
+
+
+            camera.aspect = innerWidth / innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(innerWidth, innerHeight);
+            renderer.render(scene, camera);
+            labelRenderer.render(scene, camera);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+
+            render();
+        }
+
+        function onWindowResize() {
+
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+            render();
+
+        }
+
+        function eyeShow() {
+
+            let eyeGeometry = new THREE.PlaneGeometry(2, 2).translate(0, 2.5, 0.1);
+            let texture = new THREE.TextureLoader().load('../../assets/img/eyeIconUp.png');
+            let eye = new THREE.Mesh(eyeGeometry, new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, map: texture, transparent: true }));
+
+            return eye
+        }
+    </script>
+</body>
+
+</html>

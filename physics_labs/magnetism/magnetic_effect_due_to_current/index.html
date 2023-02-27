@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title> MAGNETIC FIELDS DUE TO CURRENT - A 3D interactive Simulation </title>
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<link rel="shortcut icon" href="../files/favicon_white.ico" media="(prefers-color-scheme: dark)" />
+	<link rel="shortcut icon" href="../files/favicon.ico" media="(prefers-color-scheme: light)" />
+	<link rel="stylesheet" type="text/css" href="../../css/style-page.css">
+	<!-- Google tag (gtag.js) -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-0JWHY29KD2"></script>
+	<script>
+ 		window.dataLayer = window.dataLayer || [];
+  		function gtag(){dataLayer.push(arguments);}
+  		gtag('js', new Date());
+
+  		gtag('config', 'G-0JWHY29KD2');
+	</script>
+	<meta name="google-site-verification" content="mz0TRB59UNqdTxhwzmXmGdgVPh8pB4YqjuUr-aWNGIY">
+
+</head>
+
+
+<body>
+
+	<div id="topmenu">MAGNETIC FIELDS DUE TO CURRENT - A 3D interactive Simulation</div>
+	<div id="sidemenu">
+		<div style="visibility: hidden;  width: 270px;" id="rule-el">
+
+			<img style=" width: 100%;" id="eqnviewer"></img>
+
+		</div>
+	</div>
+
+	<div id="menu">
+			<button id="wire-el">Straight Wire </button>
+			<button style="background-color: rgb(3, 67, 97) ;" id="coil-el">Coil </button>
+			<button id="solenoid-el">Solenoid </button>
+			<button id="toroid-el">Toroid </button>
+		<button id="reset-el">RESET</button>
+		<button id="flow-el">SWITCH</button>
+		<button id="flip-el">POLARITY</button>
+		<button id="formula-el">FORMULA</button><br>
+		<a id="message-el"> Magnetic Effect due to a straight Wire Carrying Current</a>
+
+	</div>
+
+	<script type="module">
+		import * as THREE from '../../build/three.module.js'
+		import { GLTFLoader } from '../../jsm/loaders/GLTFLoader.js';
+		import { OrbitControls } from '../../jsm/controls/OrbitControls.js';
+		import Stats from '../../jsm/libs/stats.module.js';
+
+		let element = 1;
+		let flip = 0;
+		let flow = 0;
+		let mixer, arrow, modelX;
+		let model, scene, camera, controls, fov, renderer, clock, stats;
+		let fieldID, requestID;
+		let hidden = true;
+		let actions = {};
+		let modelElements = {};
+		let magView = ['MFwire', 'MFcoil', 'MFsolenoid', 'MFtoroid', 'N-Ssolenoid', 'N-Scoil', 'N-Storoid'];
+		const modelPath = '../../model/';
+		const elements = {
+			'1': 'elements.glb',
+			'2': 'conductors.glb'
+		};
+		const formulas = {
+			'1': '../../assets/Magformula/longwire.png',
+			'2': '../../assets/Magformula/coil.png',
+			'3': '../../assets/Magformula/solenoid.png',
+			'4': '../../assets/Magformula/toroid.png'
+		};
+		let message = "";
+		let messageEl = document.getElementById("message-el");
+		let equationEl = document.getElementById("rule-el");
+		let eqnViewer = document.getElementById("eqnviewer");
+		let ruleEl = document.getElementById("rule-el");
+
+		const buttonWireEl = document.getElementById('wire-el');
+		const buttonCoilEl = document.getElementById('coil-el');
+		const buttonSolenoidEl = document.getElementById('solenoid-el');
+		const buttonToroidEl = document.getElementById('toroid-el');
+		const buttonFlip = document.getElementById('flip-el');
+		const buttonFlow = document.getElementById('flow-el');
+		const buttonFormula = document.getElementById('formula-el');
+		const buttonReset = document.getElementById('reset-el');
+
+		//scene
+		scene = new THREE.Scene();
+		scene.background = new THREE.Color(0xbfd1e5);
+
+		//camera
+		createCamera(50, 5, 4, 5);
+		stats = new Stats();
+		clock = new THREE.Clock();
+		document.body.appendChild(stats.dom);
+
+		//renderer
+		createRenderer();
+
+		//cameracontrols
+		createControls(1.5, .8, 0);
+
+		//create light 
+		createLights();
+
+		const gridHelper = new THREE.GridHelper(10, 10);
+		scene.add(gridHelper);
+		document.body.appendChild(renderer.domElement);
+
+		window.addEventListener("resize", onWindowResize);
+
+		buttonLoad();
+		createModel();
+
+		function createModel() {
+			const loader = new GLTFLoader();
+			//load conductor elements, coil,wire, solenoid
+			loader
+				.setPath(modelPath)
+				.load(elements['2'], function (gltf) {
+					let A = gltf.scene.children;
+					for (let i = 0; i < A.length; i++) {
+
+						modelElements[A[i].name] = A[i]
+					}
+
+					scene.add(modelElements['coil'])
+					render()
+				})
+
+			//load Main model
+
+
+			loader
+				.setPath(modelPath)
+				.load(elements['1'], function (gltf) {
+					model = gltf.scene;
+					arrow = model.getObjectByName('arrow');
+					mixer = new THREE.AnimationMixer(model);
+					scene.add(model);
+					// console.log(arrow);
+					arrow.morphTargetInfluences[0] = 1;
+					arrow.morphTargetInfluences[1] = 0;
+					renderer.render(scene, camera);
+					let fixedStates = ['polarity1', 'polarity', 'needleL'];
+
+
+					for (let i = 0; i < gltf.animations.length; i++) {
+
+						let clip = gltf.animations[i];
+						let action = mixer.clipAction(clip);
+						actions[clip.name] = action;
+
+						if (fixedStates.indexOf(clip.name) >= 0) {
+							action.clampWhenFinished = true;
+							action.loop = THREE.LoopOnce;
+
+							//console.log(i, clip.name, fixedStates.indexOf(clip.name) )
+						}
+					}
+					// console.log(actions);
+					render()
+
+				}, undefined, function (e) {
+
+					console.error(e);
+
+				});
+			window.addEventListener("resize", onWindowResize);
+			render()
+		}
+
+		function createCamera(view, x, y, z) {
+
+			fov = view;
+			const aspect = window.innerWidth / window.innerHeight;
+			const near = 0.1;
+			const far = 1500;
+
+			camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+
+			camera.position.set(x, y, z);
+		}
+
+		function createControls(x, y, z) {
+			controls = new OrbitControls(camera, renderer.domElement);
+			controls.enablePan = true;
+			controls.enableZoom = true;
+			controls.target.set(x, y, z);
+			controls.update();
+			controls.addEventListener('change', render);
+		}
+
+		function createRenderer() {
+			// create the renderer
+			renderer = new THREE.WebGLRenderer({ antialias: true });
+			renderer.alpha = true;
+			renderer.setPixelRatio(window.devicePixelRatio);
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			renderer.outputEncoding = THREE.sRGBEncoding;
+			document.body.appendChild(renderer.domElement);
+		}
+
+		function createLights() {
+			let hemiLight = new THREE.AmbientLight(0xffffff, .20);
+			hemiLight.position.set(0, 20, 0);
+			scene.add(hemiLight);
+
+			let dirLight = new THREE.DirectionalLight(0xffffff, 1);
+			dirLight.position.set(-30, 50, -30);
+			dirLight.castShadow = true;
+			dirLight.shadow.camera.top = 70;
+			dirLight.shadow.camera.bottom = -70;
+			dirLight.shadow.camera.left = -70
+			dirLight.shadow.camera.right = 70;
+			dirLight.shadow.mapSize.width = 2048;
+			dirLight.shadow.mapSize.height = 2048;
+			scene.add(dirLight);
+
+			scene.add(new THREE.AmbientLight(0xffffff, .4));
+		}
+
+		function currentFlow() {
+			if (flip === 0 && flow === 0 && element === 0) {
+				actions['needleL'].setDuration(5).play();
+				setTimeout(function () {
+					arrow.morphTargetInfluences[0] = 0;
+					arrow.morphTargetInfluences[1] = 0;
+					scene.add(modelElements['MFwire']);
+					modelElements['MFwire'].position.set(-0.6, 0, -1.2);
+					modelElements['MFwire'].rotation.set(0, 0, 0);
+				}, 1000);
+				flow = 1;
+
+				message = " Magnetic Effect due to a straight Wire Carrying Current ";
+				messageEl.textContent = message;
+
+			} else if (flip === 1 && flow === 0 && element === 0) {
+				actions['needleL'].setDuration(5).play();
+				setTimeout(function () {
+					arrow.morphTargetInfluences[0] = 0;
+					arrow.morphTargetInfluences[1] = 1;
+					scene.add(modelElements['MFwire']);
+					modelElements['MFwire'].position.set(-0.6, 0, -1.2);
+					modelElements['MFwire'].rotation.set(0, 3.14, 0);
+				}, 1000);
+				flow = 1;
+				message = " Magnetic Effect due to a straight Wire Carrying Current";
+				messageEl.textContent = message;
+
+			} else if (flip === 0 && flow === 0 && element === 1) {
+				actions['needleL'].setDuration(5).play();
+				setTimeout(function () {
+					arrow.morphTargetInfluences[0] = 0;
+					arrow.morphTargetInfluences[1] = 0;
+					modelElements['MFcoil'].rotation.set(0, 0, 0);
+					scene.add(modelElements['MFcoil']);
+					setTimeout(function () {
+						// console.log(modelElements['N-Scoil'])
+						modelElements['N-Scoil'].rotation.set(0, 0, 0);
+						scene.add(modelElements['N-Scoil']);
+						modelX = false;
+						setTimeout(function () {
+
+							fieldRotation();
+
+						}, 500);
+					}, 1000);
+
+				}, 1000);
+				flow = 1;
+				message = "Current Flows from A to B, magnetic fields created around the coil";
+				messageEl.textContent = message;
+
+			} else if (flip === 1 && flow === 0 && element === 1) {
+				actions['needleL'].setDuration(5).play();
+				setTimeout(function () {
+					arrow.morphTargetInfluences[0] = 0;
+					arrow.morphTargetInfluences[1] = 1;
+					// modelElements['MFcoil'].rotation.set(0, 3.14, 0);
+					modelElements['MFcoil'].rotation.set(0, 3.14, 0);
+					scene.add(modelElements['MFcoil']);
+
+					setTimeout(function () {
+						modelElements['N-Scoil'].rotation.set(3.14, 3.14, 0);
+						scene.add(modelElements['N-Scoil']);
+						modelX = true;
+						setTimeout(function () {
+
+							fieldRotation();
+
+						}, 500);
+					}, 1000);
+
+				}, 1000);
+				flow = 1;
+				message = "Current Flows from B to A, magnetic fields created around the coil";
+				messageEl.textContent = message;
+
+			} else if (flip === 0 && flow === 0 && element === 2) {
+				actions['needleL'].setDuration(5).play();
+				setTimeout(function () {
+					arrow.morphTargetInfluences[0] = 0;
+					arrow.morphTargetInfluences[1] = 0;
+					scene.add(modelElements['MFsolenoid']);
+					modelElements['MFsolenoid'].rotation.set(3.14, 3.14, 0);
+					setTimeout(function () {
+						scene.add(modelElements['N-Ssolenoid']);
+						modelElements['N-Ssolenoid'].rotation.set(0, 3.14, 3.14);
+						modelElements['N-Ssolenoid'].position.z = -.1;
+						setTimeout(function () {
+
+							fieldRotation();
+
+						}, 500);
+					}, 1000);
+				}, 1000);
+				flow = 1;
+				message = "Current Flows from A to B through the coiled wire loops creating parallel strong magnetic field inside the solenoid and relatively weak field at external points. Shows North and South Poles";
+				messageEl.textContent = message;
+
+			} else if (flip === 1 && flow === 0 && element === 2) {
+				actions['needleL'].setDuration(5).play();
+				setTimeout(function () {
+					arrow.morphTargetInfluences[0] = 0;
+					arrow.morphTargetInfluences[1] = 1;
+					scene.add(modelElements['MFsolenoid']);
+					modelElements['MFsolenoid'].rotation.set(0, 3.14, 0);
+					setTimeout(function () {
+						scene.add(modelElements['N-Ssolenoid']);
+						modelElements['N-Ssolenoid'].rotation.set(0, 0, 0);
+						modelElements['N-Ssolenoid'].position.z = -.2;
+						setTimeout(function () {
+
+							fieldRotation();
+
+						}, 500);
+					}, 1000);
+
+				}, 1000);
+				flow = 1;
+				message = "Current Flows from B to A through the coiled wire loops creating parallel strong magnetic field inside the solenoid and relatively weak field at external points. North and South Poles reversed";
+				messageEl.textContent = message;
+
+			} else if (flip === 0 && flow === 0 && element === 3) {
+				actions['needleL'].setDuration(5).play();
+				setTimeout(function () {
+					arrow.morphTargetInfluences[0] = 0;
+					arrow.morphTargetInfluences[1] = 0;
+
+					scene.add(modelElements['MFtoroid']);
+					setTimeout(function () {
+
+						fieldRotation();
+
+					}, 500);
+				}, 1000);
+				flow = 1;
+				message = "A toroid is a curved hollow solenoid (whose ends meets), the lines of magnetic fields form concentric circles inside the toroid. When Current Flows from A to B its in counterclockwise direction";
+				messageEl.textContent = message;
+
+			} else if (flip === 1 && flow === 0 && element === 3) {
+				actions['needleL'].setDuration(5).play();
+				setTimeout(function () {
+					arrow.morphTargetInfluences[0] = 0;
+					arrow.morphTargetInfluences[1] = 1;
+					scene.add(modelElements['N-Storoid']);
+					setTimeout(function () {
+
+						fieldRotation();
+
+					}, 500);
+
+				}, 1000);
+				flow = 1;
+				message = "A toroid is a curved hollow solenoid (whose ends meets), the lines of magnetic fields form concentric circles inside the toroid. When Current Flows from B to A its in clockwise direction";
+				messageEl.textContent = message;
+
+			} else {
+
+				actions['needleL'].fadeOut();
+				arrow.morphTargetInfluences[0] = 1;
+				arrow.morphTargetInfluences[1] = 0;
+
+				flow = 0;
+				message = "No Current Flows, Switch OFF";
+				messageEl.textContent = message;
+
+			}
+			animate();
+		}
+
+		function polarity() {
+
+			if (flip === 0) {
+				actions['polarity'].fadeOut();
+				actions['needleL'].fadeOut();
+
+				actions['polarity1'].setDuration(2).play();
+
+				flow = 0;
+				flip = 1;
+				message = "Polarity Changed. B is now the + terminal";
+				messageEl.textContent = message;
+
+				animate();
+
+			} else if (flip === 1) {
+				actions['polarity1'].fadeOut();
+				actions['needleL'].fadeOut();
+
+				actions['polarity'].setDuration(2).play();
+
+				flow = 0;
+				flip = 0;
+				message = "Polarity Changed. A is now the + terminal";
+				messageEl.textContent = message;
+
+				animate();
+			}
+			// requestAnimationFrame(polarity);
+		}
+
+		function fieldRotation() {
+			if (modelX) {
+				modelElements['MFcoil'].rotation.x += -.01;
+			} else {
+				modelElements['MFcoil'].rotation.x += .01;
+			}
+			modelElements['MFsolenoid'].rotation.z += .015;
+			modelElements['MFtoroid'].rotation.x += .015;
+			modelElements['N-Storoid'].rotation.x -= .01;
+			fieldID = requestAnimationFrame(fieldRotation);
+		}
+
+		function render() {
+
+			renderer.render(scene, camera);
+
+		}
+
+		function buttonAction() {
+
+			if (!hidden) {
+				equationEl.style.visibility = 'visible';
+				formulaDisplay();
+				
+			} else {
+				equationEl.style.visibility = 'hidden';
+				
+			}
+		}
+
+		function formulaDisplay() {
+			if (element === 0) {
+				eqnViewer.src = formulas['1'];
+			} else if (element === 1) {
+				eqnViewer.src = formulas['2'];
+			} else if (element === 2) {
+				eqnViewer.src = formulas['3'];
+			} else if (element === 3) {
+				eqnViewer.src = formulas['4'];
+			}
+
+		}
+
+		function stopAction() {
+			// cancelAnimationFrame(requestID);
+			cancelAnimationFrame(fieldID);
+			for (const key in modelElements) {
+				scene.remove(modelElements[key])
+			}
+			arrow.morphTargetInfluences[0] = 1;
+			arrow.morphTargetInfluences[1] = 0;
+			for (const key in actions) {
+				actions[key].stop().reset();
+			}
+		}
+		//window resizing
+
+		function onWindowResize() {
+
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			render();
+		}
+
+		function animate() {
+
+			requestAnimationFrame(animate);
+
+			const delta = clock.getDelta();
+
+			mixer.update(delta);
+
+			controls.update();
+
+			stats.update();
+
+			render();
+
+		};
+
+		function buttonLoad() {
+
+			//reset action button
+
+			buttonReset.addEventListener('click', function () {
+				stopAction()
+				scene.add(modelElements['coil']);
+				hidden = true;
+
+				buttonCoilEl.style.backgroundColor = "rgb(3, 67, 97)";
+				buttonSolenoidEl.style.backgroundColor = "rgb(3, 108, 156)";
+				buttonToroidEl.style.backgroundColor = "rgb(3, 108, 156)";
+				buttonWireEl.style.backgroundColor = "rgb(3, 108, 156)";
+				ruleEl.style.visibility = "hidden";
+				message = "Magnetic Effect due to a straight Wire Carrying Current ";
+				messageEl.textContent = message;
+				flip = 0;
+				flow = 0;
+				element = 1;
+				createCamera(50, 5, 4, 5)
+				createControls(1.5, .8, 0)
+			});
+
+			// polarity flip button
+			buttonFlip.addEventListener('click', function () {
+				for (const key in actions) {
+					actions[key].stop().reset();
+				}
+				for (const key in modelElements) {
+					for (let i = 0; i < magView.length; i++) {
+						if (key == magView[i]) {
+							scene.remove(modelElements[key])
+						}
+					}
+				}
+				arrow.morphTargetInfluences[0] = 1;
+				arrow.morphTargetInfluences[1] = 0;
+				// cancelAnimationFrame(requestID);
+				cancelAnimationFrame(fieldID);
+				polarity();
+			});
+
+			// current flow action switch
+			buttonFlow.addEventListener('click', function () {
+				for (const key in modelElements) {
+					for (let i = 0; i < magView.length; i++) {
+						if (key == magView[i]) {
+							scene.remove(modelElements[key])
+						}
+					}
+				}
+				actions['needleL'].stop()
+				// cancelAnimationFrame(requestID);
+				cancelAnimationFrame(fieldID);
+				createCamera(40, 5, 5, 5)
+				createControls(1, 1, 0)
+				currentFlow();
+			});
+
+			buttonFormula.addEventListener('click', function () {
+				hidden = !hidden;
+				buttonAction();
+			});
+
+			// Add a st. wire
+			buttonWireEl.addEventListener('click', function () {
+				stopAction();
+				scene.add(modelElements['wire']);
+
+
+				buttonCoilEl.style.backgroundColor = "rgb(3, 108, 156)";
+				buttonSolenoidEl.style.backgroundColor = "rgb(3, 108, 156)";
+				buttonToroidEl.style.backgroundColor = "rgb(3, 108, 156)";
+				buttonFormula.style.backgroundColor = "rgb(3, 108, 156)";
+				buttonWireEl.style.backgroundColor = "rgb(3, 67, 97)";
+				message = "Magnetic Effect due to a single Coil Carrying Current ";
+				messageEl.textContent = message;
+				element = 0;
+				flow = 0;
+				flip = 0;
+				// cancelAnimationFrame(requestID);
+				cancelAnimationFrame(fieldID);
+				createCamera(50, 5, 4, 5)
+				createControls(1.5, .8, 0)
+				buttonAction();
+				render();
+			});
+
+			//Add a coil
+			buttonCoilEl.addEventListener('click', function () {
+				stopAction();
+				scene.add(modelElements['coil']);
+
+
+				buttonWireEl.style.backgroundColor = "rgb(3, 108, 156)";
+				buttonSolenoidEl.style.backgroundColor = "rgb(3, 108, 156)";
+				buttonToroidEl.style.backgroundColor = "rgb(3, 108, 156)";
+				buttonFormula.style.backgroundColor = "rgb(3, 108, 156)";
+				buttonCoilEl.style.backgroundColor = "rgb(3, 67, 97)";
+				message = "Magnetic Effect due to a single Coil Carrying Current ";
+				messageEl.textContent = message;
+				element = 1;
+				flow = 0;
+				flip = 0;
+				// cancelAnimationFrame(requestID);
+				cancelAnimationFrame(fieldID);
+				createCamera(50, 5, 4, 5)
+				createControls(1.5, .8, 0)
+				buttonAction();
+				render();
+			});
+
+			//Add a sonenoid
+			buttonSolenoidEl.addEventListener('click', function () {
+				stopAction();
+				scene.add(modelElements['solenoid']);
+
+				buttonWireEl.style.backgroundColor = "rgb(3, 108, 156)";
+				buttonCoilEl.style.backgroundColor = "rgb(3, 108, 156)";
+				buttonToroidEl.style.backgroundColor = "rgb(3, 108, 156)";
+				buttonSolenoidEl.style.backgroundColor = "rgb(3, 67, 97)";
+				message = "Magnetic Effect due to a Solenoid Carrying Current ";
+				messageEl.textContent = message;
+				element = 2;
+				flow = 0;
+				flip = 0;
+				// cancelAnimationFrame(requestID);
+				cancelAnimationFrame(fieldID);
+				createCamera(50, 5, 4, 5)
+				createControls(1.5, .8, 0)
+				buttonAction();
+				render();
+			});
+
+			//Add a toroid
+			buttonToroidEl.addEventListener('click', function () {
+				stopAction();
+
+				scene.add(modelElements['toroid']);
+				buttonWireEl.style.backgroundColor = "rgb(3, 108, 156)";
+				buttonCoilEl.style.backgroundColor = "rgb(3, 108, 156)";
+				buttonSolenoidEl.style.backgroundColor = "rgb(3, 108, 156)";
+				buttonToroidEl.style.backgroundColor = "rgb(3, 67, 97)";
+				message = "Magnetic Effect due to a Toroid Carrying Current ";
+				messageEl.textContent = message;
+				element = 3;
+				flow = 0;
+				flip = 0;
+				// cancelAnimationFrame(requestID);
+				cancelAnimationFrame(fieldID);
+				createCamera(50, 5, 4, 5)
+				createControls(1.5, .8, 0)
+				buttonAction();
+				render();
+			});
+
+
+		}
+
+
+	</script>
+</body>
+
+</html>

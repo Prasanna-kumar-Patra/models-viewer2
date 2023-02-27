@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Ideal Gas Equation</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel="shortcut icon" href="../files/favicon_white.ico" media="(prefers-color-scheme: dark)" />
+    <link rel="shortcut icon" href="../files/favicon.ico" media="(prefers-color-scheme: light)" />
+    <link rel="stylesheet" type="text/css" href="../../css/style-page.css">
+    <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-0JWHY29KD2"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-0JWHY29KD2');
+</script>
+    <meta name="google-site-verification" content="mz0TRB59UNqdTxhwzmXmGdgVPh8pB4YqjuUr-aWNGIY">
+
+</head>
+
+<body>
+
+    <div style="font-weight: normal;  text-decoration-line: none; padding-bottom: 2px;" id="topmenu">
+        <div>
+            Ideal Gas Equation
+           
+        </div>
+
+    </div>
+   
+
+
+    <div id="menu">
+
+        <strong>Equation of State for Ideal Gas </strong><br>
+        <div class="fraction">
+            <span class="fup"> PV</span>
+            <span class="bar">/</span>
+            <span class="fdn"> T</span>
+        </div>
+        <a>= constant</a> <br>
+        <div class="fraction">
+            <span class="fup"> P<sub>1</sub>V<sub>1</sub></span>
+            <span class="bar">/</span>
+            <span class="fdn"> T<sub>1</sub></span>
+        </div>
+        <a>=</a>
+        <div class="fraction">
+            <span class="fup"> P<sub>2</sub>V<sub>2</sub></span>
+            <span class="bar">/</span>
+            <span class="fdn"> T<sub>2</sub></span>
+        </div><br>
+        <a id="message-el">An ideal gas ( low-density gas ) confined to a leak proof container whose volume can be varied.</a><br>
+        <button id="reset">RESET<br><small>(Clear Path)</small></button>
+        <button onClick="boylesLaw()">BOYLE'S LAW <br><small>(Constant T)</small></button>
+        <button onClick="charlesLaw()">CHARLE'S LAW <br><small>(Constant P)</small></button>
+        <button id="theorybutton" onClick="theorySite()">THEORY<br><small>(PV/T = const)</small></button><br>
+        &rArr; <strong>PV = nRT = Nk<sub>B</sub>T</strong>
+    </div>
+    <canvas id="drawing-canvas" height="200" width="175"></canvas>
+    <script>
+
+        function theorySite() {
+
+            window.open("../../theory/thermodynamics/Thermodynamics_Ideal_Gas_Equation.html", "_self")
+        }
+        function boylesLaw() {
+
+            window.open("./index_boyle_law.html", "_self")
+        }
+
+        function charlesLaw() {
+
+            window.open("./index_charle_law.html", "_self")
+        }
+    </script>
+    <script type="module">
+        import * as THREE from '../../build/three.module.js';
+        import { OrbitControls } from '../../jsm/controls/OrbitControls.js';
+        import Stats from '../../jsm/libs/stats.module.js';
+        import { GUI } from '../../jsm/libs/lil-gui.module.min.js';
+        import { TWEEN } from '../../jsm/libs/tween.module.min.js';
+
+        let camera, aspect, fov, stats, clock, gui;
+        let scene, renderer, controls, container;
+        let box, plane, rod, indicatorMaterial, pressurePointer, tempPointer;
+        let vel = new THREE.Vector3(0, 0, 0);
+        const spheres = [], v = [];
+        let mixed = false;
+        let atoms = true;
+        let temp = new THREE.Group();
+        let bar = new THREE.Group();
+        let initialPoint = new THREE.Vector3(0, 0, 0);
+        let nextPoint = new THREE.Vector3(0, 0, 0);
+        let Line = new THREE.Group();
+        let A = Math.floor(Math.random() * (21 - 1) + 1);
+        let params = {
+            A: 10,
+            T: 298,
+            P: 1.013,
+
+        }
+        let drawingCanvas, drawingContext;
+        let message = "";
+        let messageEl = document.getElementById("message-el");
+        let buttonReset = document.getElementById("reset");
+
+        init()
+        animate()
+
+        function setupCanvasDrawing() {
+
+            drawingCanvas = document.getElementById('drawing-canvas');
+            drawingContext = drawingCanvas.getContext('2d');
+            drawingContext.fillStyle = 'grey';
+            drawingContext.fillRect(0, 0, 175, 200);
+            // Create gradient
+            let grd = drawingContext.createLinearGradient(0, 0, 0, 150);
+            grd.addColorStop(0, "red");
+            grd.addColorStop(0.5, "orange");
+            grd.addColorStop(1, "yellow");
+
+            // Fill with gradient
+            drawingContext.fillStyle = grd;
+            drawingContext.fillRect(10, 10, 25, 150);
+
+            drawingContext.fillStyle = 'black';
+            drawingContext.fillRect(18, 80, 8, 80);
+
+            drawingContext.font = "20px arial";
+            drawingContext.textAlign = "center";
+            drawingContext.fillText("T", 20, 190);
+            drawingContext.fillText("P", 110, 100);
+            arcGradient(drawingContext)
+            drawPointer(drawingContext)
+        }
+
+        function arcGradient(ctx) {
+            let grad = ctx.createLinearGradient(50, 50, 150, 100);
+            // Color stops.
+            grad.addColorStop(0, "yellow");
+            grad.addColorStop(1, "red");
+
+            // Draw arc.
+            ctx.beginPath();
+            ctx.arc(105, 80, 50, -Math.PI, 0);
+            ctx.strokeStyle = grad;
+            ctx.lineWidth = 30;
+            ctx.stroke();
+
+        }
+
+        function drawPointer(ctx) {
+            ctx.beginPath();
+            ctx.moveTo(110, 80);
+            ctx.lineTo(45, 60);
+            ctx.lineTo(110, 75);
+            ctx.fill();
+        }
+
+        function init() {
+            //scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xbfd1e5);
+
+            //camera
+            createCamera(12, 2, 30);
+
+            //renderer
+            createRenderer();
+
+            //cameracontrols
+            createControls(0, 0, 0);
+
+            //create light 
+            createLights();
+
+            //create controls
+            // guiControls();
+            addAxes(new THREE.Vector3(0, 0, 0));
+            scene.add(Line);
+            //Gas Container Box
+            let geometry = new THREE.BoxGeometry((params.A + 0.4) * 2, (params.A + 0.4) * 2, 20.8);
+            const material = new THREE.MeshPhongMaterial(
+                {
+                    color: 'green',
+                    transparent: true,
+                    opacity: 0.25
+                })
+            box = new THREE.Mesh(geometry, material);
+            scene.add(box);
+
+            setupCanvasDrawing()
+            addAtoms(20);
+           
+            buttonReset.addEventListener("click", function (event) {
+                scene.remove(Line)
+                Line = new THREE.Group();
+                A = Math.floor(Math.random() * (21 - 1) + 1);
+                scene.add(Line)
+            });
+            document.body.appendChild(renderer.domElement);
+
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function guiControls() {
+            gui = new GUI();
+            // gui.close()
+            // camera control adjust
+            // console.log(camera.position)
+            // let controlFolder = gui.addFolder("Control");
+            // controlFolder.add(controls.target, 'x', -100, 100);
+            // controlFolder.add(controls.target, 'y', -100, 100);
+            // controlFolder.add(controls.target, 'z', -100, 100);
+            // // // let cameraFolder = gui.addFolder("Camera");
+            // gui.add(camera.position, 'x', -100, 100);
+            // gui.add(camera.position, 'y', -100, 100);
+            // gui.add(camera.position, 'z', -100, 100);
+
+            // change volume space and pressure indicator
+            gui.add(params, 'A', 1, 20, 0.25).onChange((value) => {
+                // console.log(value)
+                box.geometry.dispose();
+                let newGeometry = new THREE.BoxGeometry(10.8, (params.A * 2 + 1), 10.8);
+                box.geometry = newGeometry;
+                slider1.position.y = -params.A - 1;
+                slider2.position.y = params.A + 1;
+                tempPointer.scale.set(1, value * 1.5, 1);
+                t = 0.0001 + value * 0.0001
+            });
+
+            gui.add(params, 'Molecules');
+            gui.add(params, 'Atoms');
+            gui.add(params, 'Clear').name('RESET');
+        }
+
+        function createCamera(x, y, z) {
+
+            fov = 55;
+            const aspect = window.innerWidth / window.innerHeight;
+            const near = 0.1;
+            const far = 1500;
+
+            camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+
+            camera.position.set(x, y, z);
+        }
+
+        function createControls(x, y, z) {
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enablePan = true;
+            controls.enableZoom = true;
+            controls.target.set(x, y, z);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.rotateSpeed = 0.1;
+            controls.update();
+            controls.addEventListener('change', render);
+        }
+
+        function createRenderer() {
+            // create the renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.alpha = true;
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.outputEncoding = THREE.sRGBEncoding;
+            document.body.appendChild(renderer.domElement);
+
+        }
+
+        function createLights() {
+            let hemiLight = new THREE.AmbientLight(0xffffff, .20);
+            hemiLight.position.set(0, 20, 0);
+            scene.add(hemiLight);
+
+            let dirLight = new THREE.DirectionalLight(0xffffff, 1);
+            dirLight.position.set(-30, 50, -30);
+            dirLight.castShadow = true;
+            dirLight.shadow.camera.top = 70;
+            dirLight.shadow.camera.bottom = -70;
+            dirLight.shadow.camera.left = -70
+            dirLight.shadow.camera.right = 70;
+            dirLight.shadow.mapSize.width = 2048;
+            dirLight.shadow.mapSize.height = 2048;
+            scene.add(dirLight);
+
+            scene.add(new THREE.AmbientLight(0xffffff, .4));
+        }
+
+        function onWindowResize() {
+
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            
+
+        }
+
+        function addLabels(name, col, x, y) {
+
+            let text = document.createElement('div');
+            text.className = 'label';
+            text.innerHTML = name;
+            text.style.color = col;
+
+            let label = new CSS2DObject(text);
+            label.position.x = x;
+            label.position.y = y;
+
+            return label
+        }
+
+        function render() {
+
+            renderer.render(scene, camera);
+            
+        }
+
+        function addAxes(pos) {
+            let axes = new THREE.Group();
+            const axesHelper = new THREE.AxesHelper(20);
+            axes.add(axesHelper);
+            const axesHelper1 = new THREE.AxesHelper(-20);
+            axes.add(axesHelper1);
+            axes.position.copy(pos)
+            scene.add(axes)
+        }
+
+        function addAtoms(N) {
+            const geometry = new THREE.SphereGeometry(0.1, 32, 16);
+            const material = new THREE.MeshPhongMaterial({ color: 'blue' });
+
+            for (let i = 0; i < N; i++) {
+
+                const mesh = new THREE.Mesh(geometry, material);
+
+                mesh.position.x = Math.random() * 10 - 5;
+                mesh.position.y = Math.random() * 20 - 10;
+                mesh.position.z = Math.random() * 10 - 5;
+                mesh.rotation.x = Math.random() * 1.57;
+                mesh.rotation.y = 0;
+                mesh.rotation.z = Math.random() * 1.57;
+                mesh.scale.x = mesh.scale.y = mesh.scale.z = 3;
+
+                scene.add(mesh);
+                let mag = Math.random() < 0.5 ? -1 : 1;
+                let vel = new THREE.Vector3(mag * (Math.random() * (0.06 - 0.02) + 0.02), mag * (Math.random() * (0.06 - 0.02) + 0.02), mag * (Math.random() * (0.06 - 0.02) + 0.02));
+                v.push(vel);
+                spheres.push(mesh);
+                if (i == 4) {
+                    nextPoint = new THREE.Vector3(mesh.position.x, mesh.position.y, mesh.position.z)
+                }
+            }
+        }
+
+        function animate() {
+
+            requestAnimationFrame(animate);
+            // const timer = t * Date.now();
+
+            camera.lookAt(scene.position);
+
+            for (let i = 0; i < spheres.length; i++) {
+
+                const sphere = spheres[i];
+
+                //check bounds invert direction 
+                if (sphere.position.x <= -10 || sphere.position.x >= 10) {
+                    v[i].x = v[i].x * -1;
+                    sphere.position.add(v[i]);
+                } else if (sphere.position.y <= -10 || sphere.position.y >= 10) {
+                    v[i].y = v[i].y * -1;
+                    sphere.position.add(v[i]);
+                } else if (sphere.position.z <= -10 || sphere.position.z >= 10) {
+                    v[i].z = v[i].z * -1;
+                    sphere.position.add(v[i]);
+
+                } else {
+                    // console.log(Math.floor(Math.random() * (21 - 1)) + 1)
+                    sphere.position.add(v[i]);
+                }
+
+                if (i ==  A) {
+                    initialPoint = nextPoint;
+                    nextPoint = new THREE.Vector3(sphere.position.x, sphere.position.y, sphere.position.z);
+                    let line = initLine({
+                        points: [initialPoint, nextPoint],
+                        lineMaterial: new THREE.LineBasicMaterial({ color: 0xff0000 }),
+                        yRotation: 0,
+                        x: 0,
+                        y: 0,
+                        z: 0
+                    });
+                    Line.add(line)
+                }
+            }
+            controls.update();
+            render();
+
+        }
+
+
+        function initLine(data) {
+            let lineGeometry = new THREE.BufferGeometry().setFromPoints(data.points);
+            let line = new THREE.Line(lineGeometry, data.lineMaterial);
+
+            line.rotation.y = data.yRotation;
+            line.position.x = data.x;
+            line.position.y = data.y;
+            line.position.z = data.z;
+            return line;
+
+        }
+
+    </script>
+</body>
+
+</html>

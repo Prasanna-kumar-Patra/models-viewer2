@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>The Photoelectric Effect</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel="shortcut icon" href="../files/favicon_white.ico" media="(prefers-color-scheme: dark)" />
+    <link rel="shortcut icon" href="../files/favicon.ico" media="(prefers-color-scheme: light)" />
+    <link rel="stylesheet" type="text/css" href="../../css/style-page.css">
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-0JWHY29KD2"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-0JWHY29KD2');
+    </script>
+    <meta name="google-site-verification" content="mz0TRB59UNqdTxhwzmXmGdgVPh8pB4YqjuUr-aWNGIY">
+
+</head>
+
+<body>
+
+    <div id="topmenu">
+        The Photoelectric Effect
+
+    </div>
+<div id="sidemenu">
+   
+</div>
+    <div id="menu">
+         <a> Work Potential = </a><a id="workFn">4.2</a><a> eV</a><br>
+        <a>Cutoff Wavelength (<em>&lambda;<sub>c</sub></em>) =<em>
+                <div class="fraction">
+                    <span class="fup"> hc</span>
+                    <span class="bar">/</span>
+                    <span class="fdn"> &phi; </span>
+                </div>
+            </em> = </a><a id="photon"></a> nm<br>
+        <a>Cutoff Frequency (<em>&nu;<sub>c</sub></em>) =<em>
+                <div class="fraction">
+                    <span class="fup"> c</span>
+                    <span class="bar">/</span>
+                    <span class="fdn"> &lambda;<sub>c</sub> </span>
+                </div>
+            </em> = </a><a id="freq"></a> x 10<sup>14</sup> Hz<br>
+        
+       
+        <a><input type="range" id="wavelength" name="wavelength" min="1.00" max="9.00" value="2.00" step="0.01">
+            <label for="wavelength"><strong>Wavelength</strong></label>
+        </a>= <a id="wavevalue"></a><a> nm </a><br>
+        <a> &#10148<label for="frequency"><strong>Frequency</strong></label>
+        </a>= <a id="freqvalue"></a><a> x 10<sup>14</sup> Hz </a><br>
+        <a>&#10148 Max. K.E. of Electron = </a><a id="electronKE">0</a><a> eV</a><br>
+        <a>&#10148 Min. K.E. of Electron = </a><a>0 eV</a><br>
+        <a><input type="range" id="intensity" name="intensity" min="2.5" max="10" value="10" step="2.5">
+            <label for="intensity"><strong>Intensity</strong></label>
+        </a> </a>= <a id="intensityValue"></a><a> % </a><br>
+        <a><input type="range" id="voltage" name="voltage" min="-10" max="10" value="5" step="0.1">
+            <label for="voltage"><strong>Voltage </strong></label>
+        </a> </a>= <a id="voltageValue"></a><a> V </a><br>
+        <button id="wave">STOP PHOTONS</button>
+        <button id="changeElement">Al/Na</button>
+        <button id="theorybutton" onClick="theorySite()">THEORY</button><br>
+        <a style="font-weight: bolder;" id="message-el">
+            Light of wavelength 200 nm shines on an aluminum surface; 4.20 eV is required to eject an electron. What is
+            the kinetic energy of (a) the fastest and (b) the slowest ejected electrons? (c) What is the
+            stopping potential for this situation? (d) What is the cutoff wavelength for aluminum?
+        </a>
+    </div>
+    <canvas style="visibility: hidden;" id="drawing-canvas" height="150" width="300"></canvas>
+
+
+    <script>
+
+        function theorySite() {
+
+            window.open("../../theory/quantum/Quantum_Photoelectric_Effect.html", "_self")
+        }
+
+    </script>
+    <script type="module">
+        import * as THREE from '../../build/three.module.js';
+        import { OrbitControls } from '../../jsm/controls/OrbitControls.js';
+        import Stats from '../../jsm/libs/stats.module.js';
+        import { GUI } from '../../jsm/libs/lil-gui.module.min.js';
+        import { TWEEN } from '../../jsm/libs/tween.module.min.js';
+
+        let drawingCanvas, drawingContext;
+        let maxWidth = 300, maxHeight = 150;
+        let halfWidth = maxWidth / 2;
+        let xAxis = 25, yAxis = 150 - 15;
+        let emitter, cathode, pos, cone;
+        let photon_to, photon_fro, photon_scaleDown, photon_scaleUp;
+        let tween_to, tween_fro, tween_scaleDown, tween_scaleUp;
+        let camera, aspect, fov, stats, clock, gui;
+        let scene, renderer, labelRenderer, controls, container, electron, currentNeedle, voltageNeedle;
+        let requestID;
+        let PHOTON, colLight;
+        let t = 2000;
+        let points = [], lattice = [], LINE = [], electronList = [];
+        const pi = Math.PI, planck = 6.626e-34, charge = 1.602e-19, speed = 3e8, hc = 12.408e-7;
+        let stop = false;
+        let change = false;
+        let wave = new THREE.Group();
+        let WAVES = new THREE.Group();
+        let ELECTRONS = new THREE.Group();
+        let group = new THREE.Group();
+        let v = new THREE.Vector3(.1, .1, .1);
+        let colorList = [];
+        let params = {
+            element: 'aluminium',
+            photon: 'white',
+            iValue: 2,
+            intensity: 10,
+            flow: false,
+            workfn: 4.20,
+            wavelength: 2.00e-7,
+            waveCut: 0,
+            freqCut: 0,
+            kenergy: 0,
+            voltage: 5,
+            rotation: 0.8
+        }
+        let voltageX = [-15, -10, -5, -4.2, -4, -3.8, -2, 0, 2, 4.2, 4.5, 5, 10, 15, 20, 25, 30, 35]
+        let current1Y = [0, 0, 0, 0,
+            0.01, 0.02, 0.15, 0.3, 0.5, 0.54,
+            0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55]
+        let current2Y = [0, 0, 0, 0,
+            0.005, 0.01, 0.075, 0.15, 0.25, 0.272,
+            0.275, 0.275, 0.275, 0.275, 0.275, 0.275, 0.275, 0.275]
+        let freqAl = [30, 25, 20, 15, 10.2, -9]
+        let kEnergyAl = [13.1, 9.7, 6.52, 3.21, 0, -14]
+        let freqNa = [30, 25, 20, 15, 10, 7.5, 5.95, -9]
+        let kEnergyNa = [15.9, 12.2, 9.14, 6.05, 2.73, 1, 0, -10]
+        let message = ["Light of wavelength 200 nm shines on an aluminium surface; 4.20 eV is required to eject an electron. What is the kinetic energy of (a) the fastest and (b) the slowest ejected electrons? (c) What is the stopping potential for this situation? (d) What is the cutoff wavelength for aluminum?", "A sodium surface is illuminated with light having a wavelength of 300 nm. The work function for sodium metal is 2.46 eV. Find (a) the maximum kinetic energy of the ejected photoelectrons and (b) the cutoff wavelength for sodium"];
+        //button and html elements
+        let waveButton = document.getElementById('wave');
+        let elementButton = document.getElementById('changeElement');
+        let photon = document.getElementById('photon');
+        let freq = document.getElementById('freq');
+        let electronKE = document.getElementById('electronKE');
+        let intensity = document.getElementById('intensity');
+        let intensityValue = document.getElementById('intensityValue');
+        let wavelength = document.getElementById('wavelength');
+        let waveValue = document.getElementById('wavevalue');
+        let freqValue = document.getElementById('freqvalue');
+        let voltage = document.getElementById('voltage');
+        let voltageValue = document.getElementById('voltageValue');
+        let messageEl = document.getElementById("message-el");
+
+        waveValue.innerHTML = Math.ceil(params.wavelength * 1e9);
+        intensityValue.innerHTML = params.intensity * 10;
+        voltageValue.innerHTML = voltage.value;
+        init()
+        animate()
+
+        function setupCanvasDrawing() {
+
+            drawingCanvas = document.getElementById('drawing-canvas');
+            drawingContext = drawingCanvas.getContext('2d');
+
+            // draw white background
+            drawingContext.clearRect(0, 0, maxWidth, maxHeight);
+            drawingContext.fillStyle = '#FFFFFF';
+            drawingContext.fillRect(0, 0, maxWidth, maxHeight);
+
+        }
+
+        function drawAxes(context, X, Y, A) {
+
+            // Draw X and Y axes
+            context.beginPath();
+            context.lineWidth = 2;
+            context.strokeStyle = 'black';
+            context.moveTo(X, 0);
+            context.lineTo(X, maxHeight);
+            context.moveTo(0, Y);
+            context.lineTo(maxWidth, Y);
+            canvas_arrow(context, X - 10, 90, X - 10, 10);
+            canvas_arrow(context, maxWidth - A, Y + 10, maxWidth - 5, Y + 10);
+            context.stroke();
+        }
+
+        function canvas_arrow(context, fromx, fromy, tox, toy) {
+            let headlen = 10; // length of head in pixels
+            let dx = tox - fromx;
+            let dy = toy - fromy;
+            let angle = Math.atan2(dy, dx);
+            context.moveTo(fromx, fromy);
+            context.lineTo(tox, toy);
+            context.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
+            context.moveTo(tox, toy);
+            context.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
+        }
+
+        function plotGraph(ctx, x, y, r, col, x1, y1) {
+            ctx.beginPath();
+            ctx.arc(x1, y1, r, 0, 2 * Math.PI, false);
+            ctx.moveTo(x, y);
+            ctx.lineTo(x1, y1);
+            ctx.lineWidth = 1;
+
+            ctx.fillStyle = col;
+            ctx.strokeStyle = col;
+
+            ctx.fill();
+            ctx.stroke();
+        }
+
+        function listLabel(ctx, data, cutOff) {
+            ctx.beginPath();
+            ctx.fillStyle = data.col1;
+            ctx.strokeStyle = data.col1;
+            ctx.stroke();
+            ctx.font = "16px arial";
+            ctx.fillText(data.label1, data.label1Posx, data.label1Posy);
+            ctx.beginPath();
+            ctx.fillStyle = data.col2;
+            ctx.strokeStyle = data.col2;
+            ctx.stroke();
+            ctx.font = "16px arial";
+            ctx.fillText(data.label2, data.label2Posx, data.label2Posy);
+            ctx.fillStyle = "#000000";
+            ctx.fillText(data.xlabel, data.x - data.length, data.xPos);
+            ctx.fillText(data.ylabel, data.y, data.yPos);
+            // ctx.fillText(-data.cutOff, 200 - data.length, data.voltPos1x);
+            // ctx.fillText(data.cutOff, 55, data.voltPos2x);
+
+
+        }
+
+        function calCutoff() {
+            let x = (hc) / (params.workfn);
+            let y = speed / x;
+            params.waveCut = Number.parseFloat(x).toExponential(2);
+            params.freqCut = Number.parseFloat(y).toExponential(2);
+            freq.innerHTML = (params.freqCut * 1e-14)
+            photon.innerHTML = Math.ceil(params.waveCut * 1e9)
+            // console.log(params.waveCut, params.freqCut, params.workfn)
+        }
+
+        function calKenergy(A) {
+
+            let x = (hc) / A;
+            let y = (x - params.workfn) * charge;
+            let z = (speed / A )* 1e-14
+            params.kenergy = Number.parseFloat(y).toExponential(2);
+            electronKE.innerHTML = (params.kenergy * 1e19).toFixed(2);
+            freqValue.innerHTML = (z).toFixed(2);
+            // console.log(speed / A * 1e-14, params.kenergy)
+        }
+
+        function buttonAction() {
+
+            waveButton.addEventListener("click", function (event) {
+                stop = !stop;
+                // waveAction()
+                voltageAction(params.voltage)
+                canvasRedraw()
+            });
+
+            elementButton.addEventListener("click", function (event) {
+                change = !change
+                if (change) {
+                    console.log('change to Sodium problem')
+                    params.element = 'Sodium';
+                    params.workfn = 2.46;
+                    params.wavelength = 3.00e-7;
+                    workFn.innerHTML = params.workfn;
+                    messageEl.innerHTML = message[1];
+                    waveValue.innerHTML = Math.ceil( params.wavelength * 1e9);
+                    calCutoff();
+                    calKenergy(params.wavelength)
+                } else {
+                    console.log('change to Aluminium problem')
+                    params.element = 'Aluminium';
+                    params.workfn = 4.2;
+                    params.wavelength = 2.00e-7;
+                    workFn.innerHTML = params.workfn;
+                    messageEl.innerHTML = message[0];
+                    waveValue.innerHTML = Math.ceil( params.wavelength * 1e9);
+                    calCutoff();
+                    calKenergy(params.wavelength)
+                }
+                canvasAction()
+
+            });
+
+            wavelength.addEventListener("change", function (event) {
+                waveValue.innerHTML = Math.ceil(wavelength.value * 1e2);
+                params.wavelength = Number.parseFloat(wavelength.value * 1e-7).toExponential(2);
+                colLight = colorList[Math.floor(Math.random() * colorList.length)];
+                // waveAction();
+                voltageAction(params.voltage)
+            });
+
+            intensity.addEventListener("change", function () {
+                params.intensity = intensity.value;
+                intensityValue.innerHTML = params.intensity * 10;
+                params.iValue = params.intensity / 5;
+                voltageAction(params.voltage)
+            });
+
+            voltage.addEventListener("change", function () {
+                let X = voltage.value
+                voltageValue.innerHTML = X;
+                params.voltage = X;
+
+                voltageAction(params.voltage)
+                canvasAction();
+            });
+        }
+
+        function canvasAction() {
+
+            setupCanvasDrawing();
+            drawingCanvas.style.visibility = 'visible';
+            drawAxes(drawingContext, 80, 135, 70)
+            listLabel(drawingContext, {
+                xlabel: "V (volts)",
+                ylabel: "I (mA)",
+
+                label1: "Low Intensity",
+                col1: 'green',
+                label2: "High Intensity",
+                col2: 'red',
+
+                label1Posx: halfWidth + 40,
+                label1Posy: 100,
+                label2Posx: halfWidth + 40,
+                label2Posy: 50,
+                xPos: 150,
+                yPos: 55,
+                x: 150,
+                y: 25,
+                length: 2
+            });
+            drawingContext.beginPath();
+            drawingContext.moveTo(100, 140);
+            drawingContext.lineTo(100, 130);
+            drawingContext.moveTo(60, 145);
+            drawingContext.lineTo(60, 130);
+            drawingContext.stroke();
+            drawingContext.font = "12px arial";
+            drawingContext.fillStyle = "#000000";
+            drawingContext.fillText(params.workfn + ' V ', xAxis + 70, yAxis + 10);
+            drawingContext.fillText(-params.workfn + ' V ', xAxis + 10, yAxis + 10);
+
+            for (let i = 0; i < voltageX.length - 1; i++) {
+
+                plotGraph(drawingContext, xAxis + 60 + voltageX[i] * 5, yAxis - current1Y[i] * 190, 3, 'red', xAxis + 60 + voltageX[i + 1] * 5, yAxis - current1Y[i + 1] * 190);
+                plotGraph(drawingContext, xAxis + 60 + voltageX[i] * 5, yAxis - current2Y[i] * 190, 3, 'green', xAxis + 60 + voltageX[i + 1] * 5, yAxis - current2Y[i + 1] * 190);
+            }
+
+        }
+
+        function canvasRedraw() {
+
+            setupCanvasDrawing();
+            drawingCanvas.style.visibility = 'visible';
+            drawAxes(drawingContext, 90, 75, 70)
+
+            listLabel(drawingContext, {
+                xlabel: "Freq (Hz)",
+                ylabel: "K.E (eV)",
+                label1: "Al",
+                col1: 'green',
+                label2: "Na",
+                col2: 'red',
+                label1Posx: halfWidth + 70,
+                label1Posy: 60,
+                label2Posx: halfWidth + 40,
+                label2Posy: 15,
+                xPos: 100,
+                yPos: 55,
+                x: 150,
+                y: 20,
+                length: 5
+            });
+            drawingContext.fillText(-2.46 + ' V ', xAxis + 10, yAxis -10);
+            drawingContext.fillText(-4.20 + ' V ', xAxis + 10, yAxis + 10);
+            for (let i = 0; i < freqAl.length - 1; i++) {
+
+                plotGraph(drawingContext, xAxis + 100 + freqAl[i] * 4, yAxis - 60 - kEnergyAl[i] * 5, 3, 'green', xAxis + 100 + freqAl[i + 1] * 4, yAxis - 60 - kEnergyAl[i + 1] * 5);
+                // plotGraph(drawingContext, xAxis + 100 + freqNa[i] * 4, yAxis - 60 - kEnergyNa[i] * 4, 3, 'red', xAxis + 100 + freqNa[i + 1] * 4, yAxis - 60 - kEnergyNa[i + 1] * 4);
+            }
+            for (let i = 0; i < freqNa.length - 1; i++) {
+
+                // plotGraph(drawingContext, xAxis + 100 + freqAl[i] * 4, yAxis - 60 - kEnergyAl[i] * 4, 3, 'green', xAxis + 100 + freqAl[i + 1] * 4, yAxis - 60 - kEnergyAl[i + 1] * 4);
+                plotGraph(drawingContext, xAxis + 100 + freqNa[i] * 4, yAxis - 60 - kEnergyNa[i] * 5, 3, 'red', xAxis + 100 + freqNa[i + 1] * 4, yAxis - 60 - kEnergyNa[i + 1] * 5);
+            }
+        }
+
+        function waveChange(N, col) {
+            const lightWave = new THREE.CatmullRomCurve3(points);
+            let tubeGeometry1 = new THREE.TubeGeometry(lightWave, 50, .07, 5, false);
+            let material1 = new THREE.MeshPhongMaterial({ color: col, wireframe: false, side: THREE.DoubleSide });
+            PHOTON = new THREE.Mesh(tubeGeometry1, material1);
+            cone.material = material1;
+            let X;
+            for (let k = 0; k < Math.floor(N / 2); k++) {
+                X = PHOTON.clone();
+                X.rotation.set(0, 0, 2.3);
+                X.position.set(0, (k + .2) / 3, k / 3);
+                group.add(X);
+            }
+            for (let k = 0; k < Math.floor(N / 2) + 1; k++) {
+                X = PHOTON.clone();
+                X.rotation.set(0, 0, 2.3);
+                X.position.set(0, ((k + .2) / 3) - 1, k / 3);
+                group.add(X);
+            }
+            scene.add(group);
+        }
+
+        function init() {
+            //scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xbfd1e5);
+            createCamera(-4, 15, 35);
+            createRenderer();
+            createControls(0, 1, -2.5);
+            createLights();
+            calCutoff();
+            calKenergy(params.wavelength);
+            const scaleHorizontal = new THREE.GridHelper(70, 70);
+            scene.add(scaleHorizontal);
+
+            clock = new THREE.Clock();
+
+            wavePoints()
+            vacuumChamber();
+            photonSource();
+
+            randomColor(500);
+
+            // guiControls();
+            createConnector();
+            createMeasure();
+
+            colLight = colorList[Math.floor(Math.random() * colorList.length)];
+            group = new THREE.Group();
+            ELECTRONS = new THREE.Group();
+            group.rotation.set(0, -0.5, 0.08);
+            group.position.set(-1, 12.5, 0);
+            voltageAction(params.voltage);
+
+            document.body.appendChild(renderer.domElement);
+
+            window.addEventListener('resize', onWindowResize);
+            buttonAction();
+        }
+
+        function randomColor(N) {
+            for (let i = 0; i < N; i++) {
+                let r = Math.random();
+                let g = Math.random();
+                let b = Math.random();
+                let color = new THREE.Color(r, g, b);
+                colorList.push(color);
+            }
+        }
+
+        function createBox(x, y, z, col, boolean, value) {
+            let geometry = new THREE.BoxGeometry(x, y, z).translate(0, y / 2, 0);
+            let material = new THREE.MeshPhongMaterial({
+                color: col,
+                side: THREE.DoubleSide,
+                transparent: boolean,
+                opacity: value
+            })
+            let box = new THREE.Mesh(geometry, material);
+            return box
+
+        }
+
+        function initLine(data) {
+            let lineGeometry = new THREE.BufferGeometry().setFromPoints(data.points);
+            let lineMaterial = data.lineMaterial;
+            let line = new THREE.Line(lineGeometry, lineMaterial);
+
+            line.rotation.y = data.yRotation;
+            line.position.x = data.x;
+            line.position.y = data.y;
+            line.position.z = data.z;
+            return line;
+
+        }
+
+        function wavePoints() {
+            let a = new THREE.Vector3(0, 0, 0);
+
+            for (let i = 0; i < 2 * pi; i = i + 0.25) {
+
+                a = new THREE.Vector3(i, 0.5 * Math.sin(4 * i), 0);
+
+                points.push(a);
+                // console.log(i,points ) 
+            }
+        }
+
+        function vacuumChamber() {
+            const geometry = new THREE.SphereGeometry(3, 16, 32, 0, 3.14, 0, 3.14).translate(0, 0, 3);
+            const material = new THREE.MeshPhongMaterial({
+                color: 'blue',
+                side: THREE.BackSide,
+                transparent: true,
+                opacity: 0.25
+            });
+            const cap1 = new THREE.Mesh(geometry, material);
+            cap1.position.set(0, 10, 0)
+            cap1.rotation.set(-1.57, 0, 0)
+            scene.add(cap1)
+
+            const geometry1 = new THREE.CylinderGeometry(3, 3, 10, 32, 32, true).translate(0, 8, 0);
+            const material1 = new THREE.MeshPhongMaterial({
+                color: 'blue',
+                side: THREE.BackSide,
+                transparent: true,
+                opacity: 0.25
+            });
+            const tube = new THREE.Mesh(geometry1, material1);
+            scene.add(tube)
+
+            const cap2 = new THREE.Mesh(new THREE.CylinderGeometry(3, 3, 3, 32, 32).translate(0, 1.5, 0), new THREE.MeshPhongMaterial({ color: 'blue' }));
+            scene.add(cap2)
+
+            emitter = new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 10, 16, 16, true, 0.4, 2.72).translate(0, 8, 0), new THREE.MeshPhongMaterial({ color: 'aqua', side: THREE.DoubleSide }));
+            cathode = createBox(.25, 10, 1, 0x36454F, false, 1);
+            cathode.position.set(-2, 3, 0);
+            scene.add(emitter, cathode);
+            let node1 = createBox(.5, .5, .5, 0x36454F, false, 1);
+            let node2 = createBox(.5, .5, .5, 0x36454F, false, 1);
+            cap2.add(node1, node2);
+            node1.position.set(3.25, 1.5, 0);
+            node2.position.set(-3.25, 1.5, 0)
+        }
+
+        function photonSource() {
+            const geometry = new THREE.CylinderGeometry(.5, 1.5, 3, 8, 1, true);
+            const material = new THREE.MeshPhongMaterial({
+                color: 0xffff00,
+                side: THREE.DoubleSide
+            });
+            cone = new THREE.Mesh(geometry, material);
+            cone.position.set(-8, 19, -3);
+            cone.rotation.set(0, -0.5, 0.75)
+            cone.scale.set(2, 2, 2)
+            scene.add(cone);
+        }
+
+        function createConnector() {
+            const measureSpline1 = new THREE.CatmullRomCurve3([
+                new THREE.Vector3(3, 1.7, 0),
+                new THREE.Vector3(5, 1.5, 0),
+                new THREE.Vector3(8, .5, 4),
+                new THREE.Vector3(7, .5, 12),
+                new THREE.Vector3(5.7, .9, 12)
+
+            ]);
+            measureSpline1.curveType = 'centripetal';
+            let tubeGeometry1 = new THREE.TubeGeometry(measureSpline1, 60, .1, 4, false);
+            let material1 = new THREE.MeshLambertMaterial({ color: 0xb00000, wireframe: false });
+            let mesh1 = new THREE.Mesh(tubeGeometry1, material1);
+            scene.add(mesh1)
+
+            const measureSpline2 = new THREE.CatmullRomCurve3([
+                new THREE.Vector3(-3, 1.7, 0),
+                new THREE.Vector3(-7, 1.5, 0),
+                new THREE.Vector3(-10, 1.2, 4),
+                new THREE.Vector3(-10, 2, 12),
+                new THREE.Vector3(-7, 0.8, 11.8)
+            ]);
+            measureSpline2.curveType = 'centripetal';
+            let tubeGeometry2 = new THREE.TubeGeometry(measureSpline2, 60, .1, 4, false);
+            let material2 = new THREE.MeshLambertMaterial({ color: 0xb00000, wireframe: false });
+            let mesh2 = new THREE.Mesh(tubeGeometry2, material2);
+            scene.add(mesh2)
+
+            const measureSpline3 = new THREE.CatmullRomCurve3([
+                new THREE.Vector3(-6, 0.8, 11.8),
+                new THREE.Vector3(-1, 0.3, 12),
+                new THREE.Vector3(-0.6, 0.6, 12),
+                new THREE.Vector3(0.3, 0.9, 12)
+            ]);
+
+            let tubeGeometry3 = new THREE.TubeGeometry(measureSpline3, 60, .1, 4, false);
+            let material3 = new THREE.MeshLambertMaterial({ color: 0xb00000, wireframe: false });
+            let mesh3 = new THREE.Mesh(tubeGeometry3, material3);
+            scene.add(mesh3)
+        }
+
+        function createMeasure() {
+            let texture1 = new THREE.TextureLoader().load('../../assets/img/ammeterReading.png');
+
+            let currentMaterial = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, map: texture1, transparent: true });
+            let current = createBox(4.7, 4, 0.5, 0xEFb035, false, 1);
+            let currentPlane = new THREE.Mesh(new THREE.PlaneGeometry(4.5, 3.4).translate(0, 2, .3), currentMaterial);
+            currentNeedle = new THREE.Mesh(new THREE.PlaneGeometry(.06, 1.4).translate(0, 0.7, 0).rotateZ(1.56), new THREE.MeshBasicMaterial({ color: 0x000000 }));
+            // createBox(.06, 1.6, .05, 0x000000, false, 1);
+
+            scene.add(current);
+            current.position.set(3, 0, 12);
+            current.add(currentPlane);
+            currentPlane.add(currentNeedle)
+            currentNeedle.position.set(0, 1.3, 0.4);
+            // currentNeedle.rotation.set(0, 0, -4.8);
+            // currentLabel = makeText('I = ' + '0.00' + ' mA');
+            let posI = createBox(.5, .5, .5, 0x36454F, false, 1);
+            let negI = createBox(.5, .5, .5, 0x36454F, false, 1);
+            current.add(posI, negI);
+            posI.position.set(2.6, .7, 0);
+            negI.position.set(-2.6, .7, 0);
+
+            let texture2 = new THREE.TextureLoader().load('../../assets/img/voltageReading.png');
+            let voltageMaterial = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, map: texture2, transparent: true });
+            let voltage = createBox(7, 4, 2, 0xFF3500, false, 1);
+            let voltagePlane = new THREE.Mesh(new THREE.PlaneGeometry(4, 3).translate(0, 1.5, 0), voltageMaterial);
+            voltageNeedle = new THREE.Mesh(new THREE.PlaneGeometry(.06, 1.6).translate(0, 0.8, 0.05), new THREE.MeshBasicMaterial({ color: 0x000000 }));
+
+            // let voltageUp = createBox(5, 1, 3, 0x111111, false, 1);
+            voltage.position.set(-5, 0, 10.5);
+            voltagePlane.position.set(1.3, 0.9, 1.05);
+            voltageNeedle.position.set(0, 0.8, 0);
+            voltageNeedle.rotation.set(0, 0, -params.voltage / 10);
+            // voltageDown.add(voltageUp);
+            scene.add(voltage);
+            voltage.add(voltagePlane);
+            voltagePlane.add(voltageNeedle);
+            let positive = createBox(.5, .5, 1, 0x36454F, false, 1);
+            let negative = createBox(.5, .5, 1, 0x36454F, false, 1);
+            voltage.add(positive, negative);
+            positive.position.set(-1, 0.5, 1);
+            negative.position.set(-2, 0.5, 1);
+        }
+
+        function createCamera(x, y, z) {
+
+            fov = 55;
+            const aspect = window.innerWidth / window.innerHeight;
+            const near = 0.1;
+            const far = 1500;
+
+            camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+
+            camera.position.set(x, y, z);
+        }
+
+        function createControls(x, y, z) {
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enablePan = true;
+            controls.enableZoom = true;
+            controls.target.set(x, y, z);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.rotateSpeed = 0.1;
+            controls.update();
+            controls.addEventListener('change', render);
+        }
+
+        function createRenderer() {
+            // create the renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.alpha = true;
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.outputEncoding = THREE.sRGBEncoding;
+            document.body.appendChild(renderer.domElement);
+
+        }
+
+        function createLights() {
+            let hemiLight = new THREE.AmbientLight(0xffffff, .20);
+            hemiLight.position.set(0, 20, 0);
+            scene.add(hemiLight);
+
+            let dirLight = new THREE.DirectionalLight(0xffffff, 1);
+            dirLight.position.set(-30, 50, -30);
+            dirLight.castShadow = true;
+            dirLight.shadow.camera.top = 70;
+            dirLight.shadow.camera.bottom = -70;
+            dirLight.shadow.camera.left = -70
+            dirLight.shadow.camera.right = 70;
+            dirLight.shadow.mapSize.width = 2048;
+            dirLight.shadow.mapSize.height = 2048;
+            scene.add(dirLight);
+
+            scene.add(new THREE.AmbientLight(0xffffff, .4));
+        }
+
+        function guiControls() {
+            gui = new GUI();
+            gui.close()
+            // camera control adjust
+            // console.log(camera.position)
+            let controlFolder = gui.addFolder("Control");
+            controlFolder.add(controls.target, 'x', -100, 100);
+            controlFolder.add(controls.target, 'y', -100, 100);
+            controlFolder.add(controls.target, 'z', -100, 100);
+            // let cameraFolder = gui.addFolder("Camera");
+            gui.add(camera.position, 'x', -100, 100);
+            gui.add(camera.position, 'y', -100, 100);
+            gui.add(camera.position, 'z', -100, 100);
+
+
+        }
+
+        function onWindowResize() {
+
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function render() {
+
+            renderer.render(scene, camera);
+        }
+
+        //Animations
+        function animate() {
+
+            requestAnimationFrame(animate);
+
+            camera.lookAt(scene.position);
+
+            TWEEN.update();
+            controls.update();
+
+            render();
+
+        }
+
+        function intensityAction(value) {
+
+            if (params.wavelength <= params.waveCut) {
+                calKenergy(params.wavelength);
+                electronKE.innerHTML = (params.kenergy * 1e19).toFixed(2);
+                for (let i = 0; i < value; i++) {
+                    let electronGeometry = new THREE.IcosahedronGeometry(.25, 0);
+                    let electronMaterial = new THREE.MeshBasicMaterial({ color: 0xce00ff });
+                    let electron = new THREE.Mesh(electronGeometry, electronMaterial);
+                    electron.position.set(0, Math.random() * (5 + i / 5) - (2.5 + i / 10), Math.random() * (1 + i / 5) - (0.5 + i / 10));
+                    electronList.push(electron)
+                    ELECTRONS.add(electron)
+                }
+                setTimeout(function () {
+                    scene.add(ELECTRONS);
+                    ELECTRONS.position.set(1, 8, 0);
+                    electronChain(ELECTRONS)
+                }, 2500);
+
+            } else {
+                tween_to.stop();
+                electronKE.innerHTML = 0;
+            }
+
+        }
+
+        function photonChain(photon) {
+            photon_to = new TWEEN.Tween(photon.position)
+                .to({ x: 1, y: 8 }, 2000);
+
+            photon_scaleDown = new TWEEN.Tween(photon.scale)
+                .to({ x: 0, y: 0, z: 0 }, 50);
+
+            photon_fro = new TWEEN.Tween(photon.position)
+                .to({ x: -1, y: 12.5 }, 1000);
+
+            photon_scaleUp = new TWEEN.Tween(photon.scale)
+                .to({ x: 1, y: 1, z: 1 }, 50);
+
+            photon_to.chain(photon_scaleDown);
+            photon_scaleDown.chain(photon_fro);
+            photon_fro.chain(photon_scaleUp);
+            photon_scaleUp.chain(photon_to);
+
+            photon_to.start();
+        }
+
+        function electronChain(A) {
+
+            tween_to = new TWEEN.Tween(A.position)
+                .to({ x: pos, y: 8 }, t);
+
+            tween_scaleDown = new TWEEN.Tween(A.scale)
+                .to({ x: 0, y: 0, z: 0 }, 50);
+
+            tween_fro = new TWEEN.Tween(A.position)
+                .to({ x: 1, y: 8 }, 1000);
+
+            tween_scaleUp = new TWEEN.Tween(A.scale)
+                .to({ x: 1, y: 1, z: 1 }, 50);
+
+            tween_to.chain(tween_scaleDown);
+            tween_scaleDown.chain(tween_fro);
+            tween_fro.chain(tween_scaleUp);
+            tween_scaleUp.chain(tween_to);
+
+            tween_to.start();
+        }
+
+        function waveAction() {
+            if (stop) {
+
+                setTimeout(function () {
+                    scene.remove(group)
+                    scene.remove(ELECTRONS)
+
+                    new TWEEN.Tween(currentNeedle.rotation)
+                        .to({ z: 0 }, 2500)
+                        .easing(TWEEN.Easing.Cubic.Out)
+                        .start()
+                }, 2500)
+                waveButton.innerHTML = 'EMIT PHOTONS'
+            } else {
+                group = new THREE.Group();
+                ELECTRONS = new THREE.Group();
+                group.rotation.set(0, -0.5, 0.08);
+                group.position.set(-1, 12.5, 0);
+                waveChange(params.intensity, colLight);
+                let B = (params.intensity * params.iValue).toFixed(2);
+                intensityAction(B);
+                photonChain(group);
+                pos = cathode.position.x;
+                waveButton.innerHTML = 'STOP PHOTONS'
+            }
+        }
+
+        function voltageAction(A) {
+            // console.log(A, params.workfn, params.iValue, params.intensity)
+
+            new TWEEN.Tween(voltageNeedle.rotation)
+                .to({ z: -A / 10 }, 2500)
+                .easing(TWEEN.Easing.Cubic.Out)
+                .start()
+            if (A <= -params.workfn) {
+                tween_to.stop();
+                scene.remove(ELECTRONS)
+                new TWEEN.Tween(currentNeedle.rotation)
+                    .to({ z: 0 }, 2500)
+                    .easing(TWEEN.Easing.Cubic.Out)
+                    .start()
+
+                // console.log('below CutOff, I = 0 mA')
+
+            } else if (A >= params.workfn) {
+                scene.remove(group, ELECTRONS)
+                waveAction()
+                setTimeout(function () {
+
+                    new TWEEN.Tween(currentNeedle.rotation)
+                        .to({ z: -(8) * (params.intensity / 30) }, 2500)
+                        .easing(TWEEN.Easing.Cubic.Out)
+                        .start()
+                }, 2500);
+
+                // console.log('Max Value, I = Imax mA')
+
+            } else if (A > -params.workfn && A < params.workfn) {
+                scene.remove(group, ELECTRONS)
+                let X = 2.5 * 1 / (1 + Math.pow(Math.E, -A))
+                params.iValue = X;
+                setTimeout(function () {
+
+                    new TWEEN.Tween(currentNeedle.rotation)
+                        .to({ z: -X }, 2500)
+                        .easing(TWEEN.Easing.Cubic.Out)
+                        .start()
+                }, 2500);
+
+                waveAction();
+                // console.log('above cutoff,but below -0.9 V, Varying I microA')
+
+            }
+
+        }
+// next show KE vs V plot display.. Hide V vs I plot 
+    </script>
+</body>
+
+</html>
