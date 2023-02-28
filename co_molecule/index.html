@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <title>DNA</title>
+  <meta charset="utf-8">
+  <meta name="description" content="&lt;model-viewer&gt; template">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link type="text/css" href="../css/styles1.css" rel="stylesheet" />
+  <!-- OPTIONAL: The :focus-visible polyfill removes the focus ring for some input types -->
+  <script src="../libs/focus-visible.js" defer></script>
+</head>
+
+<body>
+  <audio src="" id="myAudio1"></audio>
+  
+
+      <model-viewer src="../glbs/carbon_monoxide_molecule.glb" ar ar-modes="webxr scene-viewer quick-look" camera-controls poster="poster.webp" shadow-intensity="1" id="mv1"
+       camera-target="0.03m -0.04m -0.51m" camera-orbit="179.4deg 90.99deg 10.274m" field-of-view="30deg">
+
+
+       <button class="Hotspot" data-audio="myAudio1" slot="hotspot-1" data-surface="0 0 503 502 505 0.685 0.136 0.179" data-visibility-attribute="visible"
+       data-target="-0.6m -0.03m -0.42m" data-orbit="222.1deg 86.11deg 3.647m" field-of-view="30deg">
+           <div class="HotspotAnnotation">
+               <p class="title">Carbon</p>
+               <p class="description" style="display:none">Carbon  is a chemical element with the symbol C and atomic number 6. It is nonmetallic and tetravalent—its atom making four electrons available to form covalent chemical bonds.</p>
+             </div>
+       </button>
+       
+       
+       
+       <button class="Hotspot" data-audio="myAudio2" slot="hotspot-2" data-surface="1 0 719 718 721 0.472 0.352 0.176" data-visibility-attribute="visible"
+       data-target="0.11m -0.05m 0.33m" data-orbit="142.8deg 90.45deg 3.647m" field-of-view="30deg">
+           <div class="HotspotAnnotation">
+               <p class="title">Oxygen</p>
+               <p class="description" style="display:none">Oxygen is a chemical element with an atomic number of 8 (it has eight protons in its nucleus). Oxygen forms a chemical compound (O2) of two atoms which is a colorless gas at normal temperatures and pressures. 
+               </p>
+             </div>
+       </button>
+
+
+
+    <div class="progress-bar hide" slot="progress-bar">
+      <div class="update-bar"></div>
+    </div>
+    <button slot="ar-button" id="ar-button">
+      View in your space
+    </button>
+    <div id="ar-prompt">
+      <img src="../css/svg/ar_hand_prompt.png">
+    </div>
+
+
+
+    <div class="navigation">
+      <div class="listPopup" style="display: none;"></div>
+      <div class="pagination"></div>
+    </div>
+    <div class="description-box"> 
+      <div class="actions">
+        <button class="action-btn">
+          <img class="action-btn" src="../css/svg/minimize.svg" />
+        </button>
+        <!-- <button class="action-btn">
+          <img class="action-btn" src="../css/svg/maximize.svg" />
+        </button> -->
+      </div>
+      <div class="description-container">
+      </div>
+    </div>
+
+
+   
+
+  </model-viewer>
+
+  <script type="module">
+    var ap = '';
+    var model = '';
+    
+    $(document).ready(function (e) {
+      model = new ModelViewer()
+      model.init(e);
+     
+    })
+  </script>
+
+  <script src="script.js"></script>
+  <!-- <script src="./js/model.js"></script> -->
+  <script src="../js/model.js"></script>
+  <script src="../libs/jquery-1.12.4.min.js"></script>
+
+ 
+  <script type="module" src="../libs/model-viewer.min.js"></script>
+</body>
+
+</html>
