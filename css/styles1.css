@@ -124,7 +124,7 @@ body {
     z-index: 99;
     font-size: 14px;
 }
-.description-title{
+.description_title{
     font-weight: 700; 
     font-size: 14px;
 }
@@ -148,10 +148,10 @@ body {
 .description-box p:last-child{
     margin: 0;
 }
-.description-box .description{
+.description-box .description-container{
     transition: all 0.5s;
 }
-.description-box .description.hide{
+.description-box .description-container.hide{
     height: 25px;
     text-align: center;
     margin: auto 0;
@@ -159,7 +159,7 @@ body {
     overflow: hidden;
     
 }
-.description-box .description.hide .description-title{
+.description-box .description-container.hide .description_title{
     font-size: large;
 }
 .progress-bar {
