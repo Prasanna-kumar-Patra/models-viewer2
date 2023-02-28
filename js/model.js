@@ -59,17 +59,23 @@ var ModelViewer = function () {
         console.log("title array length----->", titles.length)
 
         var htmlStr = '';
-        htmlStr += '<button class="arrow arrow-left prev">◂</button>';
+       htmlStr += '<button class="arrow arrow-left prev">◂</button>';
         for (var i = 0; i < titles.length; i++) {
             htmlStr += '<label class="labelTitle" id="label_' + i + '">' + titles[i].textContent + '</label>';
         }
-            htmlStr += '<span class="play_pauseBtn" style="display:none"></span>';
-       
+       // if(isAutoplay){
+            htmlStr += '<span class="play_pauseBtn" style="display:block"><span class="material-symbols-outlined autoplayoff">autoplay</span></span>';
+       // }
+        // else{
+        //     htmlStr += '<span class="play_pauseBtn material-symbols-outlined" style="display:none">pause</span>'
+        // }
+      
         
         htmlStr += '<button class="arrow arrow-right next" >▸</button>';
 
         $(".pagination").html(htmlStr);
         self.addEventListenerForNavigationNextPrevBtn();
+        // self.slideNavigation(selectedNavIndex);
 
     }
 
@@ -178,10 +184,16 @@ var ModelViewer = function () {
 
         $(".isAutoplay").click(function(){
             console.log("annotations-autopilot");
+            var htmlStr = '<span class="material-symbols-outlined autoplayoff">stop_circle</span>';
+            var html = '<span class="material-symbols-outlined autoplayoff">autoplay</span>'
             if(isAutoplay){
                 isAutoplay = false;
+                $(".play_pauseBtn").css({"display":"block"})
+                $(".play_pauseBtn").html(html)
             }else{
                 isAutoplay = true;
+                $(".play_pauseBtn").css({"display":"block"})
+                $(".play_pauseBtn").html(htmlStr)
                 self.annotationClicked(buttonsArr[selectedNavIndex] , "autoplay called")
             }
         })
@@ -258,15 +270,12 @@ var ModelViewer = function () {
         }
         function onAudioEnd(evt, callee) {
             console.log("pkp:  ~ file: controls.js:130 ~ onAudioEnd ~ evt", evt)
-            var htmlStr = '<span class="material-symbols-outlined autoplayoff">stop</span>';
+           
             
             audioElement.pause();
             if (audNm != "myAudio"+buttonsArr.length) {
                 console.log("Audio number------------------------->",audNm);
                 if (isAutoplay) {
-                    
-                    $(".play_pauseBtn").css({"display":"block"})
-                    $(".play_pauseBtn").html(htmlStr)
                     $(".next")?.click();
                 }
 

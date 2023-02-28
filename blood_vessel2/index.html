@@ -113,55 +113,6 @@
 
     var ap = '';
     var model = '';
-    // const modelViewer2 = document.querySelector("#mv1");
-    // // const audios = document.getElementsByTagName("audio");
-    // const annotationClicked = (annotation, callee) => {
-    //   console.log("pkp:  ~ file: index.html:142 ~ annotationClicked ~ callee", callee)
-    //   let dataset = annotation.dataset;
-    //   modelViewer2.cameraTarget = dataset.target;
-    //   // Initial Camera Position = camera-orbit
-    //   modelViewer2.cameraOrbit = dataset.orbit;
-    //   modelViewer2.fieldOfView = '0deg';
-    //   // console.log("dataset.audio-->", dataset.audio)
-    //   ap.playAudio(dataset.audio, "from module1");
-    //   // modelViewer2.fieldOfView = dataset.view;
-    //   // modelViewer2.querySelectorAll('button').forEach((hotspot) => {
-    //   //   hotspot.classList.remove('active')
-    //   // })
-    //   // annotation.classList.toggle('active');
-
-    //   // console.log(annotation);
-    // }
-    // const navBtnClicked = (arrow) => {
-    //   console.log("pkp:  ~ file: index.html:197 ~ navBtnClicked ~ arrow", arrow)
-    //   let dataset = arrow.dataset;
-
-    // }
-
-    // modelViewer2.querySelectorAll('button.Hotspot').forEach((hotspot) => {
-    //   console.log("pkp:  ~ file: index2.html:48 ~ modelViewer2.querySelectorAll ~ hotspot", hotspot)
-    //   hotspot.addEventListener('click', () => annotationClicked(hotspot, "query selector"));
-
-    // });
-
-    // modelViewer2.querySelectorAll('button.arrow').forEach((arrow) => {
-    //   console.log("pkp:  ~ file: index.html:222 ~ modelViewer2.querySelectorAll ~ arrow", arrow)
-    //   arrow.addEventListener('click', () => navBtnClicked(arrow));
-
-    // });
-
-
-    // // window.addEventListener('click', (e) => {
-    // //   document.querySelectorAll('.Hotspot').forEach((hotspot) => {
-    // //     hotspot.classList.remove('active')
-    // //   })
-    // //   if (e.target.classList.contains('Hotspot')) {
-    // //     e.target.classList.add('active')
-    // //   }
-
-    // // })
-
-
 
     $(document).ready(function (e) {
       model = new ModelViewer()
@@ -176,8 +127,8 @@
   </script>
 
   <script src="script.js"></script>
-  <script src="./js/model.js"></script>
-  <!-- <script src="./js/controls.js"></script> -->
+  <!-- <script src="./js/model.js"></script> -->
+  <script src="../js/model.js"></script>
   <script src="../libs/jquery-1.12.4.min.js"></script>
 
  

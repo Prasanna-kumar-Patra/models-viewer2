@@ -152,10 +152,16 @@ body {
     transition: all 0.5s;
 }
 .description-box .description.hide{
-    height: 0;
+    height: 25px;
+    text-align: center;
+    margin: auto 0;
+    padding: 0;
     overflow: hidden;
+    
 }
-
+.description-box .description.hide .description-title{
+    font-size: large;
+}
 .progress-bar {
     display: block;
     width: 33%;
@@ -409,7 +415,13 @@ cursor: pointer;
 }
 .list-item .material-symbols-outlined{font-size: 18px;}
 
-
+.play_pauseBtn{
+    display: block;
+    position: absolute;
+    right: 8%;
+    top: 5%;
+    cursor: pointer;
+}
 
 @font-face {
   font-family: 'Material Symbols Outlined';
