@@ -291,6 +291,8 @@ model-viewer>#ar-prompt>img {
     display: block;
 }
 
+
+
 .arrow-right {
     position: absolute;
     right: 0;
@@ -303,7 +305,7 @@ model-viewer>#ar-prompt>img {
 }
 .navigation{
     position: absolute;
-    width: 300px;
+    width: 400px;
     font-family: Roboto Regular, Helvetica Neue, sans-serif;
     font-size: 14px;
     left: 50%;
@@ -409,3 +411,67 @@ cursor: pointer;
 }
 .list-item .material-symbols-outlined{font-size: 18px;}
 
+
+
+
+
+.big-pagination{
+    background: #484848c2;
+    border-radius: 5px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    bottom: 0;
+    z-index: 999;
+    color: #fff;
+    font-family: Roboto Regular, Helvetica Neue, sans-serif;
+    padding: 5px;
+    position: relative;
+    box-sizing: border-box;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+.big-pagination .arrow{
+    font-size: 16px;
+    width: 24px;
+    height: 24px;
+    text-align: center;
+    color: #fff;
+    line-height: 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+.big-pagination label{
+    color: #fff;
+    font-size: 14px;
+    padding: 0 30px;
+    text-align: center;
+    width: 100%;
+    display: block;
+}
+
+
+.pagination-btn{
+    background: #777777;
+    border-radius: 4px;
+    border: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 30px;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.4s;
+}
+.pagination-btn:hover{
+    background: #9c9c9c;
+}
+
+.pagination-btn .material-symbols-outlined{ font-size: 18px;}
+.big-pagination .pagination-title{
+    text-align: left;
+    padding: 0;
+}
