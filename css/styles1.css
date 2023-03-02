@@ -127,6 +127,8 @@ body {
 .description-title{
     font-weight: 700; 
     font-size: 14px;
+    margin: 0!important;
+
 }
 .description-box .actions{
     display: flex;
@@ -142,16 +144,16 @@ body {
     width: 30px;
 }
 .description-box p{
-    margin: 0 0 15px;
+    margin:15px 0 0;
     padding: 0;
 }
-.description-box p:last-child{
+/* .description-box p:last-child{
     margin: 0;
-}
+} */
 .description-box .description{
     transition: all 0.5s;
 }
-.description-box .description.hide{
+.description-box .description-hide{
     height: 0;
     overflow: hidden;
 }

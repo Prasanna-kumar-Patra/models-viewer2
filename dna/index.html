@@ -9,7 +9,8 @@
   <link type="text/css" href="../css/styles1.css" rel="stylesheet" />
   <!-- OPTIONAL: The :focus-visible polyfill removes the focus ring for some input types -->
   <script src="../libs/focus-visible.js" defer></script>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
+  <!-- <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" /> -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons"rel="stylesheet">
 </head>
 
 <body>
@@ -88,11 +89,11 @@
     <div class="navigation">
       <div class="listPopup">
         <div class="list hotspots-list visible">
-          <span class="list-item isAnnotations"><span class="material-symbols-outlined">
+          <span class="list-item isAnnotations"><span class="material-icons">
             visibility_off
             </span> Hide annotation</span> 
-          <span class="list-item isAutoplay"><span class="material-symbols-outlined">
-            autoplay
+          <span class="list-item isAutoplay"><span class="material-icons">
+            play_circle_filled
             </span> start autoplay</span>
           <div class="setBgColor list-item">
             <span class="colorDiv" id="black"></span>
@@ -109,7 +110,10 @@
       <div class="pagination">
         <button class="arrow arrow-left prev"><span class="material-icons-outlined">
           arrow_left
-          </span></button>
+          </span>
+          <span class="material-icons">
+            arrow_left
+            </span></button>
         <label class="labelTitle" id="label_1">Pistil</label>
         <label class="labelTitle" id="label_2">Pistil</label>
         <button class="arrow arrow-right next" ><span class="material-icons-outlined">
@@ -121,35 +125,35 @@
 
       <div class="big-pagination">
 
-        <span class="material-symbols-outlined">
+        <span class="material-icons">
           settings
         </span>
 
         <label class="pagination-title">Pistil</label>
-
+        
         <button class="pagination-btn">
-          <span class="material-symbols-outlined">
-            arrow_back_ios
+          <span class="material-icons">
+            arrow_left
             </span>
           </button>
         <button class="pagination-btn" >
-          <span class="material-symbols-outlined">
-            arrow_forward_ios
+          <span class="material-icons">
+            arrow_right
             </span>
         </button>
         <button class="pagination-btn" >
-          <span class="material-symbols-outlined">
+          <span class="material-icons">
             play_arrow
             </span>
         </button>
         <button class="pagination-btn" >
-          <span class="material-symbols-outlined">
+          <span class="material-icons">
             visibility_off
             </span>
         </button>
         <button class="pagination-btn" >
-          <span class="material-symbols-outlined">
-            autoplay
+          <span class="material-icons">
+            play_circle_filled
             </span>
         </button>
         <button class="pagination-btn" >
@@ -170,9 +174,11 @@
           <img src="maximize.svg" />
         </button>
       </div>
-      <div class="description hide">
+      <div class="description">
         <p class="description-title" id="desTitle_'+(ctr)+'">Pistil</p>
-        <p id="description_'+(ctr)+'">Pistil: The ovule producing part of a flower. The ovary often supports a long style, topped by a stigma. The mature ovary is a fruit, and the mature ovule is a seed. Stigma: The part of the pistil where pollen germinates. Ovary: The enlarged basal portion of the pistil where ovules are produced.</p>
+        <div class="description-hide">
+          <p id="description_'+(ctr)+'">Pistil: The ovule producing part of a flower. The ovary often supports a long style, topped by a stigma. The mature ovary is a fruit, and the mature ovule is a seed. Stigma: The part of the pistil where pollen germinates. Ovary: The enlarged basal portion of the pistil where ovules are produced.</p>
+        </div>
       </div>
     </div>
 
