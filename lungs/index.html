@@ -15,7 +15,7 @@
   <audio src="" id="myAudio1"></audio>
   <!-- <model-viewer> HTML element -->
    
-  <model-viewer id="mv1" src="../glbs/anatomy_of_the_airways.glb" ar ar-modes="webxr scene-viewer quick-look"
+  <model-viewer class="mv1" id="mv1" src="../glbs/anatomy_of_the_airways.glb" ar ar-modes="webxr scene-viewer quick-look"
   camera-controls poster="poster.webp" shadow-intensity="1" camera-target="0.14m -497.4m 43.95m"
   camera-orbit="-4.926deg 84.38deg 0.537m" field-of-view="30deg">
 
@@ -91,13 +91,15 @@
     <div class="description-box"> 
       <div class="actions">
         <button class="action-btn">
-          <img class="action-btn" src="../css/svg/minimize.svg" />
+          <img class="action-btn actionBtn" src="../css/svg/minimize.svg" />
         </button>
         <!-- <button class="action-btn">
           <img class="action-btn" src="../css/svg/maximize.svg" />
         </button> -->
       </div>
       <div class="description-container">
+        <p class="description_title" ></p>
+        <div class="descriptions "></div>
       </div>
     </div>
 

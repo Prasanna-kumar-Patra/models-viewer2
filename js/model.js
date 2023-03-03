@@ -246,11 +246,14 @@ var ModelViewer = function () {
         console.warn(descriptions);
        //  htmlStr += '<div class="description">';
         console.log("descriptions-------------",descriptions.length)
-            htmlStr += '<p class="description_title" id="desTitle_'+(ctr)+'">'+titles[ctr].textContent+'</p>'
-           htmlStr += '<div class="description-hide">'
+           // htmlStr += '<p class="description_title" id="desTitle_'+(ctr)+'">'+titles[ctr].textContent+'</p>'
+          // htmlStr += '<div class="descriptions ">'
             htmlStr += '<p id="description_'+(ctr)+'">'+descriptions[ctr].textContent+'</p>';
-           htmlStr += '</div>'
-        $(".description-container").html(htmlStr)
+          // htmlStr += '</div>'
+       // $(".description-container").html(htmlStr)
+       $(".descriptions").html(htmlStr)
+       $(".description_title").attr("id","desTitle_"+ctr);
+       $('.description_title').html(titles[ctr].textContent);
         console.warn(descriptions[ctr].textContent);
     }
 
@@ -382,12 +385,16 @@ var ModelViewer = function () {
                 $(".description-box").css("display", "block");
                 if(isMinimize){
                     isMinimize = false;
-                    $(".description-container").removeClass("hide");
-                    $(".action-btn").attr('src',"../css/svg/minimize.svg");
+                    $(".descriptions").removeClass("hide");
+                    $(".description_title").removeClass("center");
+                   // $(".action-btn").attr('src',"../css/svg/minimize.svg");
+                    $(".actionBtn").attr('src',"../css/svg/minimize.svg");
                 }else{
                     isMinimize = true;
-                    $(".description-container").addClass("hide");
-                    $(".action-btn").attr('src',"../css/svg/maximize.svg");
+                    $(".descriptions").addClass("hide");
+                    $(".description_title").addClass("center");
+                   // $(".action-btn").attr('src',"../css/svg/maximize.svg");
+                    $(".actionBtn").attr('src',"../css/svg/maximize.svg");
                 }
             }else if(e.target.classList.contains("isAutoplay")){
                 var htmlStr = ' <span class="material-icons isAutoplay">stop</span>';
@@ -426,6 +433,10 @@ var ModelViewer = function () {
             }else if(e.target.classList.contains("mv1")){
                 $(".navigation").css("display","block");
                 buttonsArr[selectedNavIndex].classList.add('active');
+                $(".description-box").css("display", "block");
+            }else if(e.target.classList.contains("description_title")){
+                $(".description-box").css("display", "block");
+            }else if(e.target.classList.contains("center")){
                 $(".description-box").css("display", "block");
             }
             

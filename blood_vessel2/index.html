@@ -14,7 +14,7 @@
 <body>
   <audio src="" id="myAudio1"></audio>
   <!-- <model-viewer> HTML element -->
-    <model-viewer id="mv1" src="../glbs/blood-vessel-anatomy.glb" ar ar-modes="webxr scene-viewer quick-look"
+    <model-viewer id="mv1" class="mv1" src="../glbs/blood-vessel-anatomy.glb" ar ar-modes="webxr scene-viewer quick-look"
     camera-controls poster="poster.webp" shadow-intensity="1"camera-target="-0.66m -0.2579m 5.456m" camera-orbit="-41.13deg 55.33deg 35.21m" field-of-view="30deg">
 
 
@@ -83,16 +83,20 @@
       <div class="listPopup" style="display: none;"></div>
       <div class="pagination"></div>
     </div>
+
+
     <div class="description-box"> 
       <div class="actions">
         <button class="action-btn">
-          <img class="action-btn" src="../css/svg/minimize.svg" />
+          <img class="action-btn actionBtn"  src="../css/svg/minimize.svg" />
         </button>
         <!-- <button class="action-btn">
           <img class="action-btn" src="../css/svg/maximize.svg" />
         </button> -->
       </div>
       <div class="description-container">
+       <p class="description_title" ></p>
+        <div class="descriptions "></div>
       </div>
     </div>
 

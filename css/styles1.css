@@ -141,6 +141,7 @@ body {
 .description_title{
     font-weight: 700; 
     font-size: 14px;
+   
 }
 .description-box .actions{
     display: flex;
@@ -148,6 +149,7 @@ body {
     margin: -10px 0;
 }
 .description-box .action-btn{
+    position: absolute;
     border: 0;
     background: none;
     cursor: pointer;
@@ -156,7 +158,7 @@ body {
     width: 30px;
 }
 .description-box p{
-    margin: 0 0 15px;
+    margin: 17px 0 15px;
     padding: 0;
 }
 .description-box p:last-child{
@@ -165,17 +167,33 @@ body {
 .description-box .description-container{
     transition: all 0.5s;
 }
-.description-box .description-container.hide{
-    height: 25px;
+.description-box .descriptions.hide{
+    /* height: 25px;
     text-align: center;
     margin: auto 0;
     padding: 0;
+    overflow: hidden; */
+    height: 0;
     overflow: hidden;
     
 }
-.description-box .description-container.hide .description_title{
+.description-box .description-container.hide .description_title {
     font-size: large;
+   
 }
+.description-box  .center .action-btn{
+top: 0;
+}
+
+.description-box  .center{
+    position: relative;
+    margin: 0px 0 15px;
+    font-weight: 700;
+    text-align: center;
+    top: 17px;
+    font-size: 14px;
+}
+
 .progress-bar {
     display: block;
     width: 33%;
