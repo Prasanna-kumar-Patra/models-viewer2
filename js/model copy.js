@@ -15,7 +15,6 @@ var ModelViewer = function () {
         self.createModel();
         self.adEventListnerForHotspotClick();
         self.createNavigation();
-       // self.demoNav()
         self.pauseAndResumeAudio();
        // self.createDescriptionBox ();
         self.slideNavigation(selectedNavIndex, e);
@@ -58,51 +57,27 @@ var ModelViewer = function () {
 
     self.createNavigation = function () {
         console.log("title array length----->", titles.length)
-        var htmlStr = '';
 
-        htmlStr += '<span class="material-icons">settings</span>';
+        var htmlStr = '';
+       htmlStr += '<button class="arrow arrow-left prev">◂</button>';
         for (var i = 0; i < titles.length; i++) {
-            htmlStr += '<label class="pagination-title labelTitle" id="label_' + i + '">' + titles[i].textContent + '</label>';
+            htmlStr += '<label class="labelTitle" id="label_' + i + '">' + titles[i].textContent + '</label>';
         }
-        htmlStr += '<button class="pagination-btn arrow arrow-left prev"><span class="material-icons arrow">arrow_left</span></button>';
-        htmlStr += '<button class="pagination-btn arrow arrow-right next" ><span class="material-icons arrow">arrow_right</span></button>';
-        // htmlStr += '<button class="pagination-btn" ><span class="material-icons">visibility</span></button>';
-        // htmlStr += '<button class="pagination-btn" ><span class="material-icons">visibility_off</span></button>';
-        // htmlStr += '<button class="pagination-btn" > <span class="material-icons">stop</span></button>';
-        // htmlStr += '<button class="pagination-btn" ><span class=" material-symbols-outlined ">autoplay</span> </button>';
-       // if(isAutoplay === false){
-            htmlStr += '<button class="pagination-btn isAutoplay navBtn" ></button>';
-            htmlStr += '<button class="pagination-btn visibility" ></button>';
+       // if(isAutoplay){
+            htmlStr += '<span class="play_pauseBtn" style="display:none"></span>';
        // }
         // else{
-        //     htmlStr += '<button class="pagination-btn isAutoplay navBtn" ><span class=" material-symbols-outlined isAutoplay">autoplay</span> </button>';
-        //}
-        
-        //htmlStr += '<div class="play_pauseBtn pagination-btn" style="display:block"><button class="pagination-btn isAutoplay" ><span class=" material-symbols-outlined isAutoplay">autoplay</span> </button></div>';
-       
+        //     htmlStr += '<span class="play_pauseBtn material-symbols-outlined" style="display:none">pause</span>'
+        // }
       
+        
+        htmlStr += '<button class="arrow arrow-right next" >▸</button>';
 
         $(".pagination").html(htmlStr);
         self.addEventListenerForNavigationNextPrevBtn();
         // self.slideNavigation(selectedNavIndex);
 
-        if(isAutoplay === false){
-        $(".navBtn").html('<span class=" material-symbols-outlined isAutoplay">autoplay</span>')
-        }else{
-            $(".navBtn").html('<span class="material-icons">stop</span>')
-        }
-        if(isAnnotation){
-            $('.visibility').html('<span class="material-icons visibility">visibility_off</span>');
-        }else{
-            $('.visibility').html('<span class="material-icons visibility">visibility</span>');
-        }
-
-
-       
-
     }
-
-    
 
     self.addEventListenerForNavigationNextPrevBtn = function () {
         $(".next").click(function (e) {
@@ -154,16 +129,16 @@ var ModelViewer = function () {
         htmlStr += '<div class="list hotspots-list visible">';
         // htmlStr += '<a href="#" data-action="toggle-visibility" class="annotations-visibility "><span class="isAnnotations">Hide annotation</span></a><br>';
         // htmlStr += '<a href="#" data-action="toggle-autopilot" class="annotations-autopilot "><span class="isAutoplay"> start autoplay</span></a>';
-        // if(isAnnotation){
-        //     htmlStr += '<span class=" list-item isAnnotations"><span class="material-symbols-outlined"> visibility_off </span>Hide annotation</span>';
-        // }else{
-        //     htmlStr += '<span class=" list-item isAnnotations"><span class="material-symbols-outlined"> visibility </span>Show annotation</span>';
-        // }
-        // if(isAutoplay){
-        //     htmlStr += '<span class=" list-item isAutoplay"><span class="material-symbols-outlined"> stop </span> stop autoplay</span>';
-        // }else{
-        //     htmlStr += '<span class=" list-item isAutoplay"><span class="material-symbols-outlined"> autoplay </span> start autoplay</span>';
-        // }
+        if(isAnnotation){
+            htmlStr += '<span class=" list-item isAnnotations"><span class="material-symbols-outlined"> visibility_off </span>Hide annotation</span><br>';
+        }else{
+            htmlStr += '<span class=" list-item isAnnotations"><span class="material-symbols-outlined"> visibility </span>Show annotation</span><br>';
+        }
+        if(isAutoplay){
+            htmlStr += '<span class=" list-item isAutoplay"><span class="material-symbols-outlined"> stop </span> stop autoplay</span>';
+        }else{
+            htmlStr += '<span class=" list-item isAutoplay"><span class="material-symbols-outlined"> autoplay </span> start autoplay</span>';
+        }
        
         //htmlStr += '<span class=" list-item isAutoplay"><span class="material-symbols-outlined"> autoplay </span> start autoplay</span>';
         htmlStr += '<div class="setBgColor list-item">';
@@ -207,23 +182,21 @@ var ModelViewer = function () {
             }
         })
 
-        // $(".isAutoplay").click(function(){
-        //     console.log("annotations-autopilot");
-        //     // var htmlStr = '<span class="material-symbols-outlined autoplayoff">stop_circle</span>';
-        //     // var html = '<span class="material-symbols-outlined autoplayoff">autoplay</span>'
-        // //  var htmlAutoplyStopStr = '<button class="pagination-btn" > <span class="material-icons">stop</span></button>';
-        // //   var htmlAutoplayStr  = '<button class="pagination-btn" ><span class=" material-symbols-outlined ">autoplay</span> </button>';
-        //     if(isAutoplay){
-        //         isAutoplay = false;
-        //         // $(".play_pauseBtn").css({"display":"block"})
-        //         // $(".play_pauseBtn").html(htmlAutoplayStr)
-        //     }else{
-        //         isAutoplay = true;
-        //         // $(".play_pauseBtn").css({"display":"block"})
-        //         // $(".play_pauseBtn").html(htmlAutoplyStopStr)
-        //         self.annotationClicked(buttonsArr[selectedNavIndex] , "autoplay called")
-        //     }
-        // })
+        $(".isAutoplay").click(function(){
+            console.log("annotations-autopilot");
+            var htmlStr = '<span class="material-symbols-outlined autoplayoff">stop_circle</span>';
+           // var html = '<span class="material-symbols-outlined autoplayoff">autoplay</span>'
+            if(isAutoplay){
+                isAutoplay = false;
+                // $(".play_pauseBtn").css({"display":"block"})
+                // $(".play_pauseBtn").html(html)
+            }else{
+                isAutoplay = true;
+                $(".play_pauseBtn").css({"display":"block"})
+                $(".play_pauseBtn").html(htmlStr)
+                self.annotationClicked(buttonsArr[selectedNavIndex] , "autoplay called")
+            }
+        })
 
         $(".colorDiv").click(function(e){
             id = e.target.id;
@@ -264,12 +237,18 @@ var ModelViewer = function () {
 
     
     self.playAudio = function (audNm, callee) {
+
+
         if (audioElement) {
             audioElement.pause()
         }
+
         audioElement = document.createElement("AUDIO");
       let audioUrl = "./audio/" + audNm + ".mp3"
       
+       
+        
+
         if (audioElement.canPlayType("audio/mpeg")) {
             // audioElement.setAttribute("src", "./audio/" + audNm + ".mp3");
             audioElement.setAttribute("src", audioUrl);
@@ -297,33 +276,37 @@ var ModelViewer = function () {
             
             audioElement.pause();
             if (audNm != "myAudio"+buttonsArr.length) {
-                console.log("isAutoplay ------------------------->",isAutoplay);
+                console.log("Audio number------------------------->",audNm);
                 if (isAutoplay) {
-                    console.log("Audio number------------------------->",audNm);
                     $(".next")?.click();
                 }
 
             }else if(audNm === "myAudio"+buttonsArr.length){
                 buttonsArr[selectedNavIndex].classList.remove("active");
                 isAutoplay = false;
-               // $(".play_pauseBtn").css({"display":"none"})
-               $(".navBtn").html('<span class=" material-symbols-outlined isAutoplay">autoplay</span> ');
-               selectedNavIndex = 0;
+                $(".play_pauseBtn").css({"display":"none"})
             }
 
             $(".autoplayoff").click(function(){
                 if(isAutoplay){
                     isAutoplay = false;
-                    
-                   // $(".play_pauseBtn").css({"display":"none"})
+                    $(".play_pauseBtn").css({"display":"none"})
                 }
             })
         }
     }
 
     self.pauseAndResumeAudio = function () {
+       // var count = 0;
         $(".labelTitle").click(function () {
-          if(audioElement){
+           // count++;
+            // if (count == 1) {
+            //     audioElement.pause();
+            //     self.createNavPopup();
+            // } else if (count == 2) {
+            //     audioElement.play();
+            //     count = 0;
+            // }
             if(isAudioPlay){
                 audioElement.pause();
                 self.createNavPopup();
@@ -333,10 +316,6 @@ var ModelViewer = function () {
                 self.createNavPopup();
                 isAudioPlay = true
             }
-          }else{
-            self.createNavPopup();
-          }
-           
 
         })
     }
@@ -353,7 +332,6 @@ var ModelViewer = function () {
 
             if (e.target.classList.contains('labelTitle')) {
                 $(".listPopup").css('display', 'block');
-                $(".description-box").css("display", "block");
             } else {
                 $(".listPopup").css('display', 'none');
             }
@@ -379,38 +357,17 @@ var ModelViewer = function () {
                     $(".action-btn").attr('src',"../css/svg/maximize.svg");
                 }
             }else if(e.target.classList.contains("isAutoplay")){
-                var htmlStr = ' <span class="material-icons isAutoplay">stop</span>';
-                 var html_ = ' <span class=" material-symbols-outlined isAutoplay">autoplay</span> ';
                 buttonsArr[selectedNavIndex].classList.add('active')
-                if(isAutoplay){
-                    isAutoplay = false;
-                   $(".navBtn").html(html_);
-                   audioElement.pause();
-                   $(".description-box").css("display", "block");
-                    }else{
-                    isAutoplay = true;
-                    $(".navBtn").html(htmlStr);
-                    $(".description-box").css("display", "block");
-                    self.annotationClicked(buttonsArr[selectedNavIndex] , "autoplay called")
-                  }
-                  
             }else if(e.target.classList.contains("labelTitle")){
                 buttonsArr[selectedNavIndex].classList.add('active')
-            }else if(e.target.classList.contains("visibility")){
-                if(isAnnotation){
-                    isAnnotation = false;
-                    $(".Hotspot").css("display","none");
-                    $(".description-box").css("display", "none");
-                    $('.visibility').html('<span class="material-icons visibility">visibility</span>');
-                }else{
-                    isAnnotation = true;
-                    $(".Hotspot").css("display","block");
-                    $(".description-box").css("display", "block");
-                    $('.visibility').html('<span class="material-icons visibility">visibility_off</span>');
+            }else if(e.target.classList.contains("play_pauseBtn")){
+                //buttonsArr[selectedNavIndex].classList.add('active')
+                if(isAutoplay){
+                    isAutoplay = false;
+                    $(".play_pauseBtn").css({"display":"none"})
                 }
             }
-            
 
         })
     }
-} 
+}

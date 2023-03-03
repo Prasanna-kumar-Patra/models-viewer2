@@ -119,10 +119,22 @@ body {
     position: absolute;
     right: 30px;
     bottom: 20px;
-    width: 290px;
+    width: 15%;
     font-family: Roboto Regular, Helvetica Neue, sans-serif;
     z-index: 99;
     font-size: 14px;
+
+    /* border: 2px solid #4285f4;
+    background-color: #c9deff;
+    border-radius: 10px;
+    padding: 26px;
+    position: absolute;
+    right: 30px;
+    bottom: 16px;
+    width: 15%;
+    font-family: Roboto Regular, Helvetica Neue, sans-serif;
+    z-index: 99;
+    font-size: 14px; */
 }
 .description_title{
     font-weight: 700; 
@@ -261,7 +273,7 @@ model-viewer>#ar-prompt>img {
 }
 
 
-
+/* 
 .pagination{
     background: #484848c2;
     border-radius: 15px;
@@ -295,8 +307,73 @@ model-viewer>#ar-prompt>img {
     text-align: center;
     width: 100%;
     display: block;
-}
+} */
 
+/* New pagination Start */
+.pagination{
+    background: #484848c2;
+    border-radius: 5px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    bottom: 0;
+    z-index: 999;
+    color: #fff;
+    font-family: Roboto Regular, Helvetica Neue, sans-serif;
+    padding: 5px;
+    position: relative;
+    box-sizing: border-box;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  /* .pagination .arrow{
+    font-size: 16px;
+    width: 24px;
+    height: 24px;
+    text-align: center;
+    color: #fff;
+    line-height: 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+  } */
+  .pagination label{
+    color: #fff;
+    font-size: 14px;
+    padding: 0 30px;
+    text-align: center;
+    width: 100%;
+    display: block;
+  }
+  
+  
+  .pagination-btn{
+    background: #777777;
+    border-radius: 4px;
+    border: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 30px;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.4s;
+  }
+  .pagination-btn:hover{
+    background: #9c9c9c;
+  }
+  
+  .pagination-btn .material-symbols-outlined{ font-size: 18px;}
+  .big-pagination .pagination-title{
+    text-align: left;
+    padding: 0;
+  }
+
+
+  /* new pagination End */
+/*   
 .arrow-right {
     position: absolute;
     right: 0;
@@ -306,10 +383,10 @@ model-viewer>#ar-prompt>img {
     position: absolute;
     left: 0;
 
-}
+} */
 .navigation{
     position: absolute;
-    width: 300px;
+    width: 400px;
     font-family: Roboto Regular, Helvetica Neue, sans-serif;
     font-size: 14px;
     left: 50%;
@@ -361,12 +438,19 @@ cursor: pointer;
 .colorDiv{
     position: relative;
     display: inline-block;
-    width: 20px;
-    height: 14px;
+    width: 24px;
+    height: 20px;
     margin: 3px;
-    border: 1px solid white;
+    border: 1px solid rgb(138, 138, 138);
     cursor: pointer;
     border-radius: 4px;
+    transition: all 0.4s;
+}
+.colorDiv:hover{
+    border-color: #fff;
+    
+    box-shadow: 0px 10px 20px 5px rgba(0, 0, 0, 0.5);
+  transform: translateY(-4px);
 }
 .colorDiv #black{
     background-color:black ;
@@ -409,9 +493,10 @@ cursor: pointer;
     margin-bottom: 6px;
 
 }
-.list-item:hover{
+.link:hover{
     color: #fff;
     background: #2f2f2fbf;
+    transform: translateY(-2px);
 }
 .list-item .material-symbols-outlined{font-size: 18px;}
 
@@ -445,3 +530,51 @@ cursor: pointer;
   -webkit-font-feature-settings: 'liga';
   -webkit-font-smoothing: antialiased;
 }
+
+
+@font-face {
+    font-family: 'Material Icons';
+    font-style: normal;
+    font-weight: 400;
+    src: url("./font/materialIcon.woff2") format('woff2');
+  }
+  
+.material-icons {
+    font-family: 'Material Icons';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* width */
+::-webkit-scrollbar {
+    width: 7px;
+    opacity: 0.7;
+  }
+  
+  /* Track */
+  ::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px grey; 
+    border-radius: 10px;
+  }
+   
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: gray; 
+    border-radius: 10px;
+  }
+  
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: darkgray; 
+  }
+  
