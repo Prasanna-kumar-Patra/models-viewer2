@@ -386,6 +386,7 @@ model-viewer>#ar-prompt>img {
 } */
 .navigation{
     position: absolute;
+    display: none;
     width: 400px;
     font-family: Roboto Regular, Helvetica Neue, sans-serif;
     font-size: 14px;

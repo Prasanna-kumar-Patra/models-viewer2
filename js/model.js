@@ -60,7 +60,7 @@ var ModelViewer = function () {
         console.log("title array length----->", titles.length)
         var htmlStr = '';
 
-        htmlStr += '<span class="material-icons">settings</span>';
+        // htmlStr += '<span class="material-icons">settings</span>';
         for (var i = 0; i < titles.length; i++) {
             htmlStr += '<label class="pagination-title labelTitle" id="label_' + i + '">' + titles[i].textContent + '</label>';
         }
@@ -118,10 +118,16 @@ var ModelViewer = function () {
 
         $(".prev").click(function (e) {
             console.log("Navigation prev clicked")
-            selectedNavIndex--;
-            if (selectedNavIndex < 0) {
-                selectedNavIndex = buttonsArr.length - 1;
+           // selectedNavIndex--;
+            // if (selectedNavIndex < 0) {
+            //     selectedNavIndex = buttonsArr.length - 1;
+            // }
+              if (selectedNavIndex === 0) {
+                selectedNavIndex =buttonsArr.length - 1;
+            }else{
+                selectedNavIndex--;
             }
+            console.log("selectedNavIndex at prev click--->>>>>>",selectedNavIndex)
             self.slideNavigation(selectedNavIndex, e);
         });
     }
@@ -300,7 +306,11 @@ var ModelViewer = function () {
                 console.log("isAutoplay ------------------------->",isAutoplay);
                 if (isAutoplay) {
                     console.log("Audio number------------------------->",audNm);
-                    $(".next")?.click();
+
+                    setTimeout(function() {
+                        $(".next")?.click();
+                      }, 2000);
+                    
                 }
 
             }else if(audNm === "myAudio"+buttonsArr.length){
@@ -308,7 +318,7 @@ var ModelViewer = function () {
                 isAutoplay = false;
                // $(".play_pauseBtn").css({"display":"none"})
                $(".navBtn").html('<span class=" material-symbols-outlined isAutoplay">autoplay</span> ');
-               selectedNavIndex = 0;
+               //selectedNavIndex = 0;
             }
 
             $(".autoplayoff").click(function(){
@@ -381,16 +391,20 @@ var ModelViewer = function () {
             }else if(e.target.classList.contains("isAutoplay")){
                 var htmlStr = ' <span class="material-icons isAutoplay">stop</span>';
                  var html_ = ' <span class=" material-symbols-outlined isAutoplay">autoplay</span> ';
-                buttonsArr[selectedNavIndex].classList.add('active')
+                
                 if(isAutoplay){
                     isAutoplay = false;
                    $(".navBtn").html(html_);
                    audioElement.pause();
                    $(".description-box").css("display", "block");
                     }else{
+                        if(selectedNavIndex == buttonsArr.length - 1){
+                            selectedNavIndex = 0
+                        }
                     isAutoplay = true;
                     $(".navBtn").html(htmlStr);
                     $(".description-box").css("display", "block");
+                    buttonsArr[selectedNavIndex].classList.add('active')
                     self.annotationClicked(buttonsArr[selectedNavIndex] , "autoplay called")
                   }
                   
@@ -408,6 +422,8 @@ var ModelViewer = function () {
                     $(".description-box").css("display", "block");
                     $('.visibility').html('<span class="material-icons visibility">visibility_off</span>');
                 }
+            }else if(e.target.classList.contains("mv1")){
+                $(".navigation").css("display","block")
             }
             
 
