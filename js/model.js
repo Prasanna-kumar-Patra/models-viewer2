@@ -306,7 +306,7 @@ var ModelViewer = function () {
                 console.log("isAutoplay ------------------------->",isAutoplay);
                 if (isAutoplay) {
                     console.log("Audio number------------------------->",audNm);
-
+                  //  $(".next")?.click();
                     setTimeout(function() {
                         $(".next")?.click();
                       }, 2000);
@@ -423,7 +423,9 @@ var ModelViewer = function () {
                     $('.visibility').html('<span class="material-icons visibility">visibility_off</span>');
                 }
             }else if(e.target.classList.contains("mv1")){
-                $(".navigation").css("display","block")
+                $(".navigation").css("display","block");
+                buttonsArr[selectedNavIndex].classList.add('active');
+                $(".description-box").css("display", "block");
             }
             
 
