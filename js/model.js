@@ -247,8 +247,9 @@ var ModelViewer = function () {
        //  htmlStr += '<div class="description">';
         console.log("descriptions-------------",descriptions.length)
             htmlStr += '<p class="description_title" id="desTitle_'+(ctr)+'">'+titles[ctr].textContent+'</p>'
+           htmlStr += '<div class="description-hide">'
             htmlStr += '<p id="description_'+(ctr)+'">'+descriptions[ctr].textContent+'</p>';
-          // htmlStr += '</div>'
+           htmlStr += '</div>'
         $(".description-container").html(htmlStr)
         console.warn(descriptions[ctr].textContent);
     }
