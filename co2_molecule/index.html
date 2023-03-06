@@ -6,7 +6,7 @@
   <meta charset="utf-8">
   <meta name="description" content="&lt;model-viewer&gt; template">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link type="text/css" href="../css/styles1.css" rel="stylesheet" />
+  <link type="text/css" href="../libs/css/styles1.css" rel="stylesheet" />
   <!-- OPTIONAL: The :focus-visible polyfill removes the focus ring for some input types -->
   <script src="../libs/focus-visible.js" defer></script>
 </head>
@@ -15,7 +15,7 @@
   <audio src="" id="myAudio1"></audio>
   
     <!-- <model-viewer src="../glbs/carbon_dioxide_molecule.glb" ar ar-modes="webxr scene-viewer quick-look" camera-controls poster="poster.webp" shadow-intensity="1" id="mv1" camera-target="-0.04m 0.2m 0.04m" camera-orbit="5.307deg 94.51deg 1.807m" field-of-view="30deg"> -->
-      <model-viewer class="mv1" src="../glbs/carbon_dioxide_molecule.glb" ar ar-modes="webxr scene-viewer quick-look" camera-controls poster="poster.webp" shadow-intensity="1" id="mv1" 
+      <model-viewer class="mv1" src="../libs/glbs/carbon_dioxide_molecule.glb" ar ar-modes="webxr scene-viewer quick-look" camera-controls poster="poster.webp" shadow-intensity="1" id="mv1" 
       camera-target="-0.06m 0.19m -0.51m" camera-orbit="179.4deg 90.99deg 6.274m" field-of-view="30deg">
 
 
@@ -49,33 +49,7 @@
           </div>
     </button>
     
-    <!-- <button class="Hotspot" data-audio="myAudio1" slot="hotspot-1" data-surface="0 0 443 445 446 0.091 0.789 0.119" data-visibility-attribute="visible"
-    data-target="0.06m 0.23m 0.04m" data-orbit="41.62deg 93.33deg 1.807m" field-of-view="30deg">
-        <div class="HotspotAnnotation">
-          <p class="title">Oxygen</p>
-          <p class="description" style="display:none">Oxygen is a chemical element with an atomic number of 8 (it has eight protons in its nucleus). Oxygen forms a chemical compound (O2) of two atoms which is a colorless gas at normal temperatures and pressures. </p>
-        </div>
-    </button>
-    
-    
-    <button class="Hotspot" data-audio="myAudio2" slot="hotspot-2" data-surface="2 0 124 126 127 0.618 0.180 0.203" data-visibility-attribute="visible"
-    data-target="-0.14m 0.22m 0.02m" data-orbit="-19.96deg 118deg 1.807m" field-of-view="30deg">
-        <div class="HotspotAnnotation">
-          <p class="title">Hydrogen</p>
-          <p class="description" style="display:none">Hydrogen is a clean alternative to methane, also known as natural gas. It's the most abundant chemical element, estimated to contribute 75% of the mass of the universe.
-           </p>
-        </div>
-    </button>
-    
-    
-    <button class="Hotspot" data-audio="myAudio3" slot="hotspot-3" data-surface="2 0 1040 1043 1041 0.143 0.063 0.794" data-visibility-attribute="visible"
-    data-target="0.05m 0.22m -0.02m" data-orbit="42.01deg 130.8deg 1.807m" field-of-view="30deg">
-        <div class="HotspotAnnotation">
-          <p class="title">Hydrogen</p>
-          <p class="description" style="display:none">Hydrogen is a clean alternative to methane, also known as natural gas. It's the most abundant chemical element, estimated to contribute 75% of the mass of the universe.
-           </p>
-        </div>
-    </button> -->
+   
     
 
     <div class="progress-bar hide" slot="progress-bar">
@@ -99,7 +73,7 @@
     <div class="description-box"> 
       <div class="actions">
         <button class="action-btn">
-          <img class="action-btn actionBtn" src="../css/svg/minimize.svg" />
+          <img class="action-btn actionBtn" src="../libs/css/svg/minimize.svg" />
         </button>
         <!-- <button class="action-btn">
           <img class="action-btn" src="../css/svg/maximize.svg" />
@@ -129,7 +103,7 @@
 
   <script src="script.js"></script>
   <!-- <script src="./js/model.js"></script> -->
-  <script src="../js/model.js"></script>
+  <script src="../libs/js/model.js"></script>
   <script src="../libs/jquery-1.12.4.min.js"></script>
 
  

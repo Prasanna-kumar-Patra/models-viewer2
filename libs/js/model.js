@@ -202,16 +202,16 @@ var ModelViewer = function () {
         })
 
 
-        $(".isAnnotations").click(function(){
-            console.log(".isAnnotations clicked")
-            if(isAnnotation){
-               isAnnotation = false;
-               $(".Hotspot").css("display","none")
-            }else{
-                isAnnotation = true;
-                $(".Hotspot").css("display","block")
-            }
-        })
+        // $(".isAnnotations").click(function(){
+        //     console.log(".isAnnotations clicked")
+        //     if(isAnnotation){
+        //        isAnnotation = false;
+        //        $(".Hotspot").css("display","none")
+        //     }else{
+        //         isAnnotation = true;
+        //         $(".Hotspot").css("display","block")
+        //     }
+        // })
 
         // $(".isAutoplay").click(function(){
         //     console.log("annotations-autopilot");
@@ -432,8 +432,8 @@ var ModelViewer = function () {
                 }
             }else if(e.target.classList.contains("mv1")){
                 $(".navigation").css("display","block");
-                buttonsArr[selectedNavIndex].classList.add('active');
-                $(".description-box").css("display", "block");
+               // buttonsArr[selectedNavIndex].classList.add('active');
+              //  $(".description-box").css("display", "block");
             }else if(e.target.classList.contains("description_title")){
                 $(".description-box").css("display", "block");
             }else if(e.target.classList.contains("center")){
