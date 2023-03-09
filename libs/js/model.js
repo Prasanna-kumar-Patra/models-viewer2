@@ -388,13 +388,13 @@ var ModelViewer = function () {
                     $(".descriptions").removeClass("hide");
                     $(".description_title").removeClass("center");
                    // $(".action-btn").attr('src',"../css/svg/minimize.svg");
-                    $(".actionBtn").attr('src',"../css/svg/minimize.svg");
+                    $(".actionBtn").attr('src',"../libs/css/svg/minimize.svg");
                 }else{
                     isMinimize = true;
                     $(".descriptions").addClass("hide");
                     $(".description_title").addClass("center");
                    // $(".action-btn").attr('src',"../css/svg/maximize.svg");
-                    $(".actionBtn").attr('src',"../css/svg/maximize.svg");
+                    $(".actionBtn").attr('src',"../libs/css/svg/maximize.svg");
                 }
             }else if(e.target.classList.contains("isAutoplay")){
                 var htmlStr = ' <span class="material-icons isAutoplay">stop</span>';
