@@ -183,6 +183,9 @@ body {
     overflow: hidden;
     
 }
+.des-hide{
+    height: 6px;
+}
 .description-box .description-container.hide .description_title {
     font-size: large;
    
@@ -193,11 +196,11 @@ top: 0;
 
 .description-box  .center{
     position: relative;
-    margin: 0px 0 15px;
+    margin: 0px 0 27px;
     font-weight: 700;
     text-align: center;
     top: 17px;
-    font-size: 14px;
+    font-size: 17px;
 }
 
 .descriptions{
