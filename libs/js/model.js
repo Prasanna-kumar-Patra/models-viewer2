@@ -12,16 +12,39 @@ var ModelViewer = function () {
 
     self.init = function (e) {
         console.log("model init.........", e);
+        console.log("window.location.href--->", window.location.href)
+        var hostUrl = window.location.href
+        if (hostUrl.indexOf('?') > -1) {
+            var displayBg = hostUrl.split("?");
+            var displayNum = displayBg[1].split("=");
+            console.log("displaybg--->", displayBg[1])
+            console.log("displayNum--->", displayNum[1])
+            if (parseInt(displayNum[1]) === 1) {
+                $("#mv1").css("background-color", "black")
+            } else {
+                $("#mv1").css("background-color", "white")
+            }
+        }
+        // var displayBg = hostUrl.split("?");
+        // var displayNum = displayBg[1].split("=");
+        // console.log("displaybg--->",displayBg[1])
+        // console.log("displayNum--->",displayNum[1])
+        // if(parseInt(displayNum[1]) === 1){
+        //     $("#mv1").css("background-color","black")
+        // }else{
+        //     $("#mv1").css("background-color","white")
+        // }
         self.createModel();
         self.adEventListnerForHotspotClick();
         self.createNavigation();
-       // self.demoNav()
+        // self.demoNav()
         self.pauseAndResumeAudio();
-       // self.createDescriptionBox ();
+        // self.createDescriptionBox ();
         self.slideNavigation(selectedNavIndex, e);
         console.log("selected nav Index--->", selectedNavIndex)
-       self.onWindowsClick();
-       
+        self.onWindowsClick();
+
+
     }
 
     self.createModel = function () {
@@ -45,7 +68,7 @@ var ModelViewer = function () {
                 if (i === (id - 1)) {
                     $("#Hotspot_" + id).addClass('active');
                     self.annotationClicked(buttonsArr[id - (1)], "Hotspot click");
-                    self.createDescriptionBox (id-(1));
+                    self.createDescriptionBox(id - (1));
                 }
             }
             console.log("selected nav Index--->", selectedNavIndex)
@@ -70,39 +93,39 @@ var ModelViewer = function () {
         // htmlStr += '<button class="pagination-btn" ><span class="material-icons">visibility_off</span></button>';
         // htmlStr += '<button class="pagination-btn" > <span class="material-icons">stop</span></button>';
         // htmlStr += '<button class="pagination-btn" ><span class=" material-symbols-outlined ">autoplay</span> </button>';
-       // if(isAutoplay === false){
-            htmlStr += '<button class="pagination-btn isAutoplay navBtn" ></button>';
-            htmlStr += '<button class="pagination-btn visibility" ></button>';
-       // }
+        // if(isAutoplay === false){
+        htmlStr += '<button class="pagination-btn isAutoplay navBtn" ></button>';
+        htmlStr += '<button class="pagination-btn visibility" ></button>';
+        // }
         // else{
         //     htmlStr += '<button class="pagination-btn isAutoplay navBtn" ><span class=" material-symbols-outlined isAutoplay">autoplay</span> </button>';
         //}
-        
+
         //htmlStr += '<div class="play_pauseBtn pagination-btn" style="display:block"><button class="pagination-btn isAutoplay" ><span class=" material-symbols-outlined isAutoplay">autoplay</span> </button></div>';
-       
-      
+
+
 
         $(".pagination").html(htmlStr);
         self.addEventListenerForNavigationNextPrevBtn();
         // self.slideNavigation(selectedNavIndex);
 
-        if(isAutoplay === false){
-        $(".navBtn").html('<span class=" material-symbols-outlined isAutoplay">autoplay</span>')
-        }else{
+        if (isAutoplay === false) {
+            $(".navBtn").html('<span class=" material-symbols-outlined isAutoplay">autoplay</span>')
+        } else {
             $(".navBtn").html('<span class="material-icons">stop</span>')
         }
-        if(isAnnotation){
+        if (isAnnotation) {
             $('.visibility').html('<span class="material-icons visibility">visibility_off</span>');
-        }else{
+        } else {
             $('.visibility').html('<span class="material-icons visibility">visibility</span>');
         }
 
 
-       
+
 
     }
 
-    
+
 
     self.addEventListenerForNavigationNextPrevBtn = function () {
         $(".next").click(function (e) {
@@ -118,16 +141,16 @@ var ModelViewer = function () {
 
         $(".prev").click(function (e) {
             console.log("Navigation prev clicked")
-           // selectedNavIndex--;
+            // selectedNavIndex--;
             // if (selectedNavIndex < 0) {
             //     selectedNavIndex = buttonsArr.length - 1;
             // }
-              if (selectedNavIndex === 0) {
-                selectedNavIndex =buttonsArr.length - 1;
-            }else{
+            if (selectedNavIndex === 0) {
+                selectedNavIndex = buttonsArr.length - 1;
+            } else {
                 selectedNavIndex--;
             }
-            console.log("selectedNavIndex at prev click--->>>>>>",selectedNavIndex)
+            console.log("selectedNavIndex at prev click--->>>>>>", selectedNavIndex)
             self.slideNavigation(selectedNavIndex, e);
         });
     }
@@ -147,15 +170,15 @@ var ModelViewer = function () {
                 }
             } else {
                 title[i].style.display = "none";
-                    buttonsArr[i].classList.remove('active');
-                
+                buttonsArr[i].classList.remove('active');
+
             }
         }
 
     }
 
     self.createNavPopup = function () {
-        $(".listPopup").css('display','block')
+        $(".listPopup").css('display', 'block')
         var htmlStr = '';
         htmlStr += '<div class="list hotspots-list visible">';
         // htmlStr += '<a href="#" data-action="toggle-visibility" class="annotations-visibility "><span class="isAnnotations">Hide annotation</span></a><br>';
@@ -170,12 +193,14 @@ var ModelViewer = function () {
         // }else{
         //     htmlStr += '<span class=" list-item isAutoplay"><span class="material-symbols-outlined"> autoplay </span> start autoplay</span>';
         // }
-       
+
         //htmlStr += '<span class=" list-item isAutoplay"><span class="material-symbols-outlined"> autoplay </span> start autoplay</span>';
+        htmlStr += '<div class="colorInstruct"><h4>Choose Any Color</h4></div>';
         htmlStr += '<div class="setBgColor list-item">';
+        // htmlStr += '<div class=""><h6>Choose Any Color</h6></div>';
         htmlStr += '<span class="colorDiv" id="black"></span><span class="colorDiv" id="gray"></span><span class="colorDiv" id="coral"></span><span class="colorDiv" id="fuchsia"></span>';
         //htmlStr += '<span class="colorDiv" id="white"></span><span class="colorDiv" id="yellow"></span><span class="colorDiv" id="darkorange"></span><span class="colorDiv" id="greenyellow"></span>'
-        htmlStr +='</div>';
+        htmlStr += '</div>';
         htmlStr += '<ul class="js-scrollable">';
         for (var i = 0; i < titles.length; i++) {
             console.log("titles i ------->", titles[i]);
@@ -198,7 +223,7 @@ var ModelViewer = function () {
             id = id[1];
             id = parseInt(id);
             selectedNavIndex = id;
-            self.slideNavigation(id , e)
+            self.slideNavigation(id, e)
         })
 
 
@@ -231,30 +256,37 @@ var ModelViewer = function () {
         //     }
         // })
 
-        $(".colorDiv").click(function(e){
+        $(".colorDiv").click(function (e) {
             id = e.target.id;
-            console.log("selected color is--->",id)
-            $("#mv1").css("background-color",id)
+            console.log("selected color is--->", id)
+            $("#mv1").css("background-color", id)
         })
     }
 
 
-    self.createDescriptionBox = function(ctr){
+    self.createDescriptionBox = function (ctr) {
         var htmlStr = '';
-        let  = document.getElementsByClassName("title");
+        let = document.getElementsByClassName("title");
         let descriptions = document.getElementsByClassName("description");
         console.warn(descriptions);
-       //  htmlStr += '<div class="description">';
-        console.log("descriptions-------------",descriptions.length)
-           // htmlStr += '<p class="description_title" id="desTitle_'+(ctr)+'">'+titles[ctr].textContent+'</p>'
-          // htmlStr += '<div class="descriptions ">'
-            htmlStr += '<p id="description_'+(ctr)+'">'+descriptions[ctr].textContent+'</p>';
-          // htmlStr += '</div>'
-       // $(".description-container").html(htmlStr)
-       $(".descriptions").html(htmlStr)
-       $(".description_title").attr("id","desTitle_"+ctr);
-       $('.description_title').html(titles[ctr].textContent);
+        //  htmlStr += '<div class="description">';
+        console.log("descriptions-------------", descriptions.length)
+        // htmlStr += '<p class="description_title" id="desTitle_'+(ctr)+'">'+titles[ctr].textContent+'</p>'
+        // htmlStr += '<div class="descriptions ">'
+        htmlStr += '<p class="descriptionText" id="description_' + (ctr) + '">' + descriptions[ctr].textContent + '</p>';
+        // htmlStr += '</div>'
+        // $(".description-container").html(htmlStr)
+        $(".descriptions").html(htmlStr)
+        $(".description_title").attr("id", "desTitle_" + ctr);
+        $('.description_title').html(titles[ctr].textContent);
         console.warn(descriptions[ctr].textContent);
+
+
+        if(isMinimize){
+            $(".descriptionText").css("display","none")
+        }else{
+            $(".descriptionText").css("display","block")
+        }
     }
 
 
@@ -272,14 +304,14 @@ var ModelViewer = function () {
 
 
 
-    
+
     self.playAudio = function (audNm, callee) {
         if (audioElement) {
             audioElement.pause()
         }
         audioElement = document.createElement("AUDIO");
-      let audioUrl = "./audio/" + audNm + ".mp3"
-      
+        let audioUrl = "./audio/" + audNm + ".mp3"
+
         if (audioElement.canPlayType("audio/mpeg")) {
             // audioElement.setAttribute("src", "./audio/" + audNm + ".mp3");
             audioElement.setAttribute("src", audioUrl);
@@ -295,41 +327,41 @@ var ModelViewer = function () {
 
         function soundLoaded(evt, callee) {
             console.log("pkp:  ~ file: controls.js:126 ~ soundLoaded ~ evt", evt)
-            if(audioUrl){
+            if (audioUrl) {
                 audioElement.play();
             }
-            
+
 
         }
         function onAudioEnd(evt, callee) {
             console.log("pkp:  ~ file: controls.js:130 ~ onAudioEnd ~ evt", evt)
-           
-            
+
+
             audioElement.pause();
-            if (audNm != "myAudio"+buttonsArr.length) {
-                console.log("isAutoplay ------------------------->",isAutoplay);
+            if (audNm != "myAudio" + buttonsArr.length) {
+                console.log("isAutoplay ------------------------->", isAutoplay);
                 if (isAutoplay) {
-                    console.log("Audio number------------------------->",audNm);
-                  //  $(".next")?.click();
-                    setTimeout(function() {
+                    console.log("Audio number------------------------->", audNm);
+                    //  $(".next")?.click();
+                    setTimeout(function () {
                         $(".next")?.click();
-                      }, 2000);
-                    
+                    }, 2000);
+
                 }
 
-            }else if(audNm === "myAudio"+buttonsArr.length){
+            } else if (audNm === "myAudio" + buttonsArr.length) {
                 buttonsArr[selectedNavIndex].classList.remove("active");
                 isAutoplay = false;
-               // $(".play_pauseBtn").css({"display":"none"})
-               $(".navBtn").html('<span class=" material-symbols-outlined isAutoplay">autoplay</span> ');
-               //selectedNavIndex = 0;
+                // $(".play_pauseBtn").css({"display":"none"})
+                $(".navBtn").html('<span class=" material-symbols-outlined isAutoplay">autoplay</span> ');
+                //selectedNavIndex = 0;
             }
 
-            $(".autoplayoff").click(function(){
-                if(isAutoplay){
+            $(".autoplayoff").click(function () {
+                if (isAutoplay) {
                     isAutoplay = false;
-                    
-                   // $(".play_pauseBtn").css({"display":"none"})
+
+                    // $(".play_pauseBtn").css({"display":"none"})
                 }
             })
         }
@@ -337,20 +369,20 @@ var ModelViewer = function () {
 
     self.pauseAndResumeAudio = function () {
         $(".labelTitle").click(function () {
-          if(audioElement){
-            if(isAudioPlay){
-                audioElement.pause();
+            if (audioElement) {
+                if (isAudioPlay) {
+                    audioElement.pause();
+                    self.createNavPopup();
+                    isAudioPlay = false
+                } else {
+                    audioElement.play();
+                    self.createNavPopup();
+                    isAudioPlay = true
+                }
+            } else {
                 self.createNavPopup();
-                isAudioPlay = false
-            }else{
-                audioElement.play();
-                self.createNavPopup();
-                isAudioPlay = true
             }
-          }else{
-            self.createNavPopup();
-          }
-           
+
 
         })
     }
@@ -377,75 +409,77 @@ var ModelViewer = function () {
             } else if (e.target.classList.contains('arrow')) {
                 buttonsArr[selectedNavIndex].classList.add('active')
                 $(".description-box").css("display", "block");
-            } else if(e.target.classList.contains('link')){
+            } else if (e.target.classList.contains('link')) {
                 buttonsArr[selectedNavIndex].classList.add('active')
                 $(".description-box").css("display", "block");
-            }else if(e.target.classList.contains('action-btn')){
+            } else if (e.target.classList.contains('action-btn')) {
                 buttonsArr[selectedNavIndex].classList.add('active')
                 $(".description-box").css("display", "block");
-                if(isMinimize){
+                if (isMinimize) {
                     isMinimize = false;
+                    $(".descriptionText").css("display","block")
                     $(".descriptions").removeClass("hide");
                     $(".description-box").removeClass("des-hide");
                     $(".description_title").removeClass("center");
-                   // $(".action-btn").attr('src',"../css/svg/minimize.svg");
-                    $(".actionBtn").attr('src',"../libs/css/svg/minimize.svg");
+                    // $(".action-btn").attr('src',"../css/svg/minimize.svg");
+                    $(".actionBtn").attr('src', "../libs/css/svg/minimize.svg");
 
-         
-                }else{
+
+                } else {
                     isMinimize = true;
+                    $(".descriptionText").css("display","none")
                     $(".descriptions").addClass("hide");
                     $(".description-box").addClass("des-hide");
                     $(".description_title").addClass("center");
-                   // $(".action-btn").attr('src',"../css/svg/maximize.svg");
-                    $(".actionBtn").attr('src',"../libs/css/svg/maximize.svg");
+                    // $(".action-btn").attr('src',"../css/svg/maximize.svg");
+                    $(".actionBtn").attr('src', "../libs/css/svg/maximize.svg");
 
-                
+
                 }
-            }else if(e.target.classList.contains("isAutoplay")){
+            } else if (e.target.classList.contains("isAutoplay")) {
                 var htmlStr = ' <span class="material-icons isAutoplay">stop</span>';
-                 var html_ = ' <span class=" material-symbols-outlined isAutoplay">autoplay</span> ';
-                
-                if(isAutoplay){
+                var html_ = ' <span class=" material-symbols-outlined isAutoplay">autoplay</span> ';
+
+                if (isAutoplay) {
                     isAutoplay = false;
-                   $(".navBtn").html(html_);
-                   audioElement.pause();
-                   $(".description-box").css("display", "block");
-                    }else{
-                        if(selectedNavIndex == buttonsArr.length - 1){
-                            selectedNavIndex = 0
-                        }
+                    $(".navBtn").html(html_);
+                    audioElement.pause();
+                    $(".description-box").css("display", "block");
+                } else {
+                    if (selectedNavIndex == buttonsArr.length - 1) {
+                        selectedNavIndex = 0
+                    }
                     isAutoplay = true;
                     $(".navBtn").html(htmlStr);
                     $(".description-box").css("display", "block");
                     buttonsArr[selectedNavIndex].classList.add('active')
-                    self.annotationClicked(buttonsArr[selectedNavIndex] , "autoplay called")
-                  }
-                  
-            }else if(e.target.classList.contains("labelTitle")){
+                    self.annotationClicked(buttonsArr[selectedNavIndex], "autoplay called")
+                }
+
+            } else if (e.target.classList.contains("labelTitle")) {
                 buttonsArr[selectedNavIndex].classList.add('active')
-            }else if(e.target.classList.contains("visibility")){
-                if(isAnnotation){
+            } else if (e.target.classList.contains("visibility")) {
+                if (isAnnotation) {
                     isAnnotation = false;
-                    $(".Hotspot").css("display","none");
+                    $(".Hotspot").css("display", "none");
                     $(".description-box").css("display", "none");
                     $('.visibility').html('<span class="material-icons visibility">visibility</span>');
-                }else{
+                } else {
                     isAnnotation = true;
-                    $(".Hotspot").css("display","block");
+                    $(".Hotspot").css("display", "block");
                     $(".description-box").css("display", "block");
                     $('.visibility').html('<span class="material-icons visibility">visibility_off</span>');
                 }
-            }else if(e.target.classList.contains("mv1")){
-                $(".navigation").css("display","block");
-               // buttonsArr[selectedNavIndex].classList.add('active');
-              //  $(".description-box").css("display", "block");
-            }else if(e.target.classList.contains("description_title")){
+            } else if (e.target.classList.contains("mv1")) {
+                $(".navigation").css("display", "block");
+                // buttonsArr[selectedNavIndex].classList.add('active');
+                //  $(".description-box").css("display", "block");
+            } else if (e.target.classList.contains("description_title")) {
                 $(".description-box").css("display", "block");
-            }else if(e.target.classList.contains("center")){
+            } else if (e.target.classList.contains("center")) {
                 $(".description-box").css("display", "block");
             }
-            
+
 
         })
     }
