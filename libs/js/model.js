@@ -11,29 +11,15 @@ var ModelViewer = function () {
     self.modelViewer2 = document.querySelector("#mv1");
 
     self.init = function (e) {
-        console.log("model init.........", e);
-        console.log("window.location.href--->", window.location.href)
-        var hostUrl = window.location.href
-        if (hostUrl.indexOf('?') > -1) {
-            var displayBg = hostUrl.split("?");
-            var displayNum = displayBg[1].split("=");
-            console.log("displaybg--->", displayBg[1])
-            console.log("displayNum--->", displayNum[1])
-            if (parseInt(displayNum[1]) === 1) {
-                $("#mv1").css("background-color", "black")
-            } else {
-                $("#mv1").css("background-color", "white")
-            }
+        var searchStr = window.location.search;
+        const urlParams = new URLSearchParams(searchStr);
+        const display = urlParams.get('display')
+        if (parseInt(display)===0){
+            $("#mv1").css("background-color", "white");
+        }else{
+            $("#mv1").css("background-color", "black");
         }
-        // var displayBg = hostUrl.split("?");
-        // var displayNum = displayBg[1].split("=");
-        // console.log("displaybg--->",displayBg[1])
-        // console.log("displayNum--->",displayNum[1])
-        // if(parseInt(displayNum[1]) === 1){
-        //     $("#mv1").css("background-color","black")
-        // }else{
-        //     $("#mv1").css("background-color","white")
-        // }
+       
         self.createModel();
         self.adEventListnerForHotspotClick();
         self.createNavigation();
