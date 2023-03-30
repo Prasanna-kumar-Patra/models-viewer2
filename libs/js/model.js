@@ -178,7 +178,7 @@ var ModelViewer = function () {
     // }
 
     //htmlStr += '<span class=" list-item isAutoplay"><span class="material-symbols-outlined"> autoplay </span> start autoplay</span>';
-    htmlStr += '<div class="colorInstruct"><h4>Choose Any Color</h4></div>';
+    htmlStr += '<div class="colorInstruct"><h4>Set Background</h4></div>';
     htmlStr += '<div class="setBgColor list-item">';
     // htmlStr += '<div class=""><h6>Choose Any Color</h6></div>';
     htmlStr +=
