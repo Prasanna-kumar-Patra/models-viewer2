@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>MOTION IN A STRAIGHT LINE</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel="shortcut icon" href="../files/favicon_white.ico" media="(prefers-color-scheme: dark)" />
+    <link rel="shortcut icon" href="../files/favicon.ico" media="(prefers-color-scheme: light)" />
+    <link rel="stylesheet" type="text/css" href="../../css/style-page.css">
+    <!-- Google tag (gtag.js) -->
+<!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-0JWHY29KD2"></script> -->
+<script async src="../../jsm/gtag/gtag.js"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-0JWHY29KD2');
+</script>
+    <meta name="google-site-verification" content="mz0TRB59UNqdTxhwzmXmGdgVPh8pB4YqjuUr-aWNGIY">
+</head>
+
+<body>
+
+    <div id="topmenu">
+        MOTION IN A STRAIGHT LINE
+    </div>
+    <div id="menu">
+        <label for="Motion-equation">Equation of Motion,</label>
+        <a><strong><em> = </em></strong></a> <a id="const"><strong>8.5 +</strong></a>
+        <a style="visibility:hidden;" id="linearFactor"><strong>2</strong><strong><em>t</em></strong></a>
+        <a style="visibility: hidden;" id="quadFactor"> <strong>+ 2.5</strong><em>t<sup>2</sup></em></strong></a>
+        <a style="visibility: hidden;" id="cubicFactor"> <strong>+ 4</strong><em>t<sup>3</sup></em></strong></a>
+        <br>
+        <select id="eqnName" name="eqnName">
+            <option value="Linear">Linear</option>
+            <option value="Quadratic">Quadratic</option>
+            <option value="Cubic">Cubic</option>
+        </select>
+        <!-- <input type="submit" id="motionEqn"> -->
+        <button id="start">START</button>
+        <button id="reset">RESET</button>
+    </div>
+    <canvas id="drawing-canvas" height="300" width="300"></canvas>
+
+    <script type="module">
+
+        import * as THREE from '../../build/three.module.js';
+
+        import { GUI } from '../../jsm/libs/lil-gui.module.min.js';
+
+        import { OrbitControls } from '../../jsm/controls/OrbitControls.js';
+
+        import { GLTFLoader } from '../../jsm/loaders/GLTFLoader.js';
+
+        import { TWEEN } from '../../jsm/libs/tween.module.min.js';
+
+        let drawingCanvas, drawingContext;
+        let camera, scene, renderer, body, material, controls, line;
+        const drawStartPos = new THREE.Vector2();
+        let velocity, Vlabel;
+        let tVariation;
+        let tEqns = ['Linear', 'Quadratic', 'Cubic'];
+        let body1 = new THREE.Object3D();
+        let body2 = new THREE.Object3D();
+        let stand = new THREE.Object3D();
+        const animations = {
+            Velocity: false,
+            vValue: 0,
+            const: 8.5,
+            constA: 2,
+            constB: 2.5,
+            constC: 4,
+            move: false,
+            equation: function () {
+                stopMove();
+            }
+        }
+        let motion = false;
+        let t = 0;
+        let data = [], dataX = [], dataY = [];
+        let velocityData = [];
+        let presentPoint = 0;
+        let nextPoint = 0;
+        let speed = new THREE.Vector3(2 * animations.constB, 0, 0);
+
+        let maxWidth = 300, maxHeight = 300;
+        let halfWidth = maxWidth / 2;
+        let xAxis = 25, yAxis = maxHeight / 2 - 15;
+
+        const buttonAction = document.getElementById('motionEqn');
+        const buttonEqn = document.querySelector('select');
+        const buttonStart = document.getElementById('start');
+        const buttonReset = document.getElementById('reset');
+
+
+        const eqnLinear = document.getElementById('linearFactor');
+        const eqnQuad = document.getElementById('quadFactor');
+        const eqnCubic = document.getElementById('cubicFactor');
+        init();
+        setupCanvasDrawing();
+        animate();
+        createModel();
+        onWindowResize();
+        // guiControls();
+
+        function init() {
+
+            camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 1000);
+            camera.position.x = 10;
+            camera.position.y = 15;
+            camera.position.z = 20;
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xbfd1e5);
+            material = new THREE.MeshPhongMaterial({
+                color: 0xA020F0
+            });
+
+            body = new THREE.Mesh(new THREE.BoxGeometry(4, 2, 2).translate(0, 1, 0), material);
+            scene.add(body);
+            body.position.copy(new THREE.Vector3(animations.const, data[t], 0));
+            let scaleHorizontal = new THREE.GridHelper(150, 150);
+            // scaleHorizontal.position.x = -animations.constA;
+            scene.add(scaleHorizontal);
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+            createControls(0, 8, 0);
+            createLights();
+            window.addEventListener('resize', onWindowResize);
+            tVariation = 'Linear';
+            eqnLinear.style.visibility = 'visible';
+            eqnQuad.style.visibility = 'hidden';
+            eqnCubic.style.visibility = 'hidden';
+            valueCal();
+            buttonEqn.addEventListener('input', function (e) {
+                new TWEEN.Tween(camera.position)
+                    .to({ x: 10, y: 15, z: 20 }, 1500)
+                    .easing(TWEEN.Easing.Cubic.Out)
+                    .start()
+                new TWEEN.Tween(controls.target)
+                    .to({ y: 8 }, 5500)
+                    .easing(TWEEN.Easing.Cubic.Out)
+                    .start()
+
+                tVariation = e.target.value;
+                // console.log('eqn', tVariation, tEqns);                
+                valueCal();
+            })
+            buttonStart.addEventListener('click', function () {
+                // buttonStart.disabled = true;
+                // buttonReset.disabled = false;
+                t = 0;
+                setupCanvasDrawing();
+
+                drawAxes(drawingContext, xAxis, yAxis);
+                createControls(0, 8, 0);
+                plotLabel()
+            })
+            buttonReset.addEventListener('click', function () {
+                // buttonStart.disabled = false;
+                // buttonReset.disabled = true;
+
+                new TWEEN.Tween(body.position)
+                    .to({ x: 8.5, y: 0, z: 0 }, 500)
+                    .easing(TWEEN.Easing.Linear.None)
+                    .start()
+
+                new TWEEN.Tween(body1.position)
+                    .to({ x: 0, y: 0, z: -8.5 }, 500)
+                    .easing(TWEEN.Easing.Quadratic.In)
+                    .start()
+
+                new TWEEN.Tween(body2.position)
+                    .to({ x: 0, y: 8.5, z: 0 }, 500)
+                    .easing(TWEEN.Easing.Cubic.In)
+                    .start()
+
+                new TWEEN.Tween(camera.position)
+                    .to({ x: 10, y: 15, z: 20 }, 1500)
+                    .easing(TWEEN.Easing.Cubic.Out)
+                    .start()
+                new TWEEN.Tween(controls.target)
+                    .to({ y: 8 }, 5500)
+                    .easing(TWEEN.Easing.Cubic.Out)
+                    .start()
+            })
+        }
+
+        function createModel() {
+            const loader = new GLTFLoader();
+            loader
+                .setPath('../../model/')
+                .load('motion1D.glb', function (gltf) {
+                    let model = gltf.scene;
+                    body1 = model.getObjectByName('body1');
+                    body2 = model.getObjectByName('body2');
+                    stand = model.getObjectByName('stand');
+                    body1.position.set(0, 0, -8.5);
+                    body1.rotation.set(0, 3.14, 0);
+                    scene.add(model);
+
+                    gltf.scene.traverse((child) => {
+                        if (child.type == 'SkinnedMesh') {
+                            child.frustumCulled = false;
+                        }
+                    });
+                });
+
+        }
+
+        function createLights() {
+            // Create a directional light
+            const ambientLight = new THREE.HemisphereLight(0xddeeff, 0x202020, 1);
+            let mainLight = new THREE.DirectionalLight(0xffffff, 1);
+            scene.add(ambientLight);
+
+            // move the light back and up a bit
+            mainLight.position.set(10, 10, 10);
+
+            // remember to add the light to the scene
+            scene.add(ambientLight, mainLight);
+        }
+
+        function createControls(x, y, z) {
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enablePan = true;
+            controls.enableZoom = true;
+
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.rotateSpeed = 0.1;
+            controls.minDistance = .1;
+            controls.maxDistance = 5000;
+
+            controls.enablePan = true;
+            controls.enableZoom = true;
+            controls.target.set(x, y, z);
+        }
+
+
+        function guiControls() {
+            let gui = new GUI({ width: 250 });
+            const CamPosition = gui.addFolder('Camera Position');
+            CamPosition.add(camera.position, 'x').min(-40).max(40).step(0.01);
+            CamPosition.add(camera.position, 'y').min(-40).max(40).step(0.01);
+            CamPosition.add(camera.position, 'z').min(-80).max(80).step(0.01);
+            const ConPosition = gui.addFolder('Control Position');
+
+            ConPosition.add(controls.target, 'x').min(-40).max(40).step(0.01);
+            console.log('tillhere')
+            ConPosition.add(controls.target, 'y').min(-40).max(40).step(0.01);
+            ConPosition.add(controls.target, 'z').min(-40).max(40).step(0.01);
+
+        }
+
+        function valueCal() {
+            data = [], dataX = [], dataY = [];
+            velocityData = [];
+            if (tVariation === 'Linear') {
+                eqnLinear.style.visibility = 'visible';
+                eqnQuad.style.visibility = 'hidden';
+                eqnCubic.style.visibility = 'hidden';
+                animations.vValue = (animations.constA).toFixed(2);
+                for (let i = 0; i < 2.01; i += 0.01) {
+                    let A = (animations.const + animations.constA * i);
+                    let B = animations.constA
+
+                    data.push(new THREE.Vector3(A, 0, 0));
+                    dataX.push(xAxis + (i * (halfWidth - 30)));
+                    dataY.push((yAxis - (A * 10)).toFixed(0));
+                    velocityData.push(2 * yAxis - B * 40);
+                }
+            } else if (tVariation === 'Quadratic') {
+                // console.log('Quadratic', tVariation)
+                eqnQuad.style.visibility = 'visible';
+                eqnLinear.style.visibility = 'visible';
+                eqnCubic.style.visibility = 'hidden';
+                animations.vValue = (2 * animations.constB).toFixed(2) + 't';
+                for (let i = 0; i < 2.01; i += 0.01) {
+                    let A = animations.const + animations.constA * i + animations.constB * i * i
+                    let B = animations.constA + 2 * animations.constB * i;
+                    data.push(new THREE.Vector3(0, 0, -A));
+                    dataX.push((xAxis + (i * (halfWidth - 30))).toFixed(0));
+                    dataY.push((yAxis - (A * 5)).toFixed(0));
+                    velocityData.push(2 * yAxis - B * 10).toFixed(2);
+                }
+            } else if (tVariation === 'Cubic') {
+                // console.log('Cubic', tVariation)
+                eqnCubic.style.visibility = 'visible';
+                eqnLinear.style.visibility = 'visible';
+                eqnQuad.style.visibility = 'visible';
+                animations.vValue = (2 * animations.constB).toFixed(2) + 't';
+                for (let i = 0; i < 2.01; i += 0.01) {
+                    let A = animations.const + animations.constA * i + animations.constB * i * i + animations.constC * i * i * i;
+                    let B = animations.constA + 2 * animations.constB * i + 3 * animations.constC * i * i;
+                    data.push(new THREE.Vector3(1, animations.const + 2 + A, 0));
+                    // preFactor for the canvas point correction
+                    dataX.push((xAxis + (i * (halfWidth - 30))).toFixed(0));
+                    dataY.push((yAxis + 10 - A * 2.5).toFixed(0));
+                    velocityData.push(2 * yAxis + 4 - (B) * 3).toFixed(2);
+                }
+            }
+        }
+
+        function initLine(data) {
+            let lineGeometry = new THREE.BufferGeometry().setFromPoints(data.points);
+            line = new THREE.Line(lineGeometry, data.lineMaterial);
+
+            line.rotation.y = data.yRotation;
+            line.position.x = data.x;
+            line.position.y = data.y;
+            line.position.z = data.z;
+            return line;
+        }
+
+        function setupCanvasDrawing() {
+
+            drawingCanvas = document.getElementById('drawing-canvas');
+            drawingContext = drawingCanvas.getContext('2d');
+
+            // draw white background
+            drawingContext.clearRect(0, 0, 300, 300);
+            drawingContext.fillStyle = '#FFFFFF';
+            drawingContext.fillRect(0, 0, 300, 300);
+            
+        }
+
+        function drawAxes(context, xAxis, yAxis) {
+
+            // Draw X and Y axes
+            context.beginPath();
+            context.lineWidth = 2;
+            context.strokeStyle = 'black';
+            context.moveTo(xAxis, 0);
+            context.lineTo(xAxis, maxHeight);
+            context.moveTo(10, yAxis);
+            context.lineTo(maxWidth, yAxis);
+            context.moveTo(10, maxHeight - 25);
+            context.lineTo(maxWidth, maxHeight - 25);
+            canvas_arrow(context, xAxis-10, yAxis-70, xAxis-10, 10);
+            canvas_arrow(context, halfWidth-30, maxHeight-5, maxWidth-30,  maxHeight-5);
+            context.stroke();
+
+        }
+
+        function canvas_arrow(context, fromx, fromy, tox, toy) {
+            let headlen = 10; // length of head in pixels
+            let dx = tox - fromx;
+            let dy = toy - fromy;
+            let angle = Math.atan2(dy, dx);
+            context.moveTo(fromx, fromy);
+            context.lineTo(tox, toy);
+            context.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
+            context.moveTo(tox, toy);
+            context.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
+        }
+        
+        function plotGraph(ctx, x, y, r, col) {
+            ctx.beginPath();
+            ctx.arc(x, y, r, 0, 2 * Math.PI, false);
+            ctx.lineWidth = 1;
+
+            ctx.fillStyle = col;
+            ctx.strokeStyle = col;
+
+            ctx.fill();
+            ctx.stroke();
+        }
+
+        function onWindowResize() {
+
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            if (window.innerWidth < 800) {
+                drawingCanvas.width = 150;
+                maxWidth = 150;
+                halfWidth = maxWidth / 2;
+                setupCanvasDrawing()
+            } else {
+                drawingCanvas.width = 300;
+                maxWidth = 300;
+                halfWidth = maxWidth / 2;
+                setupCanvasDrawing()
+            }
+
+        }
+
+        function animate() {
+
+            requestAnimationFrame(animate);
+
+            controls.update();
+
+            TWEEN.update();
+
+            renderer.render(scene, camera);
+
+        }
+
+        function boxmovePlot() {
+
+            if (t < data.length) {
+
+                // body.position.copy(data[t]);
+                t += 1;
+                plotGraph(drawingContext, dataX[t], dataY[t], 1, 'green');
+                plotGraph(drawingContext, dataX[t], velocityData[t], 1, 'red');
+                requestAnimationFrame(boxmovePlot);
+            }
+        }
+
+        function bodyMovement() {
+            if (tVariation === 'Linear') {
+                console.log(tVariation, body)
+                new TWEEN.Tween(body.position)
+                    .to({ x: 12.5 }, 3500)
+                    .easing(TWEEN.Easing.Linear.None)
+                    .start()
+
+                new TWEEN.Tween(camera.position)
+                    .to({ x: 25, z: 25 }, 1500)
+                    .easing(TWEEN.Easing.Cubic.Out)
+                    .start()
+            } else if (tVariation === 'Quadratic') {
+                console.log(tVariation, body1)
+                new TWEEN.Tween(body1.position)
+                    .to({ z: -22.5 }, 3500)
+                    .easing(TWEEN.Easing.Quadratic.In)
+                    .start()
+
+                new TWEEN.Tween(camera.position)
+                    .to({ x: 10, z: 15 }, 1500)
+                    .easing(TWEEN.Easing.Cubic.Out)
+                    .start()
+            } else if (tVariation === 'Cubic') {
+                console.log(tVariation, body1)
+
+                new TWEEN.Tween(body2.position)
+                    .to({ y: 58.5 }, 3500)
+                    .easing(TWEEN.Easing.Cubic.In)
+                    .start()
+
+                new TWEEN.Tween(camera.position)
+                    .to({ x: 30, y: 2, z: 60 }, 5500)
+                    .easing(TWEEN.Easing.Cubic.Out)
+                    .start()
+                new TWEEN.Tween(controls.target)
+                    .to({ y: 30 }, 5500)
+                    .easing(TWEEN.Easing.Cubic.Out)
+                    .start()
+
+            }
+
+        }
+
+        // function plotLabel(ctx, label, labelx, labely, value, w, h, l, yLabel, xLabel, xValue, yValue) {
+        //     ctx.beginPath();
+        //     ctx.moveTo(w, h);
+        //     ctx.lineTo(w + l, h);
+        //     ctx.stroke();
+        //     ctx.font = "20px arial";
+        //     ctx.textAlign = "center";
+        //     ctx.fillText(label, (w+ l) + 50, h );
+        //     ctx.fillText(labelx, w, h+xLabel );
+        //     ctx.fillText(labely, yLabel-10, h );
+        //     ctx.fillText( value, xValue , yValue);
+        // }
+
+        function plotLabel() {
+
+            if (tVariation === 'Linear') {
+                console.log('Linear')
+
+                bodyMovement();
+                boxmovePlot();
+                listLabel(drawingContext, {
+                    label: "Distance",
+                    col: 'green',
+                    labelW: xAxis,
+                    labelH: yAxis,
+                    labelPos1: halfWidth + 30,
+                    labelPos2: 100,
+                    length: 30,
+                    xlabel: "t",
+                    xlabelPos: 15,
+                    ylabel: "x",
+                    value: animations.const,
+                    xvaluePos: 50
+                });
+                listLabel(drawingContext, {
+                    label: "Velocity",
+                    col: 'red',
+                    labelW: xAxis,
+                    labelH: 2 * yAxis,
+                    labelPos1: halfWidth + 30,
+                    labelPos2: 250,
+                    length: 30,
+                    xlabel: "t",
+                    xlabelPos: 20,
+                    ylabel: "v",
+                    value: animations.constA,
+                    xvaluePos: 40
+                });
+            } else if (tVariation === 'Quadratic') {
+                console.log('Quadratic')
+
+                bodyMovement();
+                boxmovePlot();
+                listLabel(drawingContext, {
+                    label: "Distance",
+                    col: 'green',
+                    labelW: xAxis,
+                    labelH: yAxis,
+                    labelPos1: 180,
+                    labelPos2: 100,
+                    length: 30,
+                    xlabel: "t",
+                    xlabelPos: 15,
+                    ylabel: "y",
+                    value: animations.const,
+                    xvaluePos: 20
+                });
+                listLabel(drawingContext, {
+                    label: "Velocity",
+                    col: 'red',
+                    labelW: xAxis,
+                    labelH: 2 * yAxis,
+                    labelPos1: 180,
+                    labelPos2: 240,
+                    length: 30,
+                    xlabel: "t",
+                    xlabelPos: 20,
+                    ylabel: "v",
+                    value: animations.constA + 2 * animations.constB,
+                    xvaluePos: -20
+                });
+            } else if (tVariation === 'Cubic') {
+                console.log('Cubic')
+
+                bodyMovement();
+                boxmovePlot();
+                listLabel(drawingContext, {
+                    label: "Distance",
+                    col: 'green',
+                    labelW: xAxis,
+                    labelH: yAxis,
+                    labelPos1: 180,
+                    labelPos2: 100,
+                    length: 30,
+                    xlabel: "t",
+                    xlabelPos: 15,
+                    ylabel: "z",
+                    value: animations.const,
+                    xvaluePos: -25
+                });
+                listLabel(drawingContext, {
+                    label: "Velocity",
+                    col: 'red',
+                    labelW: xAxis,
+                    labelH: 2 * yAxis,
+                    labelPos1: 180,
+                    labelPos2: 240,
+                    length: 30,
+                    xlabel: "t",
+                    xlabelPos: 20,
+                    ylabel: "v",
+                    value: animations.constA + 2 * animations.constB + 3 * animations.constC,
+                    xvaluePos: -25
+                });
+            }
+
+        }
+
+        function listLabel(ctx, data) {
+            ctx.beginPath();
+            ctx.fillStyle = data.col;
+            ctx.strokeStyle = data.col;
+            ctx.moveTo(data.labelPos1, data.labelPos2);
+            ctx.lineTo(data.labelPos1 + data.length, data.labelPos2);
+            ctx.stroke();
+            ctx.font = "20px arial";
+            ctx.fillText(data.value, data.labelW - 15, data.labelPos2 - data.xvaluePos);
+            ctx.fillText(data.label, data.labelPos1 + data.length, data.labelPos2);
+            ctx.fillStyle = "#000000";
+            ctx.fillText(data.xlabel, data.labelPos1 + data.length + 15, data.labelH + data.xlabelPos);
+            ctx.fillText(data.ylabel, data.labelW - 15, data.labelPos2);
+
+        }
+    </script>
+
+</body>
+
+</html>

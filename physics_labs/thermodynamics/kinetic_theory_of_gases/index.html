@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Boyle's Law</title>
+    <title>Kinetic Theory of Gases</title>
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
     <link rel="shortcut icon" href="../files/favicon_white.ico" media="(prefers-color-scheme: dark)" />
     <link rel="shortcut icon" href="../files/favicon.ico" media="(prefers-color-scheme: light)" />
@@ -24,62 +24,40 @@
 
 <body>
 
-    <div id="topmenu">
-        <div style="font-weight: bold;  text-decoration-line: underline; font-size: 125%; padding-bottom: 2px;">
-            Boyle's Law
+    <div style="font-weight:normal; text-align: left; text-decoration-line: none;" id="topmenu">
+        <div>
+            Kinetic Theory of Gases (Monoatomic)
         </div>
-
+        <a>A cylinder contains a mixture of He and Ar gas in equilibrium at 150 °C.<br>(a)What is the average kinetic energy (K.E) for each type of gas molecule?<br> (b) What is the root-mean-square speed of each type of molecule.</a>
     </div>
 
 
 
     <div id="menu">
+      
+        <a> <label for="temp"><strong>Temperature : = </strong></label><input type="range" id="temp" name="temp" min="10" max="200" value="150" step="0.5"><a id="temp-el">150</a>°C<br>
+            <label for="temp"><strong>K.E = <div class="fraction">
+                <span class="fup"> 3</span>
+                <span class="bar">/</span>
+                <span class="fdn"> 2</span>
+            </div>k<sub>B</sub>T</strong></label>
+        </a>
+        <a>also, <strong>K.E =  <div class="fraction">
+            <span class="fup"> 1</span>
+            <span class="bar">/</span>
+            <span class="fdn"> 2</span>
+        </div>m<sub>g</sub>v<sup>2</sup></strong></a><br>
+        <button id="theorybutton" onClick="theorySite()">CALCULATION / THEORY</button>
 
-        <a id="message-el">
-            Ideal Gas Law, PV = nRT <br>
-            <strong>Boyle's Law</strong><br>
-            Case 1: Constant T (Isothermal), P &Proportional; 1/V <br>
-            At lower volume (higher pressure), the gases deviates from the ideal gas behaviour.
-
-        </a><br>
-        <a><input type="range" id="volume" name="volume" min="1" max="30" value="10" step="0.25">
-            <label for="volume"><strong>Change Volume</strong></label>
-        </a><br>
-        
-        <button id="atom-el">ATOM</button>
-        <button id="mole-el">MOLECULES</button>
-        <button id="reset-el">RESET </button>
-        <button  onClick="idealLaw()">IDEAL GAS</button>
-        <button onClick="charlesLaw()">CHARLE'S LAW</button>
     </div>
     <script>
-        
-        function idealLaw() {
+        function theorySite() {
 
-            window.open("index.html", "_self")
+            window.open("../../theory/thermodynamics/thermodynamics_knetic_theory_of_gases.html", "_self")
         }
-
-        function charlesLaw() {
-
-            window.open("index_charle_law.html", "_self")
-        }
+ 
     </script>
-    <script id="vertexShader" type="x-shader/x-vertex">
-    varying vec2 vUv;
-    void main() {
-      vUv = uv;
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1);
-    }
-  </script>
-
-    <script id="fragmentShader" type="x-shader/x-fragment">
-    uniform vec3 color1;
-    uniform vec3 color2;
-    varying vec2 vUv;
-    void main() {
-      gl_FragColor = vec4(mix(color1, color2, vUv.y), 1.0);
-    }
-  </script>
+  
     <script type="module">
         import * as THREE from '../../build/three.module.js';
         import { CSS2DRenderer, CSS2DObject } from '../../jsm/renderers/CSS2DRenderer.js';
@@ -89,78 +67,50 @@
         import { TWEEN } from '../../jsm/libs/tween.module.min.js';
 
         let camera, aspect, fov, stats, clock, gui;
-        let scene, renderer, labelRenderer, controls, container;
-        let box, slider1, slider2, pressurePointer, plane, indicatorMaterial;
-        const spheres = [];
-        let mixed = false;
-        let atoms = true;
-        let cell = new THREE.Group();
-        let t = 0.00035;
+        let scene, renderer, labelRenderer, controls, container, sample, sampleMaterial;
+        let box, slider1, slider2, plane, rod, indicatorMaterial, pressurePointer, tempPointer;
+        const atom1 = [];
+        const atom2 = [];
+        let t1 = 0.00150;
+        let t2 = 0.0003;
         let params = {
             A: 10,
+
             Molecules: function () {
-                addMolecules(20);
-                pressurePointer.rotation.z += -0.25;
-                // console.log('Atom/Molecules');
+                addMolecules(100);               
+                pressurePointer.rotation.z +=-0.25;
+               
             },
             Atoms: function () {
-                addAtoms(20)
-                pressurePointer.rotation.z += -0.2;
+                addAtoms(100)
+                pressurePointer.rotation.z +=-0.2;
             },
             Clear: function () {
                 clearParticles();
+                
             }
         }
 
         //button and html elements
-        let volume = document.getElementById('volume');
+        let temp = document.getElementById('temp');
         let message = "";
         let messageEl = document.getElementById("message-el");
-        const buttonAtom = document.getElementById('atom-el');
-        const buttonMole = document.getElementById('mole-el');
-        const buttonReset = document.getElementById('reset-el');
+        let tempEl = document.getElementById('temp-el');
 
         init()
         animate()
 
         function buttonAction() {
             // change volume space and pressure indicator
-            volume.addEventListener("input", function (event) {
-                console.log(volume.valueAsNumber);
-                let value = volume.valueAsNumber;
-                params.A = volume.valueAsNumber;
-                box.geometry.dispose();
-                let newGeometry = new THREE.BoxGeometry((params.A + 0.4) * 2, 10.8, 10.8);
-                box.geometry = newGeometry;
-                slider1.position.x = -params.A - 1;
-                slider2.position.x = params.A + 1;
-                if (value > 3) {
-                    let x = 10 / (value);
-                    // console.log(value, x)
-                    pressurePointer.rotation.set(0, 0, -x)
-                } else if (3 > value > 1) {
-
-                    let x = 2.86 + 0.02 * value;
-                    // console.log(value, x)
-                    pressurePointer.rotation.set(0, 0, -x)
-                }
+            temp.addEventListener("input", function (event) {
+                
+                let value = temp.valueAsNumber;
+                tempEl.innerHTML = value;
+                t1 = (value)*0.00001;
+                t2 = (value)*0.000002;
+                // console.log(t1, t2)
             });
-            buttonAtom.addEventListener("click", function (event) {
-                console.log('Add atoms')
-                addAtoms(20)
-                pressurePointer.rotation.z += -0.2;
-            });
-
-            buttonMole.addEventListener("click", function (event) {
-
-                addMolecules(20)
-                pressurePointer.rotation.z += -0.25;
-            });
-
-            buttonReset.addEventListener("click", function (event) {
-
-                clearParticles();
-            });
+         
         }
 
         function init() {
@@ -169,13 +119,13 @@
             scene.background = new THREE.Color(0xbfd1e5);
 
             //camera
-            createCamera(12, 2, 30);
+            createCamera(16, 12, 35);
 
             //renderer
             createRenderer();
 
             //cameracontrols
-            createControls(0, 3, 0);
+            createControls(-1, 12, 0);
 
             //create light 
             createLights();
@@ -185,114 +135,107 @@
             addAxes(new THREE.Vector3(0, 0, 0));
 
             //Gas Container Box
-            let geometry = new THREE.BoxGeometry((params.A + 0.4) * 2, 10.8, 10.8);
             const material = new THREE.MeshPhongMaterial(
                 {
                     color: 'green',
+                    side: THREE.DoubleSide,
                     transparent: true,
                     opacity: 0.25
                 })
-            box = new THREE.Mesh(geometry, material);
+          
+            box = new THREE.Mesh(new THREE.CylinderGeometry(8, 8, 22, 32).translate(0,11,0), material);
             scene.add(box);
-
-            let uniforms = {
-                "color1": {
-                    type: "c",
-                    value: new THREE.Color(0xffff00)
-                },
-                "color2": {
-                    type: "c",
-                    value: new THREE.Color(0xff0000)
-                },
-            };
-
-            let fShader = document.getElementById('fragmentShader').text;
-            let vShader = document.getElementById('vertexShader').text;
-
-            // Create gradient material
-            indicatorMaterial = new THREE.ShaderMaterial({
-                uniforms: uniforms,
-                vertexShader: vShader,
-                fragmentShader: fShader
-            });
-
-            //Pressure indicator
-            addPressure();
-            addAtoms(20);
+            
+            let sliderMaterial = new THREE.MeshPhongMaterial({ color: 0x035400 });
+            slider1 = new THREE.Mesh(new THREE.CylinderGeometry(8, 8, 1, 32), sliderMaterial);
+            slider2 = slider1.clone();
+            scene.add(slider1, slider2);
+            slider2.position.y = params.A + 1.5;
+            slider1.position.y = -0.5;
+            rod = new THREE.Mesh(new THREE.CylinderGeometry(.5, .5, 24, 8).translate(0, 12, 0), sliderMaterial);
+            slider2.add(rod);
+            
+            addAtoms(0.2, 40, 'red', atom1);
+            addAtoms(0.40, 60, 'blue', atom2);
+            
             buttonAction();
-            // gradientSphere()
             document.body.appendChild(renderer.domElement);
 
             window.addEventListener('resize', onWindowResize);
         }
 
-        function addPressure() {
-
-            let sliderMaterial = new THREE.MeshPhongMaterial({ color: 0x035400 });
-            slider1 = new THREE.Mesh(new THREE.BoxGeometry(1, 13, 12), sliderMaterial);
-            slider2 = slider1.clone();
-            scene.add(slider1, slider2);
-            slider1.position.x = -params.A - 1;
-            slider2.position.x = params.A + 1;
-            plane = new THREE.Mesh(new THREE.BoxGeometry(5, 10, .4).translate(-2, 0, -0.22), new THREE.MeshPhongMaterial({ color: 0x000314 }));
-            let indicatorGeometry = new THREE.RingGeometry(2, 4, 32, 1, 1.57, 3.14);
-            let indicator = new THREE.Mesh(indicatorGeometry, indicatorMaterial);
-            scene.add(indicator);
-            indicator.rotation.set(0, 0, -1.57);
-            indicator.position.set(0, 7.6, -6.5)
-            indicator.add(plane)
-            let rodGeometry = new THREE.CircleGeometry(3.5, 3, 1.57, .08).translate(0, -3.4, 0.1);
-            let rodMaterial = new THREE.MeshPhongMaterial({ color: 'black' })
-            pressurePointer = new THREE.Mesh(rodGeometry, rodMaterial);
-            // rod.position.set(0,0,0.1)
-
-            indicator.add(pressurePointer)
-            pressurePointer.rotation.set(0, 0, -1)
-
-            indicator.add(addLabels('PRESSURE', 'black', -6, -4));
-        }
 
         function guiControls() {
             gui = new GUI();
-            gui.close()
+            // gui.close()
             // camera control adjust
             // console.log(camera.position)
             // let controlFolder = gui.addFolder("Control");
             // controlFolder.add(controls.target, 'x', -100, 100);
             // controlFolder.add(controls.target, 'y', -100, 100);
             // controlFolder.add(controls.target, 'z', -100, 100);
-            // // let cameraFolder = gui.addFolder("Camera");
+            // // // let cameraFolder = gui.addFolder("Camera");
             // gui.add(camera.position, 'x', -100, 100);
             // gui.add(camera.position, 'y', -100, 100);
             // gui.add(camera.position, 'z', -100, 100);
 
             // change volume space and pressure indicator
-            gui.add(params, 'A', 1, 30, 0.25).onChange((value) => {
+            gui.add(params, 'A', 1, 20, 0.25).onChange((value) => {
                 // console.log(value)
                 box.geometry.dispose();
-                let newGeometry = new THREE.BoxGeometry((params.A + 0.4) * 2, 10.8, 10.8);
+                let newGeometry = new THREE.BoxGeometry(10.8, (params.A * 2 + 1), 10.8);
                 box.geometry = newGeometry;
-                slider1.position.x = -params.A - 1;
-                slider2.position.x = params.A + 1;
-                if (value > 3) {
-                    let x = 10 / (value);
-                    // console.log(value, x)
-                    pressurePointer.rotation.set(0, 0, -x)
-                } else if (3 > value > 1) {
-
-                    let x = 2.86 + 0.02 * value;
-                    // console.log(value, x)
-                    pressurePointer.rotation.set(0, 0, -x)
-                }
-
-            }).listen();
+                slider1.position.y = -params.A - 1;
+                slider2.position.y = params.A + 1;
+                tempPointer.scale.set(1, value * 1.5, 1);
+                t = 0.0001 + value * 0.0001
+            });
 
             gui.add(params, 'Molecules');
             gui.add(params, 'Atoms');
             gui.add(params, 'Clear').name('RESET');
-            // render();
         }
 
+        function addTemperature() {
+            
+            plane = new THREE.Mesh(new THREE.BoxGeometry(2, 11, .4).translate(0, 5.5, -0.45), new THREE.MeshPhongMaterial({ color: 0x000314 }));
+            let indicatorGeometry = new THREE.PlaneGeometry(1, 10, 1).translate(0, 5.5, -0.2)
+
+            let indicator = new THREE.Mesh(indicatorGeometry, indicatorMaterial);
+            scene.add(indicator);
+            // indicator.rotation.set(0, 0, -1.57);
+            indicator.position.set(10, 0, 0)
+            indicator.add(plane)
+            let rodGeometry = new THREE.CylinderGeometry(.2, .2, .2, 8).translate(0, .1, 0);
+            let rodMaterial = new THREE.MeshPhongMaterial({ color: 0xff11ad })
+            tempPointer = new THREE.Mesh(rodGeometry, rodMaterial);
+            tempPointer.position.set(0, 0.5, 0)
+
+            indicator.add(tempPointer)
+            tempPointer.scale.set(1, params.A * 1.5, 1)
+
+            indicator.add(addLabels('TEMPERATURE', 'black', 0, -1));
+        }
+
+        function addPressure() {
+            let indicatorGeometry = new THREE.RingGeometry(2, 4, 32, 1, 1.57, 3.14)
+            let indicator = new THREE.Mesh(indicatorGeometry, indicatorMaterial);
+            scene.add(indicator);
+            indicator.rotation.set(0, 0, -1.57);
+            indicator.position.set(-12, 0, 0)
+
+            let rodGeometry = new THREE.CircleGeometry(3.5, 3, 1.57, .08).translate(0, -3.4, 0.1);
+            let rodMaterial = new THREE.MeshPhongMaterial({ color: 'black' })
+            pressurePointer = new THREE.Mesh(rodGeometry, rodMaterial);
+            
+
+            indicator.add(pressurePointer)
+            pressurePointer.rotation.set(0, 0, -1)
+
+            indicator.add(addLabels('P = P` + F/A', 'black', -5, -2));
+            indicator.add(addLabels('PRESSURE', 'black', 1, -1));
+        }
+        
         function createCamera(x, y, z) {
 
             fov = 55;
@@ -367,7 +310,7 @@
 
             let text = document.createElement('div');
             text.className = 'label';
-            text.textContent = name;
+            text.innerHTML = name;
             text.style.color = col;
 
             let label = new CSS2DObject(text);
@@ -411,32 +354,36 @@
             for (let i = 0; i < spheres.length; i++) {
                 scene.remove(spheres[i])
             }
-            addAtoms(20);
-            params.A = 10;
+            
+            addMolecules(100);
+                
+            t = 0.00015
+            params.A = 5;
             pressurePointer.rotation.set(0, 0, -1);
+            tempPointer.scale.set(1, params.A * 1.5, 1);
             box.geometry.dispose();
-            let newGeometry = new THREE.BoxGeometry((params.A + 0.4) * 2, 10.8, 10.8);
+            let newGeometry = new THREE.BoxGeometry(10.8, (params.A * 2 + 1), 10.8);
             box.geometry = newGeometry;
-            slider1.position.x = -params.A - 1;
-            slider2.position.x = params.A + 1;
+            slider1.position.y = -params.A - 1;
+            slider2.position.y = params.A + 1;
             volume.value = params.A;
         }
 
-        function addAtoms(N) {
-            const geometry = new THREE.SphereGeometry(0.1, 32, 16);
-            const material = new THREE.MeshPhongMaterial({ color: 'blue' });
+        function addAtoms(R,N, col, spheres) {
+            const geometry = new THREE.SphereGeometry(R, 32, 16);
+            const material = new THREE.MeshPhongMaterial({ color: col });
 
             for (let i = 0; i < N; i++) {
 
                 const mesh = new THREE.Mesh(geometry, material);
 
-                mesh.position.x = Math.random() * 10 - 5;
-                mesh.position.y = Math.random() * 10 - 5;
-                mesh.position.z = Math.random() * 10 - 5;
+                mesh.position.x = Math.random() * params.A - 5;
+                mesh.position.y = Math.random() * params.A + 0.5;
+                mesh.position.z = Math.random() * params.A - 5 ;
                 mesh.rotation.x = Math.random() * 1.57;
                 mesh.rotation.y = 0;
                 mesh.rotation.z = Math.random() * 1.57;
-                mesh.scale.x = mesh.scale.y = mesh.scale.z = 3;
+                // mesh.scale.x = mesh.scale.y = mesh.scale.z = 3;
 
                 scene.add(mesh);
 
@@ -484,28 +431,25 @@
         function animate() {
 
             requestAnimationFrame(animate);
-            const timer = t * Date.now();
-
+            const timer1 = t1 * Date.now();
+            const timer2 = t2 * Date.now();
+            // console.log(timer)
             camera.lookAt(scene.position);
+          
+            for (let i = 0; i < atom1.length; i++) {
 
-            for (let i = 0; i < spheres.length; i++) {
+                const sphere = atom1[i];
 
-                const sphere = spheres[i];
-
-                sphere.position.x = params.A * Math.cos(timer + i);
-                sphere.position.y = 5 * Math.sin(timer + i * 1.1);
-
-                // sphere.position.z = A * Math.cos(timer + i);
-                // sphere.rotation.x += 0.004
-                // sphere.rotation.y += 0.005
+                sphere.position.x = params.A/2 * Math.cos(timer1 + i);
+                sphere.position.y = 5.5 + (params.A/2) * Math.sin(timer1 + i *0.9);
 
             }
+            for (let i = 0; i < atom2.length; i++) {
 
-            for (let i = spheres.length / 2; i < spheres.length; i++) {
+                const sphere = atom2[i];
 
-                const sphere = spheres[i];
-                sphere.position.y = 5 * Math.sin(timer + i * 0.9);
-
+                sphere.position.x = params.A/2 * Math.cos(timer2 + i);
+                sphere.position.y = 5.5 + (params.A/2) * Math.sin(timer2 + i *0.9);
 
             }
             controls.update();

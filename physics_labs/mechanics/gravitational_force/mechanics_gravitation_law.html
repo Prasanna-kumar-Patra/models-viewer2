@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Understanding Gravitational Force</title>
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<link rel="shortcut icon" href="../files/favicon_white.ico" media="(prefers-color-scheme: dark)" />
+	<link rel="shortcut icon" href="../files/favicon.ico" media="(prefers-color-scheme: light)" />
+	<link rel="stylesheet" type="text/css" href="../../css/style-page.css">
+	<!-- <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-7VWWT4ZKR6"></script> -->
+	<script async src="../../jsm/gtag/gtag.js"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag() { dataLayer.push(arguments); }
+		gtag('js', new Date());
+
+		gtag('config', 'G-7VWWT4ZKR6');
+	</script>
+	<meta name="google-site-verification" content="mz0TRB59UNqdTxhwzmXmGdgVPh8pB4YqjuUr-aWNGIY">
+
+</head>
+
+<body>
+
+	<div style="color: aliceblue;" id="topmenu">
+		<div>Gravitational Force </div>
+
+	</div>
+
+	<div id="sidemenu">
+
+
+	</div>
+
+	<div id="menu">
+		<p id="message-el">Gravitational Law</p>
+		<button id="force" onClick="forceSite()">Gravitational Force</button>
+		<button id="theory" onClick="theorySite()">THEORY</button>
+
+		<br>
+	</div>
+	<script>
+		function theorySite() {
+
+			window.open("../../theory/mechanics/mechanics_gravitation_law.html", "_self")
+		}
+
+		function forceSite() {
+
+			window.open("index.html", "_self")
+		}
+	</script>
+
+
+	<script type="module">
+		import * as THREE from '../../build/three.module.js';
+		import { OrbitControls } from '../../jsm/controls/OrbitControls.js';
+		import Stats from '../../jsm/libs/stats.module.js';
+		import { GUI } from '../../jsm/libs/lil-gui.module.min.js';
+
+		let camera, scene, renderer, controls;
+		let pointLight, ambientLight;
+		let Law1 = [];
+		let Law2 = [];
+		let Label = [];
+		let Helper = [];
+		let Planet = {};
+		let sun, earth, earthOrbit, earthCurve, earthPoints;
+		let moon, moonOrbit, moonCurve;
+		let satellite, satelliteOrbit, satelliteCurve
+		let width = window.innerWidth, height = window.innerHeight;
+		let earthlabel, sunlabel, moonlabel, f1, f2, f1label, f2label;
+		let earthVisible = true;
+		let arrowHelper, arrowHelper1;
+		let mesh, meshCurve, meshOrbit;
+		let dataPoints = [];
+		let clock = new THREE.Clock();
+		let v = new THREE.Vector3();
+		let law = 1;
+		let sunCenter = new THREE.Vector3(-Math.sqrt(15 * 15 - 7.5 * 7.5), 0, 0)
+		let lightCenter = new THREE.Vector3(-Math.sqrt(15 * 15 - 7.5 * 7.5) + 10, -Math.sqrt(15 * 15 - 7.5 * 7.5) + 10, -Math.sqrt(15 * 15 - 7.5 * 7.5) + 10)
+		let t = 0, t1 = 0, area = false;
+		let triangle1, triangle2;
+		let group = new THREE.Group();
+
+
+		const animations = {
+
+			labels: function () {
+				labelDisplay = !labelDisplay;
+				labelsAction();
+			},
+			law1: function () {
+				area = false;
+				sweepAction();
+			},
+			law2: function () {
+				area = true;
+				animations.earth = false;
+				scene.remove(group);
+				group = new THREE.Group();
+				sweepAction();
+				guiControls();
+			},
+			earth: true,
+			moon: function () {
+				hideElements(Planet['satellite'])
+				showElements(Planet['moon'])
+				// console.log(moon)
+				mesh = moon;
+				meshCurve = moonCurve;
+				meshOrbit = moonOrbit;
+				earth.add(meshOrbit)
+				satelliteMovement()
+			},
+			satellite: function () {
+
+				hideElements(Planet['moon']);
+				showElements(Planet['satellite'])
+				mesh = satellite;
+				meshCurve = satelliteCurve;
+				meshOrbit = satelliteOrbit;
+				earth.add(meshOrbit)
+				satelliteMovement()
+			},
+		}
+
+		function createCamera() {
+
+			const fov = 60;
+			const aspect = width / height;
+			const near = 1;
+			const far = 1000;
+
+			camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+			camera.position.set(-20, -30, 30);
+
+		}
+
+		function firstLaw() {
+
+			pointLight = new THREE.PointLight(0xffffff, 4, 200);
+			pointLight.position.copy(sunCenter);
+			scene.add(pointLight);
+			//Test light radius
+			// const sphereSize = 6;
+			// const pointLightHelper = new THREE.PointLightHelper(pointLight, sphereSize);
+			// scene.add(pointLightHelper);
+
+			//add sun
+			let sunGeometry = new THREE.IcosahedronGeometry(5, 6);
+			let sunTexture = new THREE.TextureLoader().load('../../assets/gravity/sun.jpg');
+			let sunMaterial = new THREE.MeshBasicMaterial({ map: sunTexture })
+			sun = new THREE.Mesh(sunGeometry, sunMaterial);
+			sun.position.copy(sunCenter);
+			scene.add(sun);
+
+			// Add earth
+			let earthGeometry = new THREE.SphereGeometry(1, 12, 12);
+			let earthTexture = new THREE.TextureLoader().load('../../assets/gravity/earth.jpg');
+			let earthMaterial = new THREE.MeshPhongMaterial({ map: earthTexture });
+			earth = new THREE.Mesh(earthGeometry, earthMaterial);
+			earth.rotation.x = 1.57;
+			earth.rotation.y = 0.57;
+			earthOrbit = addEllipse(30, 15, 0, 100, "yellow").ellipse;
+			earthCurve = addEllipse(30, 15, 0, 100, "yellow").curve;
+			earthPoints = addEllipse(30, 15, 0, 100, "yellow").points;
+			scene.add(earth);
+			scene.add(earthOrbit);
+
+			Law1.push(pointLight, sun, earth);
+		}
+
+		function addMoon() {
+			// Add moon
+			let moonGeometry = new THREE.SphereGeometry(0.5, 12, 12);
+			let moonTexture = new THREE.TextureLoader().load('../../assets/gravity/moon.jpg');
+			let moonMaterial = new THREE.MeshPhongMaterial({ map: moonTexture });
+			moon = new THREE.Mesh(moonGeometry, moonMaterial);
+			scene.add(moon)
+			moonOrbit = addEllipse(3, 3, 0, 50, "red").ellipse;
+			moonCurve = addEllipse(3, 3, 0, 50, "red").curve;
+			// earth.add(moonOrbit)
+			moonOrbit.rotation.x = -1.57;
+			Planet['moon'] = [moon, moonOrbit, moonCurve];
+		}
+
+		function hideElements(name) {
+			console.log(name)
+			for (let i = 0; i < name.length; i++) {
+				name[i].visible = false;
+				// scene.remove(name[i])
+			}
+			render()
+		}
+
+		function showElements(name) {
+			for (let i = 0; i < name.length; i++) {
+				name[i].visible = true;
+			}
+			render()
+		}
+
+		function earthHelper() {
+			const dir = new THREE.Vector3(0, 1, 0);
+			const dir1 = new THREE.Vector3(-1, 4, 0);
+			//normalize the direction vector (convert to vector of length 1)
+			dir.normalize();
+			dir1.normalize();
+			const origin = new THREE.Vector3(0, 0, 0);
+
+			arrowHelper = new THREE.ArrowHelper(dir, origin, 5, 0xffff00);
+			arrowHelper1 = new THREE.ArrowHelper(dir1, origin, 5, 0xff0000);
+			earth.add(arrowHelper, arrowHelper1);
+		}
+
+		function createControls(x, y, z) {
+			controls = new OrbitControls(camera, renderer.domElement);
+			controls.enablePan = true;
+			controls.enableZoom = true;
+			controls.target.set(x, y, z);
+		}
+
+		function createRenderer() {
+			renderer = new THREE.WebGLRenderer({
+				antialias: true
+			});
+			renderer.alpha = true;
+			renderer.setSize(width, height);
+			renderer.setPixelRatio(window.devicePixelRatio);
+			document.body.appendChild(renderer.domElement);
+
+		}
+
+		function init() {
+			scene = new THREE.Scene();
+			createCamera();
+			createRenderer();
+			createControls(0, 0, 0);
+			firstLaw();
+			earthHelper();
+			secondLaw();
+			hideElements(Law2);
+			addMoon();
+			hideElements(Planet['moon']);
+			addSatellite();
+			hideElements(Planet['satellite']);
+			window.addEventListener('resize', onWindowResize);
+			// planetMovement();
+		}
+
+		window.onload = function () {
+			init();
+			animate();
+			guiControls();
+			// console.log(earthPoints)
+			planetMovement();
+		}
+
+		function guiControls() {
+			// dat.GUI
+
+			const gui = new GUI({ width: 250 });
+			gui.title("Visualise Kepler's");
+			// let animationsFolder = gui.addFolder("Kepler's Law");
+
+			gui.add(animations, 'law1').name("1st Law");
+			gui.add(animations, 'law2').name("2nd Law");
+			gui.add(animations, 'earth').onChange((value) => {
+
+				earth.visible = value;
+
+			})
+			gui.add(animations, 'moon').name("Show/Hide Moon")
+			gui.add(animations, 'satellite').name("Show/Hide Satellite")
+
+		}
+
+		function render() {
+			renderer.render(scene, camera);
+		}
+
+		function onWindowResize() {
+
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			render();
+
+		}
+
+		function planetMovement() {
+			t = (clock.getElapsedTime() * 0.05) % 1;
+
+
+			// console.log(t)
+			earth.position.copy(earthCurve.getPointAt(t, v));
+			earth.position.applyMatrix4(earthOrbit.matrixWorld);
+
+			earth.rotation.y += 0.05;
+			requestAnimationFrame(planetMovement);
+		}
+
+		function satelliteMovement() {
+
+			t1 < 1 ? t1 + 0.001 : 0;
+			mesh.position.copy(meshCurve.getPointAt(t1, v));
+			mesh.position.applyMatrix4(meshOrbit.matrixWorld);
+			requestAnimationFrame(satelliteMovement);
+			// console.log('moon movement')
+		}
+
+		function sweepAction() {
+			if (area) {
+
+				hideElements(Law1);
+				showElements(Law2);
+				hideElements(Planet['moon']);
+				hideElements(Planet['satellite'])
+				let N = Math.floor(Math.random() * 46);
+
+				// let A = N>90?100-N: N
+				let earthPoint1 = new THREE.Vector3(earthPoints[N].x, earthPoints[N].y, 0);
+				console.log('show area shown')
+				let earthPoint2 = new THREE.Vector3(earthPoints[N + 10].x, earthPoints[N + 10].y, 0);
+				let earthPoint3 = new THREE.Vector3(earthPoints[N + 45].x, earthPoints[N + 45].y, 0);
+				let earthPoint4 = new THREE.Vector3(earthPoints[N + 55].x, earthPoints[N + 55].y, 0);
+				let b = new THREE.Color("rgb(5%, 15%, 5%)");
+				b.setHex(Math.random() * 0xff3333)
+				triangle1 = initPlane({
+					points: [sunCenter, earthPoint1, earthPoint2, sunCenter],
+					planeMaterial: new THREE.MeshBasicMaterial({
+						color: b, transparent: true,
+						opacity: 0.7
+					})
+				});
+
+				group.add(triangle1);
+				// triangle1.add(tlabel)
+				triangle2 = initPlane({
+					points: [sunCenter, earthPoint3, earthPoint4, sunCenter],
+					planeMaterial: new THREE.MeshBasicMaterial({
+						color: b, transparent: true,
+						opacity: 0.7
+					})
+				});
+
+				group.add(triangle2);
+
+				scene.add(group)
+
+				// triangle1.add(tlabel)
+				// console.log(N,N+10,N+45,N+55,t,curve.getPointAt(0.15, v), curve.getPointAt(0.5, v))
+			} else {
+				// triangle1.geometry.dispose();
+				hideElements(Law2);
+				showElements(Law1)
+				scene.remove(group)
+				console.log('remove area shown')
+			}
+			render()
+		}
+
+		function initPlane(data) {
+			let planeGeometry = new THREE.BufferGeometry().setFromPoints(data.points);
+			let plane = new THREE.Mesh(planeGeometry, data.planeMaterial);
+
+			return plane;
+		}
+
+		function addEllipse(r1, r2, rot, N, col) {
+
+			const curve = new THREE.EllipseCurve(
+				0, 0,            // ax, aY
+				r1, r2,           // xRadius, yRadius
+				0, 2 * Math.PI,  // aStartAngle, aEndAngle
+				false,            // aClockwise
+				rot                // aRotation
+			);
+
+			const points = curve.getSpacedPoints(N);
+			const geometry = new THREE.BufferGeometry().setFromPoints(points);
+
+			const material = new THREE.LineBasicMaterial({ color: col });
+
+			// Create the final object to add to the scene
+			const ellipse = new THREE.Line(geometry, material);
+
+			return { curve, points, ellipse }
+
+		}
+
+		function animate() {
+			requestAnimationFrame(animate);
+			controls.update();
+			render();
+
+		}
+
+		function addLabel(name) {
+			let geometry = new THREE.PlaneGeometry(2.5, 1);
+			let texture = new THREE.TextureLoader().load(name);
+			let material = new THREE.MeshStandardMaterial({
+				map: texture,
+				transparent: true,
+				side: THREE.DoubleSide
+			});
+			let label = new THREE.Mesh(geometry, material);
+			return label
+		}
+
+		function secondLaw() {
+			sunlabel = addLabel('../../assets/gravity/sunText.png');
+			sun.add(sunlabel)
+			let point1Light = new THREE.AmbientLight(0xffffff, .6, 60);
+			scene.add(point1Light);
+			sunlabel.position.x = 10;
+			sunlabel.rotation.x = 1.57;
+			point1Light.position.z = -10;
+
+			Law2.push(sunlabel, point1Light)
+		}
+
+		function addSatellite() {
+			// Add satellite
+			let satelliteGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+			let satelliteTexture = new THREE.TextureLoader().load('../../assets/gravity/moon.jpg');
+			let satelliteMaterial = new THREE.MeshPhongMaterial({ map: satelliteTexture });
+			satellite = new THREE.Mesh(satelliteGeometry, satelliteMaterial);
+			scene.add(satellite)
+			satelliteOrbit = addEllipse(2, 2, 0, 30, "green").ellipse;
+			satelliteCurve = addEllipse(2, 2, 0, 30, "green").curve;
+			// earth.add(moonOrbit)
+			satelliteOrbit.rotation.x = -1.2;
+			Planet['satellite'] = [satellite, satelliteOrbit, satelliteCurve];
+		}
+
+	</script>
+</body>

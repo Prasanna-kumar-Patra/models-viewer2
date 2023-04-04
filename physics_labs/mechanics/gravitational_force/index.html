@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Gravitational Force - Inverse Square Law</title>
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<link rel="shortcut icon" href="../files/favicon_white.ico" media="(prefers-color-scheme: dark)" />
+	<link rel="shortcut icon" href="../files/favicon.ico" media="(prefers-color-scheme: light)" />
+	<link rel="stylesheet" type="text/css" href="../../css/style-page.css">
+	<style>
+		.label {
+			font-weight: bold;
+			font-size: 16px;
+
+		}
+	</style>
+	<!-- Google tag (gtag.js) -->
+	<!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-0JWHY29KD2"></script> -->
+	<script async src="../../jsm/gtag/gtag.js"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag() { dataLayer.push(arguments); }
+		gtag('js', new Date());
+
+		gtag('config', 'G-0JWHY29KD2');
+	</script>
+	<meta name="google-site-verification" content="mz0TRB59UNqdTxhwzmXmGdgVPh8pB4YqjuUr-aWNGIY">
+
+</head>
+
+<body>
+
+	<div id="topmenu">
+		<div>
+			Gravitational Force - Inverse Square Law
+		</div>
+
+	</div>
+	<div id="sidemenu">
+		<table style="background: wheat ">
+			<tr>
+				<td>
+					F = G
+					<div class="fraction">
+						<span class="fup">m<sub>1</sub>m<sub>2</sub></span>
+						<span class="bar">/</span>
+						<span class="fdn">r<sup>2</sup></span>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>where G = 6.6743 x 10<sup>-11</sup> Nm<sup>2</sup>/kg<sup>2</sup></td>
+			</tr>
+		</table>
+
+	</div>
+
+
+	<div id="menu">
+
+		<table style="background: wheat ">
+			<tr>
+				<td>Distance between
+				</td>
+			</tr>
+
+			<tr>
+				<td><select id="dist-el" name="dist-el">
+
+					</select> , =</td>
+				<td id="dist-value"></td>
+			</tr>
+			<tr>
+				<td>Mass of <a id="mass1"></a>, m<sub>1</sub> =
+				</td>
+				<td id="m1Value"></td>
+			</tr>
+			<tr>
+				<td>Mass of <a id="mass2"></a>, m<sub>2</sub> =
+				</td>
+				<td id="m2Value"></td>
+			</tr>
+			<tr>
+				<td>Gravitational Force, F =
+				</td>
+				<td id="fValue"></td>
+			</tr>
+		</table>
+		<button id="gravity" onClick="gravitySite()">Gravitational Law</button>
+
+	</div>
+	<script>
+		function gravitySite() {
+
+			window.open("mechanics_gravitation_law.html", "_self")
+		}
+	</script>
+
+	<script type="module">
+		import * as THREE from '../../build/three.module.js';
+		import { TransformControls } from '../../jsm/controls/TransformControls.js';
+		import { OrbitControls } from '../../jsm/controls/OrbitControls.js';
+		import { CSS2DRenderer, CSS2DObject } from '../../jsm/renderers/CSS2DRenderer.js';
+
+
+		let pointer, raycaster;
+		let camera, aspect, fov, gui;
+		let scene, renderer, labelRenderer, controls, transformControls, lineArrow;
+		let m1Mass, m2Mass, indicatorF1, indicatorF2;
+		// let m1Material, m2Material, earthMaterial, moonMaterial, sunMaterial, marsMaterial;
+		let disp = 0.0, t = 0.001;
+		let curveHandles = [];
+		let objects = new THREE.Group();
+		let SELECTED;
+		let curves = new THREE.Group();
+		let CURVES = new THREE.Group();
+		let LABELS = new THREE.Group();
+		let LINES = new THREE.Group();
+		let arrows = new THREE.Group();
+
+		//button and html elements
+		let selectMass1 = document.getElementById("mass1");
+		let inputM1value = document.getElementById("m1Value");
+		let selectMass2 = document.getElementById("mass2");
+		let inputM2value = document.getElementById("m2Value");
+		let inputRvalue = document.getElementById("rValue");
+		let fvalueEl = document.getElementById("fValue");
+		let message1El = document.getElementById("message-1");
+		let message2El = document.getElementById("message-2");
+		const buttonReset = document.getElementById('reset-el');
+
+		let selectDist = document.getElementById("dist-el");
+		let selectMass = document.getElementById("mass-el");
+		let distValue = document.getElementById("dist-value");
+
+
+		let mass = { "Earth": "5.972e24", "Sun": "1.989e30", "Moon": "7.348e22", "Mars": "6.416e23", "Venus": "4.867e24", "Jupiter": "1.898e27" } // in kg
+		let material = {}
+		let dists = { "Earth-Moon": "3.844e5", "Sun-Earth": "1.4822e8", "Sun-Jupiter": "7.4074e8", "Sun-Venus": "1.0803e8", "Sun-Mars": "2.4477e8", "Earth-Venus": "2.0484e8", "Earth-Mars": "1.7301e8", "Jupiter-Earth": "8.633e8", "Venus-Mars": "1.1974e8", "Jupiter-Venus": "6.7013e8" }; //in km
+		let sunTexture = new THREE.TextureLoader().load('../../assets/gravity/sun.jpg');
+		let sunMaterial = new THREE.MeshBasicMaterial({ map: sunTexture }); //color:"brown"
+		let earthTexture = new THREE.TextureLoader().load('../../assets/gravity/earth.jpg');
+		let earthMaterial = new THREE.MeshBasicMaterial({ map: earthTexture }); //color:"orange" , 
+		let moonTexture = new THREE.TextureLoader().load('../../assets/gravity/moon.jpg');
+		let moonMaterial = new THREE.MeshPhongMaterial({ color: "white" });// map: moonTexture 
+		let marsTexture = new THREE.TextureLoader().load('../../assets/gravity/waterNormal.jpg');
+		let marsMaterial = new THREE.MeshPhongMaterial({ color: 'red' });
+		let venusMaterial = new THREE.MeshPhongMaterial({ color: 'blue' });
+		let jupiterMaterial = new THREE.MeshPhongMaterial({ color: 'green' });
+		material["Sun"] = sunMaterial;
+		material["Earth"] = earthMaterial;
+		material["Moon"] = moonMaterial;
+		material["Mars"] = marsMaterial;
+		material["Venus"] = venusMaterial;
+		material["Jupiter"] = jupiterMaterial;
+		// material["Mars"] = marsMaterial;
+		let params = {
+			dist: dists['Earth-Moon'], // km
+			m1: 'Earth',
+			m1Mass: mass['Earth'], // in kg
+			m1Material: material['Earth'],
+			m2: 'Moon',
+			m2Mass: mass['Moon'], // in 1e3g
+			m2Material: material['Moon'],
+			force: 0
+		}
+		const G = 6.6743e-11 //Gravitational constant in m^3kg^-1s^-2  Nm^2/kg^2
+		for (const key in dists) {
+			// for (let i = 0; i < elmts.length; i++) {
+			let optn = key;
+			let el = document.createElement("option");
+			el.textContent = optn;
+			el.value = optn;
+			let distValue = document.getElementById("dist-value");
+			selectDist.appendChild(el);
+		}
+
+		distValue.innerHTML = (params.dist).slice(0, 5) + ' x 10' + '<sup>' + (params.dist).slice(-1) + '</sup> km';
+		selectMass1.innerHTML = params.m1
+		inputM1value.innerHTML = params.m1Mass.slice(0, 5) + ' x 10' + '<sup>' + (params.m1Mass).slice(-2) + '</sup> kg'
+		selectMass2.innerHTML = params.m2
+		inputM2value.innerHTML = params.m2Mass.slice(0, 5) + ' x 10' + '<sup>' + (params.m2Mass).slice(-2) + '</sup> kg'
+
+
+
+		init()
+		animate()
+
+		console.log(material)
+		function init() {
+
+			scene = new THREE.Scene();
+			createCamera(2, 10, 55);
+			createRenderer();
+			createControls(0, 1, 0);
+			createLights();
+			scene.add(objects)
+			scene.add(LABELS);
+			scene.add(LINES);
+
+			earthMoon()
+
+			buttonLoad();
+
+			document.body.appendChild(renderer.domElement);
+			window.addEventListener('resize', onWindowResize);
+		}
+
+		function earthMoon() {
+			camera.position.set(-30, 10, 55);
+			while (objects.children.length > 0) {
+				const A = objects.children[0];
+				A.geometry.dispose()
+				A.material.dispose()
+				A.parent.remove(A);
+			}
+			let r = 0.5
+
+			let m1Geometry = new THREE.SphereGeometry(2 ** 3 * r, 16);
+			let m2Geometry = new THREE.SphereGeometry(r, 16);
+			m1Mass = new THREE.Mesh(m1Geometry, material["Earth"]);
+			m2Mass = new THREE.Mesh(m2Geometry, material["Moon"]);
+
+			m1Mass.position.x = 0
+			let W = params.dist.slice(0, 5) * 10;
+			m2Mass.position.x = W;
+			objects.add(m1Mass, m2Mass)
+			scene.add(objects)
+			while (LABELS.children.length > 0) {
+				const A = LABELS.children[0];
+				A.parent.remove(A);
+			}
+			LABELS.add(addLabel(m1Mass.position, '-25px', params.m1, 'white'))
+
+			LABELS.add(addLabel(m2Mass.position, '-25px', params.m2, 'white'))
+			while (LINES.children.length > 0) {
+				const A = LINES.children[0];
+				A.parent.remove(A);
+			}
+
+			LINES.add(initLine({
+				points: [m1Mass.position, m2Mass.position],
+				lineMaterial: new THREE.LineBasicMaterial({ color: "rgb(100%, 0%, 0%)" })
+			}));
+			LABELS.add(addLabel(new THREE.Vector3(W / 2, 0, 0), '25px', params.dist.slice(0, 4) + ' x 10<sup>5</sup> km', 'green'))
+			let force = gravitationLaw();
+			params.force = (force * 1e-20).toFixed(3);
+			console.log(params.force)
+			LABELS.add(addLabel(new THREE.Vector3(W / 2, 0, 0), '-45px', 'F = ' + params.force + ' x 10<sup>20</sup> N', 'red'))
+
+			fvalueEl.innerHTML = params.force + ' x 10<sup>20</sup> N'
+		}
+
+		function recreateScene(name1, name2, m1, m2, mat1, mat2, pow) {
+			camera.position.set(-120, 0, 100);
+			while (objects.children.length > 0) {
+				const A = objects.children[0];
+				A.geometry.dispose()
+				A.material.dispose()
+				A.parent.remove(A);
+			}
+
+			let x = Math.abs(params.m2Mass.slice(-2) - params.m1Mass.slice(-2)) * 2;
+			let r1, r2;
+			if (x == 0) {
+				r1 = 5
+				r2 = 5
+			} else {
+				r1 = 2 * x
+				r2 = 2
+			}
+
+			let m1Geometry = new THREE.SphereGeometry(r1, 16);
+			let m2Geometry = new THREE.SphereGeometry(r2, 16);
+			m1Mass = new THREE.Mesh(m1Geometry, mat1);
+			m2Mass = new THREE.Mesh(m2Geometry, mat2);
+
+			let W = (params.dist.slice(0, 5) * 150);
+			m1Mass.position.x = 0;
+			m2Mass.position.x = W;
+			objects.add(m1Mass, m2Mass)
+			scene.add(objects)
+			// console.log(objects)
+			while (LABELS.children.length > 0) {
+				const A = LABELS.children[0];
+				A.parent.remove(A);
+			}
+			LABELS.add(addLabel(m1Mass.position, '-25px', name1, 'white'))
+
+			LABELS.add(addLabel(m2Mass.position, '-25px', name2, 'white'))
+			LABELS.add(addLabel(new THREE.Vector3(W / 2, 0, 0), '25px', 'r =' + params.dist.slice(0, 4) + ' x 10<sup>8</sup> km', 'green'))
+			LABELS.add(addLabel(new THREE.Vector3(W / 2, 0, 0), '-45px', 'F =' + params.force.toFixed(2) + ' x 10<sup>' + pow + '</sup> N', 'red'))
+
+			while (LINES.children.length > 0) {
+				const A = LINES.children[0];
+				A.parent.remove(A);
+			}
+			LINES.add(initLine({
+				points: [m1Mass.position, m2Mass.position],
+				lineMaterial: new THREE.LineBasicMaterial({ color: "rgb(100%, 0%, 0%)" })
+			}));
+		}
+
+		function guiControls() {
+			gui = new GUI();
+			gui.close()
+			// camera control adjust
+			// console.log(camera.position)
+			let controlFolder = gui.addFolder("Control");
+			controlFolder.add(controls.target, 'x', -100, 100);
+			controlFolder.add(controls.target, 'y', -100, 100);
+			controlFolder.add(controls.target, 'z', -100, 100);
+			// let cameraFolder = gui.addFolder("Camera");
+			gui.add(camera.position, 'x', -100, 100);
+			gui.add(camera.position, 'y', -100, 100);
+			gui.add(camera.position, 'z', -100, 100);
+
+			// change current flow path
+
+		}
+
+		function createCamera(x, y, z) {
+
+			fov = 50;
+			const aspect = window.innerWidth / window.innerHeight;
+			const near = 0.1;
+			const far = 1500;
+
+			camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+
+			camera.position.set(x, y, z);
+		}
+
+		function createControls(x, y, z) {
+			controls = new OrbitControls(camera, renderer.domElement);
+			controls.enablePan = true;
+			controls.enableZoom = true;
+			controls.target.set(x, y, z);
+			controls.enableDamping = true;
+			controls.dampingFactor = 0.05;
+			controls.rotateSpeed = 0.1;
+			controls.update();
+			controls.addEventListener('change', render);
+		}
+
+		function createRenderer() {
+			// create the renderer
+			renderer = new THREE.WebGLRenderer({ antialias: true });
+			renderer.alpha = true;
+			renderer.setPixelRatio(window.devicePixelRatio);
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			renderer.outputEncoding = THREE.sRGBEncoding;
+			document.body.appendChild(renderer.domElement);
+
+			labelRenderer = new CSS2DRenderer();
+			labelRenderer.setSize(window.innerWidth, window.innerHeight);
+			labelRenderer.domElement.style.position = 'absolute';
+			// labelRenderer.domElement.style.top = '-25px';
+			labelRenderer.domElement.style.left = '-25px';
+			labelRenderer.domElement.style.pointerEvents = 'none';
+			document.body.appendChild(labelRenderer.domElement);
+
+		}
+
+		function createLights() {
+			let hemiLight = new THREE.AmbientLight(0xffffff, .5);
+			hemiLight.position.set(0, 200, 0);
+			scene.add(hemiLight);
+
+			let dirLight = new THREE.DirectionalLight(0xffffff, 1);
+			dirLight.position.set(-30, 50, -30);
+			dirLight.castShadow = true;
+			dirLight.shadow.camera.top = 70;
+			dirLight.shadow.camera.bottom = -70;
+			dirLight.shadow.camera.left = -70
+			dirLight.shadow.camera.right = 70;
+			dirLight.shadow.mapSize.width = 2048;
+			dirLight.shadow.mapSize.height = 2048;
+			scene.add(dirLight);
+
+			scene.add(new THREE.AmbientLight(0xffffff, .2));
+		}
+
+		function onWindowResize() {
+
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			labelRenderer.setSize(window.innerWidth, window.innerHeight);
+			render();
+
+		}
+
+		function render() {
+
+			renderer.render(scene, camera);
+			labelRenderer.render(scene, camera);
+		}
+
+		function animate() {
+			requestAnimationFrame(animate);
+
+			controls.update();
+
+			render();
+		};
+
+		function buttonLoad() {
+
+			// selectMass1.addEventListener('input', function (e) {
+			// 	console.log(selectMass1.value)
+			// 	for (const key in mass) {
+			// 		const m = mass[key]
+
+			// 		if (key == selectMass1.value) {
+
+			// 			params.m1Mass = m
+			// 			params.m1Material = material[key]
+			// 			params.m1 = key
+			// 			console.log(key, m, params.m1Material)
+			// 			recreateScene(params.m1,params.m2, params.m1Mass, params.m2Mass, params.m1Material, params.m2Material)
+			// 		}
+			// 	}
+
+			// })
+
+			selectDist.addEventListener('input', function (e) {
+
+				params.dist = dists[selectDist.value]
+				let X = selectDist.value.length
+				for (let i = 0; i < X; i++) {
+					let A = selectDist.value[i]
+					// console.log(A, i)
+					if (A == '-') {
+						console.log(A, i, X)
+						params.m1 = (selectDist.value).slice(0, i)
+						params.m2 = (selectDist.value).slice(-(X - i - 1))
+					}
+
+				}
+				params.m1Mass = mass[params.m1]
+				params.m2Mass = mass[params.m2]
+				params.m1Material = material[params.m1]
+				params.m2Material = material[params.m2]
+				console.log(params);
+				distValue.innerHTML = (params.dist).slice(0, 5) + ' x 10' + '<sup>' + (params.dist).slice(-1) + '</sup> km';
+				selectMass1.innerHTML = params.m1
+				inputM1value.innerHTML = params.m1Mass.slice(0, 5) + ' x 10' + '<sup>' + (params.m1Mass).slice(-2) + '</sup> kg'
+				selectMass2.innerHTML = params.m2
+				inputM2value.innerHTML = params.m2Mass.slice(0, 5) + ' x 10' + '<sup>' + (params.m2Mass).slice(-2) + '</sup> kg'
+				let force = gravitationLaw();
+				let result = countDigits(force);
+				let t = result - 1;
+				console.log(force, result, force * 10 ** (-t));
+				params.force = Number((force * 10 ** (-t)).toFixed(3));
+				fvalueEl.innerHTML = params.force + ' x 10<sup>' + t + '</sup> N'
+
+				if (params.m2 == "Moon") {
+
+
+					earthMoon()
+				} else {
+					// let force = gravitationLaw();
+					// params.force = Number((force * 1e-22).toFixed(7));
+
+
+					// fvalueEl.innerHTML = params.force + ' x 10<sup>22</sup> N'
+					recreateScene(params.m1, params.m2, params.m1Mass, params.m2Mass, params.m1Material, params.m2Material, t)
+				}
+
+
+
+
+			})
+
+		}
+
+		function countDigits(num) {
+			var count = 0;
+			while (num > 0) {
+				num = Math.floor(num / 10);
+				count++;
+			}
+			return count;
+		}
+
+		function gravitationLaw() {
+			let force = (G * params.m1Mass * params.m2Mass) / (params.dist * params.dist * 1e6)
+			let f = force
+			return force
+		}
+
+		function addLabel(vector, value, name, col) {
+			let text = document.createElement('div');
+			text.className = 'label';
+			text.style.color = col;
+			// text.style.font.size = 16px;
+			text.innerHTML = name;
+			text.style.top = value;
+			let label = new CSS2DObject(text);
+			label.position.copy(vector);
+			LABELS.add(label);
+			return label
+		}
+
+		function initLine(data) {
+			let lineGeometry = new THREE.BufferGeometry().setFromPoints(data.points);
+			let line = new THREE.Line(lineGeometry, data.lineMaterial);
+			return line;
+		}
+
+	</script>
+
+</body>
+
+</html>

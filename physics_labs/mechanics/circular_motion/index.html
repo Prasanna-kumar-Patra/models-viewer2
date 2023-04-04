@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>CIRCULAR MOTION - A 3D interactive Simulation</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel="shortcut icon" href="../files/favicon_white.ico" media="(prefers-color-scheme: dark)" />
+    <link rel="shortcut icon" href="../files/favicon.ico" media="(prefers-color-scheme: light)" />
+    <link rel="stylesheet" type="text/css" href="../../css/style-page.css">
+    <!-- Google tag (gtag.js) -->
+	<!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-0JWHY29KD2"></script> -->
+    <script async src="../../jsm/gtag/gtag.js"></script>
+	<script>
+ 		window.dataLayer = window.dataLayer || [];
+  		function gtag(){dataLayer.push(arguments);}
+  		gtag('js', new Date());
+
+  		gtag('config', 'G-0JWHY29KD2');
+	</script>
+    <meta name="google-site-verification" content="mz0TRB59UNqdTxhwzmXmGdgVPh8pB4YqjuUr-aWNGIY">
+
+</head>
+
+<body>
+
+    <div id="container">
+        <div id="topmenu">
+            <div >UNIFORM CIRCULAR MOTION - A 3D interactive Simulation</div>
+        </div>
+    </div>
+
+
+    <div id="menu">
+        <a style="font-weight: bold;" id="message-el">Visualize free-body diagram for an object in uniform circular
+            Motion</a><br>
+        <button id="move-el">PAUSE</button>
+        <button id="theorybutton" onClick="theorySite()">THEORY</button>
+        <br>
+    </div>
+    <script>
+        function theorySite() {
+
+            window.open("../../theory/mechanics/mechanics_circular_motion.html", "_self")
+        }
+    </script>
+    <script type="module">
+        import * as THREE from '../../build/three.module.js';
+        import { GLTFLoader } from '../../jsm/loaders/GLTFLoader.js';
+        import { OrbitControls } from '../../jsm/controls/OrbitControls.js';
+        import { CSS2DRenderer, CSS2DObject } from '../../jsm/renderers/CSS2DRenderer.js';
+        import { GUI } from '../../jsm/libs/lil-gui.module.min.js';
+
+        let scene, camera, gui, controls, stats, clock, delta, renderer, labelRenderer;
+        let model, mixer, car, scaleHorizontal, Wempty;
+        let move = true;
+        let modelReady = false;
+        let actions;
+        let INTERSECTED;
+        let meshObjects = [];
+        let raycaster;
+        let mouse = new THREE.Vector2();
+        let WAction, circularAction;
+        let group = new THREE.Group();
+        let axis = new THREE.Vector3(0.6, 0, 0);
+        let labelgroup = new THREE.Group();
+        let Wlabel, Nlabel, velocity, weight, force, normal, Flabel, Vlabel;
+        const animations = {
+            Force: false,
+            Weight: false,
+            Normal: false,
+            Pause: function () {
+                pauseContinue();
+                console.log('pause');
+            },
+
+            slow: 1
+
+
+        }
+
+        let messageEl = document.getElementById('message-el');
+        let moveEl = document.getElementById('move-el');
+
+        init();
+        animate();
+
+        //camera set up and model loading
+        function init() {
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xbfd1e5);
+
+            clock = new THREE.Clock();
+
+            createCamera(45, -50, 10, 30, new THREE.Vector3(0, -2, 0));
+            createLights();
+            createRenderer();
+            createControls(5, 15, -4.5);
+
+            const loader = new GLTFLoader();
+            loader
+                .setPath('../../model/')
+                .load('circular_motion.glb', function (gltf) {
+                    model = gltf.scene;
+                    car = model.getObjectByName('car');
+                    Wempty = model.getObjectByName('Wempty');
+                    // model.scale.set(6, 6, 6);
+                    scene.add(model);
+                    modelReady = true;
+                    mixer = new THREE.AnimationMixer(model);
+                   
+                    const animations = gltf.animations;
+
+                    mixer = new THREE.AnimationMixer(model);
+
+                    circularAction = mixer.clipAction(animations[0]);
+                    WAction = mixer.clipAction(animations[1]);
+                    actions = [circularAction, WAction];
+
+                    actions[0].play();
+                    actions[1].play();
+                    gltf.scene.traverse((child) => {
+                        if (child.type == 'SkinnedMesh') {
+                            child.frustumCulled = false;
+                        }
+                    })
+                    console.log(model.children[0].children);
+                    for (let i = 0; i < model.children[0].children.length; i++) {
+                         
+                        if (model.children[0].children[i].type != 'Object3D') {
+                            meshObjects.push(model.children[0].children[i]);
+                        }
+                    }
+                    scene.add(model);
+                });
+            //Add vectors
+            weight = addVectors(new THREE.Vector3(0, -1, 0), 'mg', 0x00FF00).vector;
+            Wlabel = addVectors(new THREE.Vector3(0, -1, 0), 'mg', 0x00FF00).label;
+            force = addVectors(new THREE.Vector3(1, 0, 0), 'a (centripetal force)', 0xFF0000).vector;
+            Flabel = addVectors(new THREE.Vector3(1, 0, 0), 'a (centripetal force)', 0xFF0000).label;
+            velocity = addVectors(new THREE.Vector3(0, 0, -1), 'v (velocity)', 0x0000FF).vector;
+            Vlabel = addVectors(new THREE.Vector3(0, 0, -1), 'v (velocity)', 0x0000FF).label;
+            normal = addVectors(new THREE.Vector3(1, 0, 0), 'Normal', 0xFFFFFF).vector;
+            Nlabel = addVectors(new THREE.Vector3(1, 0, 0), 'N (Normal)', 0xFFFFFF).label;
+
+            
+            guiControls();
+            scaleHorizontal = new THREE.GridHelper(60, 60);
+            scene.add(scaleHorizontal);
+            raycaster = new THREE.Raycaster()
+            document.body.appendChild(renderer.domElement);
+            document.addEventListener('click', clickAction);
+            window.addEventListener('resize', onWindowResize);
+            moveEl.addEventListener('click', function () {
+
+                console.log('Paused')
+                pauseContinue();
+            });
+
+        }
+
+        function clickAction(event) {
+            // event.preventDefault();
+
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+
+
+        }
+
+        function createCamera(view, x, y, z, vector) {
+
+            let fov = view;
+            const aspect = window.innerWidth / window.innerHeight;
+            const near = 0.1;
+            const far = 1500;
+
+            camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+
+            camera.position.set(x, y, z);
+            camera.lookAt(vector)
+            // camera.position.set(-10, 3, 40);
+        }
+
+        function createLights() {
+            const ambientLight = new THREE.HemisphereLight(0xddeeff, 0x202020, 0.5);
+            const mainLight = new THREE.DirectionalLight(0xffffff,0.8);
+            scene.add(ambientLight);
+
+            mainLight.position.set(10, 10, 10);
+            scene.add(new THREE.AmbientLight(0xffffff));
+            scene.add(ambientLight, mainLight);
+        }
+
+        function createRenderer() {
+            // create the renderer
+            renderer = new THREE.WebGLRenderer({
+                antialias: true
+            });
+            renderer.alpha = true;
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            document.body.appendChild(renderer.domElement);
+
+            labelRenderer = new CSS2DRenderer();
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.domElement.style.position = 'absolute';
+            labelRenderer.domElement.style.top = '0px';
+            labelRenderer.domElement.style.pointerEvents = 'none';
+            container.appendChild(labelRenderer.domElement);
+
+        }
+
+        function createControls(x, y, z) {
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enablePan = true;
+            controls.enableZoom = true;
+            controls.target.set(x, y, z);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.rotateSpeed = 0.1;
+            controls.minDistance = .1;
+            controls.maxDistance = 5000;
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animate() {
+
+            requestAnimationFrame(animate);
+            delta = clock.getDelta();
+
+            // mixer.update(delta);
+            if (modelReady) mixer.update(delta);
+            controls.update();
+            render();
+        }
+
+        function render() {
+            // camera.updateMatrixWorld();
+            raycaster.setFromCamera(mouse, camera);
+
+            let intersects = raycaster.intersectObjects(meshObjects);
+
+            if (intersects.length > 0) {
+                
+                INTERSECTED = intersects[0].object;
+                let a = INTERSECTED.name;
+                // console.log(INTERSECTED, a) 
+                if (a === 'car') {
+                    
+                    messageEl.innerHTML = 'Select vector representation in free-body diagram controls';
+                }else {
+                    messageEl.innerHTML = 'Visualize free-body diagram for an object in uniform circular Motion';
+                }
+
+            }
+            renderer.render(scene, camera);
+            labelRenderer.render(scene, camera);
+        }
+
+        function guiControls() {
+            let gui = new GUI({ width: 250 });
+            gui.close();
+            gui.title('Free Body Diagram');
+            gui.add(animations, 'Force').name('Force Vector').onChange(() => {
+                //    addArrows();
+                car.add(force, Flabel);
+                car.add(velocity, Vlabel);
+                showHide(animations.Force, force, Flabel);
+                showHide(animations.Force, velocity, Vlabel)
+            });
+
+            gui.add(animations, 'Weight').onChange(() => {
+                // addWeight();
+                Wempty.add(weight, Wlabel);
+                showHide(animations.Weight, weight, Wlabel)
+            });
+
+            gui.add(animations, 'Normal').name('Normal Vector').onChange(() => {
+                // addWeight();
+                car.add(normal, Nlabel);
+                normal.setLength(.8)
+                showHide(animations.Normal, normal, Nlabel);
+                normalMagnitude()
+
+            });
+            gui.add(animations, 'slow', 0.0, 1.5, 0.005).onChange(slowMotion).name('Modify time');
+            gui.add(animations, 'Pause').name('Pause/Continue');
+
+
+        }
+
+        function pauseContinue() {
+            if (move) {
+                actions[0].paused = true;
+                actions[1].paused = true;
+                moveEl.innerHTML = 'CONTINUE';
+                move = false;
+            } else {
+                actions[0].paused = false;
+                actions[1].paused = false;
+                moveEl.innerHTML = 'PAUSE';
+                move = true;
+            }
+
+        }
+
+        function slowMotion(speed) {
+
+            mixer.timeScale = speed;
+
+        }
+
+        function addVectors(dir, name, color) {
+            let vector = new THREE.ArrowHelper(dir, new THREE.Vector3(0, 0, 0), 1, color);
+
+            let text = document.createElement('div');
+            text.className = 'label';
+            text.textContent = name;
+
+            let label = new CSS2DObject(text);
+            label.position.copy(dir);
+            labelgroup.add(label);
+            group.add(vector);
+            return { vector, label }
+        }
+
+
+        function showHide(value, vector, label) {
+            if (value) {
+                let Vector = vector;
+                let Label = label;
+                label.visible = true;
+                vector.visible = true;
+                console.log(vector)
+                messageEl.innerHTML =  'Vector represented for the car';
+            } else {
+                let Vector = vector;
+                let Label = label;
+                label.visible = false;
+                vector.visible = false;
+                messageEl.innerHTML = 'Vector representation hidden';
+            }
+        }
+
+        function normalMagnitude() {
+            // console.log(car.position.y)
+            let A = Math.abs((car.position.x) / 1.4);
+            let B = Math.abs(car.position.y);
+            if (A <= .9 && B > 1.2) {
+                normal.setLength(Math.sin(A))
+                Nlabel.position.copy(axis);
+
+            } else {
+                
+                normal.setLength(.8)
+            }
+            requestAnimationFrame(normalMagnitude);
+        }
+
+    </script>
+</body>
+
+</html>

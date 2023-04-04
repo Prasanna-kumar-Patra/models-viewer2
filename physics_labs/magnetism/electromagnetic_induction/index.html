@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Electromagnetic Induction</title>
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<link rel="shortcut icon" href="../files/favicon_white.ico" media="(prefers-color-scheme: dark)" />
+	<link rel="shortcut icon" href="../files/favicon.ico" media="(prefers-color-scheme: light)" />
+	<link rel="stylesheet" type="text/css" href="../../css/style-page.css">
+	<!-- Google tag (gtag.js) -->
+	<!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-0JWHY29KD2"></script> -->
+	<script async src="../../jsm/gtag/gtag.js"></script>
+	<script>
+ 		 window.dataLayer = window.dataLayer || [];
+  		function gtag(){dataLayer.push(arguments);}
+  		gtag('js', new Date());
+
+  		gtag('config', 'G-0JWHY29KD2');
+	</script>
+	<meta name="google-site-verification" content="mz0TRB59UNqdTxhwzmXmGdgVPh8pB4YqjuUr-aWNGIY">
+
+</head>
+
+<body>
+	<div id="topmenu">ELECTROMAGNETIC INDUCTION</div>
+	<div id="sidemenu">
+
+		<div style="visibility: hidden;  width: 270px;" id="ruleviewer">
+
+			<a style="color: rgb(2, 59, 66); font-weight: bolder;" id="message-el"> </a>
+			<div style="visibility: hidden; font-weight: bold; " id="fRule">
+				<p>Thu<a style="color: red; ">m</a>b :- <a style="color: red; font-weight: bolder;">M</a>echanical
+					Force;<br>
+					<a style="color: blue; font-weight: bolder;">F</a>ore Finger:- Magnetic <a
+						style="color: blue; font-weight: bolder;">F</a>ield;<br>
+					Se<a style="color:orange; font-weight: bolder;">c</a>ond Finger:- Induced <a
+						style="color: orange; font-weight: bolder;">C</a>urrent;
+				</p>
+			</div>
+		</div>
+	</div>
+
+
+	<div id="menu">
+		<p>
+			<button style="background-color: rgb(3, 67, 97) ;" id="magnet-el">SOLENOID + MAGNET </button>
+			<button id="solenoid-el">SOLENOID + SOLENOID </button>
+			<button id="coil-el">ARMATURE COIL </button>
+			<br>
+			<a style="font-weight: bolder;" id="element-el"> Effect of change in magnetic field (flux) in a solenoid
+				coil - Using a bar magnet</a>
+			<br>
+			<a> &nbsp; </a>
+			<button id="action-el">MOVE </button>
+			<button id="flip-el">FLIP</button>
+			<button id="stop-el">STOP</button>
+			<button id="relative-el">RELATIVE</button>
+			<button id="rule-el">FARADAY’S LAW OF INDUCTION </button>
+		</p>
+	</div>
+	<script type="module">
+		import * as THREE from '../../build/three.module.js';
+		import { GLTFLoader } from '../../jsm/loaders/GLTFLoader.js';
+		import { OrbitControls } from '../../jsm/controls/OrbitControls.js';
+		import { TWEEN } from '../../jsm/libs/tween.module.min.js';
+
+		let renderer, scene, controls;
+		let camera, clock;
+		let scene1 = [];
+		let scene2 = [];
+		let generator = [];
+		let solenoidModel, barMagnet, galvNeedle, inducedSolenoid, galvanometer, mixer;
+		let powerSupply, knob, powerKnob, connector, arrow, solenoid, rightHand;
+		let coilModel, coilStand, coil, commutator, rings, insulator, magnetwire, currentwire;
+		let electromagnet, mixer1, arrow1, arrow2, direction1, direction2
+		let line;
+		let presentPoint = new THREE.Vector3(0, 0, 0);
+		let nextPoint = new THREE.Vector3(0, 0, -1.3);
+		let actions = {};
+		let requestID,
+			requestCurrent;
+
+		let fieldLines = new THREE.Group();
+		let lineGroup = new THREE.Group();
+		let pointGroup = new THREE.Group();
+
+		let moveL = false,
+			stop = false,
+			// hold = false,
+			relative = false,
+			mRotate = false,
+			element = 0,
+			magZ = -5,
+			i = 0,
+			fov,
+			galvRot = 0,
+			galvL = 0.6,
+			galvR = -0.6,
+			changeFlux = false,
+			ruleClue = false,
+			flip = false;
+
+		const speed = 0.003, magdz = 0.02, needleY = speed / magdz;
+		let a = 0, requestInduced, requestInducedSlow;
+		const modelPath = '../../model/';
+		const elements = {
+
+			'1': 'inducedcurrent.glb',
+			'2': 'righthandrule.glb',
+			'3': 'ForceonCoil.glb'
+		};
+
+		let message = "";
+		let messageEl = document.getElementById("message-el");
+		let elementEl = document.getElementById("element-el");
+		let ruleviewer = document.getElementById("ruleviewer");
+		// let closeRule = document.getElementById("closerule");
+		let flemingRule = document.getElementById("fRule");
+		const buttonMagnetEl = document.getElementById('magnet-el');
+		const buttonSolenoidEl = document.getElementById('solenoid-el');
+		const buttonCoilEl = document.getElementById('coil-el');
+
+		// const buttonInduce = document.getElementById('induce-el');
+		const buttonAction = document.getElementById('action-el');
+		const buttonStop = document.getElementById('stop-el');
+		const buttonFlip = document.getElementById('flip-el');
+		const buttonRelative = document.getElementById('relative-el');
+		const buttonRule = document.getElementById('rule-el');
+
+		function init() {
+			//scene
+			scene = new THREE.Scene();
+			scene.background = new THREE.Color(0xbfd1e5);
+
+			//camera
+			createCamera(50, 5, 5, 5);
+			clock = new THREE.Clock();
+
+			//renderer
+			createRenderer();
+
+			//cameracontrols
+			createControls(-1.2, 0, -2);
+
+			//create light 
+			createLights();
+
+			const gridHelper = new THREE.GridHelper(10, 10);
+			scene.add(gridHelper);
+			document.body.appendChild(renderer.domElement);
+
+			window.addEventListener("resize", onWindowResize);
+			
+			buttonLoad();
+		}
+
+		window.onload = function () {
+			init();
+			createModel();
+			addLines();
+			solenoidLines();
+			// valueCal();
+		}
+
+		function createCamera(view, x, y, z) {
+
+			fov = view;
+			const aspect = window.innerWidth / window.innerHeight;
+			const near = 0.1;
+			const far = 1500;
+
+			camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+
+			camera.position.set(x, y, z);
+		}
+
+		function createControls(x, y, z) {
+			controls = new OrbitControls(camera, renderer.domElement);
+			controls.enablePan = true;
+			controls.enableZoom = true;
+			controls.target.set(x, y, z);
+			controls.enableDamping = true;
+			controls.dampingFactor = 0.05;
+			controls.rotateSpeed = 0.1;
+			controls.update();
+			controls.addEventListener('change', render);
+
+		}
+
+		function createRenderer() {
+			// create the renderer
+			renderer = new THREE.WebGLRenderer({ antialias: true });
+			renderer.alpha = true;
+			renderer.setPixelRatio(window.devicePixelRatio);
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			renderer.outputEncoding = THREE.sRGBEncoding;
+			document.body.appendChild(renderer.domElement);
+		}
+
+		function createLights() {
+			let hemiLight = new THREE.AmbientLight(0xffffff, .3);
+			hemiLight.position.set(0, 20, 0);
+			scene.add(hemiLight);
+
+			let dirLight = new THREE.DirectionalLight(0xffffff, 1);
+			dirLight.position.set(-30, 50, -30);
+			dirLight.castShadow = true;
+			dirLight.shadow.camera.top = 70;
+			dirLight.shadow.camera.bottom = -70;
+			dirLight.shadow.camera.left = -70
+			dirLight.shadow.camera.right = 70;
+			dirLight.shadow.mapSize.width = 2048;
+			dirLight.shadow.mapSize.height = 2048;
+			scene.add(dirLight);
+
+			scene.add(new THREE.AmbientLight(0xffffff, .4));
+		}
+
+		//Rotate the armature coil clockwise on action button click
+		function inducedCurrent() {
+
+			if (!flip) {
+				a += -.1;
+
+				visualClues();
+				commutator.rotation.x += -.1;
+				let X = Math.sin(a);
+				// let Y = Math.abs(X);
+				galvNeedle.rotation.y = X;
+				arrow1.scale.z = X ;
+				arrow2.scale.x = X ;
+				currentwire.morphTargetInfluences[0] = X > 0 ? 1 : 0;
+				presentPoint = new THREE.Vector3(0.5 * X, 0, a * 0.1 - 1.3);
+
+				line = initLine({
+					points: [presentPoint, nextPoint],
+					lineMaterial: new THREE.LineBasicMaterial({ color: 'black' }),
+					yRotation: 0,
+					x: 0,
+					y: 0,
+					z: 0
+				});
+
+				pointGroup.add(line);
+				scene.add(pointGroup);
+				render()
+			} else if (flip) {
+				a += -.1;
+
+				visualClues();
+				commutator.rotation.x += -.1;
+				let X = Math.sin(a);
+				// let Y = Math.abs(X);
+				galvNeedle.rotation.y = X;
+				arrow1.scale.z = X ;
+				arrow2.scale.x = X ;
+				currentwire.morphTargetInfluences[0] = X > 0 ? 1 : 0;
+
+				presentPoint = new THREE.Vector3(0.5 * X, 0, a * 0.1 - 1.3);
+
+				line = initLine({
+					points: [presentPoint, nextPoint],
+					lineMaterial: new THREE.LineBasicMaterial({ color: 'blue' }),
+					yRotation: 0,
+					x: 0,
+					y: 0,
+					z: 0
+				});
+
+				pointGroup.add(line);
+				scene.add(pointGroup);
+				render()
+			}
+			nextPoint = presentPoint;
+			requestInduced = requestAnimationFrame(inducedCurrent);
+		}
+
+		//The Fleming's right hand rule pointer and hand gesture
+		function visualClues() {
+			if (stop) {
+				arrow1.visible = false;
+				arrow2.visible = false;
+				direction1.visible = false;
+				direction2.visible = false;
+				currentwire.visible = false;
+				rightHand.visible = false;
+
+			} else if (!stop) {
+				arrow1.visible = true;
+				arrow2.visible = true;
+				direction1.visible = true;
+				direction2.visible = true;
+				currentwire.visible = true;
+				rightHand.visible = true;
+			}
+
+
+		}
+
+		//construct line between points for drawing the sinusodial waveform
+		function initLine(data) {
+			let lineGeometry = new THREE.BufferGeometry().setFromPoints(data.points);
+			line = new THREE.Line(lineGeometry, data.lineMaterial);
+			// console.log('draw waveform')
+			line.rotation.y = data.yRotation;
+			line.position.x = data.x;
+			line.position.y = data.y;
+			line.position.z = data.z;
+			return line;
+		}
+
+		//Rotate armature coil clockwise slowly for better rule visualization
+		function inducedCurrentSlow() {
+			if (!flip) {
+				a += -.01;
+				commutator.rotation.x += -.01;
+
+				let X = Math.sin(a);
+				galvNeedle.rotation.y = X;
+				arrow1.scale.z = X ;
+				arrow2.scale.x = X ;
+				currentwire.morphTargetInfluences[0] = X > 0 ? 1 : 0;
+				visualClues()
+				presentPoint = new THREE.Vector3(0.5 * X, 0, a * 0.1 - 1.3);
+				line = initLine({
+					points: [presentPoint, nextPoint],
+					lineMaterial: new THREE.LineBasicMaterial({ color: 'black' }),
+					yRotation: 0,
+					x: 0,
+					y: 0,
+					z: 0
+				});
+
+				pointGroup.add(line);
+				scene.add(pointGroup);
+				render()
+			} else if (flip) {
+				a += -.01;
+				commutator.rotation.x += -.01;
+				let X = Math.sin(a);
+				galvNeedle.rotation.y = X;
+
+				arrow1.scale.z = X ;
+				arrow2.scale.x = X ;
+				currentwire.morphTargetInfluences[0] = X > 0 ? 1 : 0;
+				visualClues()
+				presentPoint = new THREE.Vector3(0.5 * X, 0, a * 0.1 - 1.3);
+				line = initLine({
+					points: [presentPoint, nextPoint],
+					lineMaterial: new THREE.LineBasicMaterial({ color: 'blue' }),
+					yRotation: 0,
+					x: 0,
+					y: 0,
+					z: 0
+				});
+
+				pointGroup.add(line);
+				scene.add(pointGroup);
+				render()
+			}
+			nextPoint = presentPoint;
+			requestInducedSlow = requestAnimationFrame(inducedCurrentSlow);
+		}
+
+		//Change Current Polarity A to B or B to A in the supply circuit
+		function polarity() {
+
+			if (!flip) {
+				actions['polarity'].fadeOut();
+				actions['needleL'].fadeOut();
+				actions['needleL'].reset().stop();
+				actions['polarity1'].setDuration(.5).play();
+				flip = true;
+			} else if (flip) {
+				actions['polarity1'].fadeOut();
+				actions['needleL'].fadeOut();
+				actions['needleL'].reset().stop();
+				actions['polarity'].setDuration(.5).play();
+				flip = false;
+			}
+			animate();
+		}
+
+		//Change Current in primary coil and study the effect in galvanometer
+		function supplyCurrent() {
+			// console.log('SWITCH ON')
+			arrow.visible = true;
+			// console.log(actions);
+			actions['needleL'].setDuration(6).play();
+			arrow.morphTargetInfluences[0] = 0;
+			arrow.morphTargetInfluences[1] = 0;
+			arrow.morphTargetInfluences[2] = 1;
+			arrow.morphTargetInfluences[3] = 0;
+			changeFlux = true;
+			if (!flip) {
+				new TWEEN.Tween(galvNeedle.rotation)
+					.to({ y: galvL }, 5000)
+					.easing(TWEEN.Easing.Bounce.InOut)
+					.start()
+				fieldLines.visible = true;
+				fieldLines.rotation.set(0, 1.57, 1.57);
+
+				new TWEEN.Tween(fieldLines.scale)
+					.to({ x: 1.2, y: 1.5, z: 1 }, 2000)
+					.easing(TWEEN.Easing.Cubic.Out)
+					.start()
+				setTimeout(function () {
+					changeFlux = false;
+					galvRotStop();
+					new TWEEN.Tween(galvNeedle.rotation)
+						.to({ y: 0 }, 5000)
+						.easing(TWEEN.Easing.Bounce.InOut)
+						.start()
+					new TWEEN.Tween(fieldLines.scale)
+						.to({ x: 0, y: 0, z: 1 }, 3000)
+						.easing(TWEEN.Easing.Cubic.Out)
+						.start()
+				}, 5000);
+				
+				// animate();
+			} else if (flip) {
+
+				new TWEEN.Tween(galvNeedle.rotation)
+					.to({ y: -galvL }, 3000)
+					.easing(TWEEN.Easing.Bounce.InOut)
+					.start()
+				fieldLines.visible = true;
+				fieldLines.rotation.set(0, 1.57, -1.57);
+
+				new TWEEN.Tween(fieldLines.scale)
+					.to({ x: 1.2, y: 1.5, z: 1 }, 3000)
+					.easing(TWEEN.Easing.Cubic.Out)
+					.start()
+				setTimeout(function () {
+					changeFlux = false;
+					galvRotStop();
+					new TWEEN.Tween(galvNeedle.rotation)
+						.to({ y: 0 }, 2000)
+						.easing(TWEEN.Easing.Bounce.InOut)
+						.start()
+					new TWEEN.Tween(fieldLines.scale)
+						.to({ x: 0, y: 0, z: 1 }, 3000)
+						.easing(TWEEN.Easing.Cubic.Out)
+						.start()
+				}, 5000);
+				// animate();
+
+			}
+			animate();
+		}
+
+		//Effect on Galvanometer when current is held steady
+		function steadyCurrent() {
+			// console.log('steady current flows');
+			arrow.visible = true;
+			// console.log(actions);
+			arrow.morphTargetInfluences[0] = 0;
+			arrow.morphTargetInfluences[1] = 0;
+			arrow.morphTargetInfluences[2] = 1;
+			arrow.morphTargetInfluences[3] = 0;
+			knob.rotation.set(1.57, 0, 0);
+			new TWEEN.Tween(knob.rotation)
+				.to({ y: -2 }, 3000)
+				.easing(TWEEN.Easing.Cubic.Out)
+				.start()
+
+			if (!flip) {
+				new TWEEN.Tween(galvNeedle.rotation)
+					.to({ y: galvL }, 3000)
+					.easing(TWEEN.Easing.Cubic.Out)
+					.start()
+				fieldLines.visible = true;
+				fieldLines.rotation.set(0, 1.57, 1.57);
+
+				new TWEEN.Tween(fieldLines.scale)
+					.to({ x: 1.2, y: 1.5, z: 1 }, 3000)
+					.easing(TWEEN.Easing.Cubic.Out)
+					.start()
+				setTimeout(function () {
+
+					new TWEEN.Tween(galvNeedle.rotation)
+						.to({ y: 0 }, 1500)
+						.easing(TWEEN.Easing.Cubic.In)
+						.start()
+				}, 5000);
+
+			} else if (flip) {
+				new TWEEN.Tween(galvNeedle.rotation)
+					.to({ y: -galvL }, 3000)
+					.easing(TWEEN.Easing.Cubic.Out)
+					.start()
+				fieldLines.visible = true;
+				fieldLines.rotation.set(0, 1.57, -1.57);
+
+				new TWEEN.Tween(fieldLines.scale)
+					.to({ x: 1.2, y: 1.5, z: 1 }, 3000)
+					.easing(TWEEN.Easing.Cubic.Out)
+					.start()
+				setTimeout(function () {
+
+					new TWEEN.Tween(galvNeedle.rotation)
+						.to({ y: 0 }, 1500)
+						.easing(TWEEN.Easing.Cubic.In)
+						.start()
+				}, 5000);
+
+			}
+			animate();
+		}
+
+		//Galvanometer and current arrow restored to initial state
+		function galvRotStop() {
+			if (!changeFlux) {
+				arrow.morphTargetInfluences[0] = 1;
+				arrow.morphTargetInfluences[1] = 0;
+				arrow.morphTargetInfluences[2] = 0;
+				arrow.morphTargetInfluences[3] = 0;
+				actions['needleL'].reset().stop();
+				buttonAction.disabled = false;
+				buttonAction.style.cursor = 'pointer';
+				buttonFlip.disabled = false;
+				buttonFlip.style.cursor = 'pointer';
+				buttonStop.disabled = false;
+				buttonStop.style.cursor = 'pointer';
+			}
+		}
+
+		//Move barmagnet and the induction solenoid relative to each other
+		function relativeMove() {
+			if (magZ >= -5 && magZ <= -2) {
+				requestID = requestAnimationFrame(relativeMove);
+				inducedSolenoid.position.z += magdz;
+				galvanometer.position.z += magdz;
+				galvNeedle.position.z += magdz;
+				barMagnet.position.z += magdz;
+				// console.log( solenoidModel);
+				magZ += magdz;
+				// console.log("moveleft")
+				render();
+			} else if (inducedSolenoid.position.z > 0) {
+				requestID = requestAnimationFrame(relativeMove);
+				inducedSolenoid.position.z += -magdz;
+				galvanometer.position.z += -magdz;
+				galvNeedle.position.z += -magdz;
+				barMagnet.position.z += -magdz;
+				// console.log( inducedSolenoid.position.z)
+				render();
+			}
+
+		}
+
+		//Move barmaget inside the solenoid, galvanometer deflects
+		function magnetMove() {
+
+			if (magZ >= -5 && magZ <= 0 && moveL && !mRotate && !stop) {
+				//console.log( "go forward N-S", mRotate);
+				buttonAction.innerHTML = "\&\#x2190\;";
+				requestID = requestAnimationFrame(magnetMove);
+				i = i + 1;
+				barMagnet.position.z += magdz;
+				magZ += magdz;
+				galvNeedle.rotation.set(0, needleY + speed * i, 0);
+
+			} else if (magZ >= -5 && magZ <= 0 && moveL && mRotate && !stop) {
+				//console.log( "go forward S-N", mRotate);
+				buttonAction.innerHTML = "\&\#x2190\;";
+				requestID = requestAnimationFrame(magnetMove);
+				i = i + 1;
+				barMagnet.position.z += magdz;
+				magZ += magdz;
+				galvNeedle.rotation.set(0, -(needleY + speed * i), 0);
+
+			} else if (magZ > 0 && moveL && !stop) {
+				//console.log( "go reverse", magZ);
+				requestID = requestAnimationFrame(magnetMove);
+				magZ += -magdz;
+				moveL = false;
+				buttonAction.innerHTML = "\&\#x2192\;";
+
+			} else if (magZ >= -5 && magZ <= 0 && !moveL && !mRotate && !stop) {
+				//console.log( "reversing N-S");
+				buttonAction.innerHTML = "\&\#x2192\;";
+				requestID = requestAnimationFrame(magnetMove);
+				i = i - 1;
+				barMagnet.position.z += -magdz;
+				magZ += -magdz;
+				galvNeedle.rotation.set(0, needleY + speed * i, 0);
+			} else if (magZ >= -5 && magZ <= 0 && !moveL && mRotate && !stop) {
+				//console.log( "reversing S-N");
+				buttonAction.innerHTML = "\&\#x2192\;";
+				requestID = requestAnimationFrame(magnetMove);
+				i = i - 1;
+				barMagnet.position.z += -magdz;
+				magZ += -magdz;
+				galvNeedle.rotation.set(0, -(needleY + speed * i), 0);
+
+			} else if (magZ < -5 && !moveL && !stop) {
+
+				cancelAnimationFrame(requestID);
+				buttonAction.innerHTML = "MOVE";
+				buttonAction.style.backgroundColor = "rgb(3, 108, 156)";
+				buttonAction.disabled = false;
+				buttonAction.style.cursor = 'pointer';
+				buttonFlip.disabled = false;
+				buttonFlip.style.cursor = 'pointer';
+				barMagnet.position.set(-0.5, 1.3, -4);
+				galvNeedle.rotation.set(0, 0, 0);
+				i = 0
+				//console.log( "stop/reset");
+			}
+			render();
+		}
+
+		// change barmagent polarity
+		function magnetRotate() {
+
+			barMagnet.positionz = -5;
+			if (!mRotate) {
+				barMagnet.rotation.y = -3.14;
+				mRotate = true;
+				magZ = magZ + magdz;
+				// console.log( "1...S-N");
+				render();
+			} else {
+				barMagnet.rotation.set(0, 0, 0);
+				mRotate = false;
+				magZ = magZ + magdz;
+				// console.log( "N-S");
+				render();
+			}
+		}
+
+		// change Electromagnet polarity
+		function magnetPolarity() {
+			if (!flip) {
+				electromagnet.rotation.set(1.57, 0, 0);
+				flip = true;
+				rightHand.rotation.set(-1.57, 1.57, 3.14);
+				console.log('hand position1');
+
+				direction1.morphTargetInfluences[0] = 1;
+				direction2.morphTargetInfluences[0] = 0;
+				direction1.morphTargetInfluences[1] = 1;
+				direction2.morphTargetInfluences[1] = 1;
+				rightHand.position.set(-1.5, 1.2, -0.5);
+			} else if (flip) {
+				electromagnet.rotation.set(4.71, 0, 0);
+				flip = false;
+				rightHand.rotation.set(0, 1.57, -1.57);
+				console.log('hand position2');
+
+				direction1.morphTargetInfluences[0] = 0;
+				direction2.morphTargetInfluences[0] = 1;
+				direction1.morphTargetInfluences[1] = 0;
+				direction2.morphTargetInfluences[1] = 0;
+				rightHand.position.set(-1.2, 0.8, 0.5);
+			}
+			animate();
+		}
+
+		//load appropriate model on button click
+		function magmodelLoad() {
+			relative = false;
+			stop = false;
+			changeFlux = false,
+				flip = false;
+			cancelAnimationFrame(requestInduced);
+			cancelAnimationFrame(requestID);
+			scene.remove(pointGroup)
+			pointGroup = new THREE.Group();
+			presentPoint = new THREE.Vector3(0, 0, 0);
+			nextPoint = new THREE.Vector3(0, 0, -1.3);
+			presentPoint = nextPoint
+			a = 0;
+			buttonAction.disabled = false;
+			buttonAction.style.cursor = 'pointer';
+			buttonFlip.disabled = false;
+			buttonFlip.style.cursor = 'pointer';
+			buttonStop.disabled = false;
+			buttonStop.style.cursor = 'pointer';
+			buttonRelative.disabled = false;
+			buttonRelative.style.cursor = 'pointer';
+			if (element === 0) {
+
+				cancelAnimationFrame(requestInduced);
+				cancelAnimationFrame(requestInducedSlow);
+				inducedSolenoid.visible = true;
+				galvNeedle.rotation.y = 0;
+				barMagnet.visible = true;
+				rightHand.visible = false;
+				lineGroup.visible = false;
+				fieldLines.visible = false;
+				galvanometer.morphTargetInfluences[0] = 0;
+				for (let i = 0; i < scene1.length; i++) {
+					scene1[i].visible = true;
+				}
+				for (let i = 0; i < scene2.length; i++) {
+					scene2[i].visible = false;
+				}
+				for (let i = 0; i < generator.length; i++) {
+					generator[i].visible = false;
+				}
+
+			} else if (element === 1) {
+				cancelAnimationFrame(requestInduced);
+				cancelAnimationFrame(requestInducedSlow);
+				inducedSolenoid.visible = true;
+				rightHand.visible = false;
+				galvNeedle.rotation.y = 0;
+				galvanometer.morphTargetInfluences[0] = 0;
+				barMagnet.visible = false;
+				for (let i = 0; i < scene1.length; i++) {
+					scene1[i].visible = true;
+				}
+				for (let i = 0; i < scene2.length; i++) {
+					scene2[i].visible = true;
+				}
+				for (let i = 0; i < generator.length; i++) {
+					generator[i].visible = false;
+				}
+
+			} else if (element === 2) {
+
+				cancelAnimationFrame(requestInduced);
+				cancelAnimationFrame(requestInducedSlow);
+				barMagnet.visible = false;
+				lineGroup.visible = false;
+				fieldLines.visible = false;
+				inducedSolenoid.visible = false;
+				rightHand.visible = true;
+				for (let i = 0; i < scene1.length; i++) {
+					scene1[i].visible = true;
+				}
+				for (let i = 0; i < scene2.length; i++) {
+					scene2[i].visible = false;
+				}
+				for (let i = 0; i < generator.length; i++) {
+					generator[i].visible = true;
+				}
+				currentwire.morphTargetInfluences[1] = 1;
+				coilStand.morphTargetInfluences[0] = 1;
+				commutator.morphTargetInfluences[0] = 1;
+				rings.morphTargetInfluences[0] = 0;
+				coil.morphTargetInfluences[0] = 1;
+				galvanometer.morphTargetInfluences[0] = 1;
+				insulator.morphTargetInfluences[0] = 1;
+				magnetwire.scale.set(1, 1, 1);
+				stop = false;
+				visualClues();
+				inducedCurrent();
+			}
+
+			render();
+		}
+
+		//reset Solenoid during intermediate current actions
+		function resetSolenoid() {
+			arrow.visible = false;
+			actions['needleL'].reset().stop();
+			knob.rotation.set(1.57, 0, 0);
+			fieldLines.scale.set(0, 0, 1);
+			changeFlux = false;
+			// hold = false;
+			stop = false;
+			buttonAction.disabled = false;
+			buttonAction.style.cursor = 'pointer';
+
+			buttonFlip.disabled = false;
+			buttonFlip.style.cursor = 'pointer';
+
+			buttonStop.disabled = false;
+			buttonStop.style.cursor = 'pointer';
+			render();
+		}
+
+		//camera position
+		function setCamera() {
+
+			if (element === 0) {
+				createCamera(50, 5, 5, 5);
+				createControls(-1.2, 0, -2);
+				render();
+			} else if (element === 1) {
+				createCamera(50, 5, 5.5, 5);
+				createControls(.2, .5, -2);
+				render();
+			} else if (element === 2) {
+				createCamera(35, 5, 5, 5);
+				createControls(0, 0, 0);
+				render();
+			}
+		}
+
+		//Load glb model into the scene
+		function createModel() {
+			const loader = new GLTFLoader();
+			//load Main model
+			loader
+				.setPath(modelPath)
+				.load(elements['1'], function (gltf) {
+					solenoidModel = gltf.scene;
+
+					scene.add(solenoidModel)
+					mixer = new THREE.AnimationMixer(gltf.scene);
+					powerKnob = solenoidModel.children[0];
+					powerSupply = solenoidModel.getObjectByName('Supply');
+					knob = solenoidModel.getObjectByName('knob');
+
+					arrow = solenoidModel.getObjectByName('arrow');
+					solenoid = solenoidModel.getObjectByName('solenoid');
+					connector = solenoidModel.getObjectByName('connector');
+					barMagnet = solenoidModel.getObjectByName('barMagnet');
+					galvNeedle = solenoidModel.getObjectByName('galvNeedle');
+					galvanometer = solenoidModel.getObjectByName('Galvanometer');
+					inducedSolenoid = solenoidModel.getObjectByName('induceSolenoid');
+
+					inducedSolenoid.position.z = 0;
+					barMagnet.add(lineGroup);
+					solenoid.add(fieldLines);
+					scene1.push(galvNeedle, galvanometer)
+					scene2.push(connector, solenoid, fieldLines, arrow, powerKnob, powerSupply)
+					for (let i = 0; i < scene1.length; i++) {
+						scene1[i].visible = true;
+					}
+					for (let i = 0; i < scene2.length; i++) {
+						scene2[i].visible = false;
+					}
+					for (let i = 0; i < generator.length; i++) {
+						generator[i].visible = false;
+					}
+
+					lineGroup.visible = false;
+					fieldLines.visible = false;
+
+					for (let i = 0; i < gltf.animations.length; i++) {
+
+						let clip = gltf.animations[i];
+						let action = mixer.clipAction(clip);
+						actions[clip.name] = action;
+						// console.log(clip.name, clip.duration);
+						action.clampWhenFinished = true;
+						action.loop = THREE.LoopOnce;
+						
+					}
+					render();
+				});
+			//load Right Hand gesture
+			loader
+				.setPath(modelPath)
+				.load(elements['2'], function (gltf) {
+
+					rightHand = gltf.scene;
+					scene.add(rightHand);
+					rightHand.visible = false;
+
+				});
+
+			//load Armature Coil model
+			loader
+				.setPath(modelPath)
+				.load(elements['3'], function (gltf) {
+
+					coilModel = gltf.scene;
+					scene.add(coilModel)
+					mixer1 = new THREE.AnimationMixer(coilModel);
+					electromagnet = gltf.scene.getObjectByName('Magnet');
+					arrow1 = gltf.scene.getObjectByName('arrow1');
+					arrow2 = gltf.scene.getObjectByName('arrow2');
+					direction1 = gltf.scene.getObjectByName('direction1');
+					direction2 = gltf.scene.getObjectByName('direction2');
+
+					magnetwire = gltf.scene.getObjectByName('MagnetWire');
+					currentwire = gltf.scene.getObjectByName('currentwire');
+					coilStand = gltf.scene.getObjectByName('coil');
+					coil = gltf.scene.getObjectByName('CoilStand');
+					commutator = gltf.scene.getObjectByName('Commutator');
+					rings = gltf.scene.getObjectByName('Rings');
+					insulator = gltf.scene.getObjectByName('Insulator');
+
+					for (let i = 0; i < coilModel.children.length; i++) {
+
+						generator.push(coilModel.children[i])
+					}
+					for (let i = 0; i < generator.length; i++) {
+						generator[i].visible = false;
+					}
+
+					direction1.morphTargetInfluences[0] = 0;
+					direction2.morphTargetInfluences[0] = 1;
+					direction1.morphTargetInfluences[1] = 0;
+					direction2.morphTargetInfluences[1] = 0;
+
+					let fixedStates = ['direction1', 'direction2'];
+
+
+					for (let i = 0; i < gltf.animations.length; i++) {
+
+						let clip = gltf.animations[i];
+						let action = mixer1.clipAction(clip);
+						actions[clip.name] = action;
+
+						if (fixedStates.indexOf(clip.name) >= 0) {
+							action.clampWhenFinished = true;
+							action.loop = THREE.LoopOnce;
+						}
+
+					}
+					console.log(actions)
+					// render();
+				});
+
+			window.addEventListener('resize', onWindowResize);
+			// render();
+		}
+
+		//Resize the window
+		function onWindowResize() {
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			render();
+		}
+
+		//render 3D
+		function render() {
+
+			renderer.render(scene, camera);
+
+		}
+
+		//Update mixers, tween, controls
+		function animate() {
+			requestAnimationFrame(animate);
+			const delta = clock.getDelta();
+			mixer.update(delta);
+			mixer1.update(delta);
+			TWEEN.update();
+			controls.update();
+			render();
+
+		}
+
+		//Load all button actions with element change
+		function buttonLoad() {
+
+			// Load Induced Solenoid coil (default) scene
+			buttonMagnetEl.addEventListener('click', function () {
+				buttonCoilEl.style.backgroundColor = "rgb(3, 108, 156)";
+				buttonSolenoidEl.style.backgroundColor = "rgb(3, 108, 156)";
+				buttonMagnetEl.style.backgroundColor = "rgb(3, 67, 97)";
+				elementEl.textContent = "Effect of change in magnetic field (flux) in a solenoid coil - Using a bar magnet";
+				// ruleviewer.style.visibility = "hidden";
+				buttonAction.innerHTML = "MOVE";
+				buttonStop.innerHTML = "STOP";
+				buttonRelative.innerHTML = "RELATIVE";
+				buttonRule.innerHTML = "FARADAY’S LAW OF INDUCTION";
+				element = 0;
+				ruleClues()
+				// console.log('SOLENOID COIL & MAGNET');
+
+				magmodelLoad();
+
+				setCamera();
+			});
+
+			// Load Primary Solenoid coil scene
+			buttonSolenoidEl.addEventListener('click', function () {
+				buttonCoilEl.style.backgroundColor = "rgb(3, 108, 156)";
+				buttonMagnetEl.style.backgroundColor = "rgb(3, 108, 156)";
+				buttonSolenoidEl.style.backgroundColor = "rgb(3, 67, 97)";
+				elementEl.textContent = "Effect of change in magnetic field (flux) in a solenoid coil - Using an electromagnet";
+				buttonAction.innerHTML = "VARY CURRENT";
+				buttonStop.innerHTML = "STEADY CURRENT";
+				buttonRelative.innerHTML = "RESET";
+				// ruleviewer.style.visibility = "hidden";
+				buttonRule.innerHTML = "LENZ'S LAW";
+				element = 1;
+				ruleClues()
+				// console.log('SOLENOID COIL & SOLENOID COIL');
+
+				magmodelLoad();
+				setCamera();
+			});
+
+			// Load armature coil scene
+			buttonCoilEl.addEventListener('click', function () {
+				buttonMagnetEl.style.backgroundColor = "rgb(3, 108, 156)";
+				buttonSolenoidEl.style.backgroundColor = "rgb(3, 108, 156)";
+				buttonCoilEl.style.backgroundColor = "rgb(3, 67, 97)";
+				elementEl.textContent = "AC Generator - An armature coil rotates clockwise in a magnetic field";
+				buttonAction.innerHTML = "ROTATE";
+				buttonStop.innerHTML = "STOP";
+				buttonRule.innerHTML = "FLEMING'S RIGHT HAND RULE";
+				// ruleviewer.style.visibility = "hidden";
+				buttonRelative.innerHTML = "SLOW MOTION";
+				// rightHand.rotation.set(0, 1.57, -1.57);
+				// rightHand.position.set(-1.5, 0.5, 1.3);
+				element = 2;
+				ruleClues()
+				// console.log('Armature Coil');
+				let newMaterial = new THREE.MeshPhongMaterial({ color: 0x36454F });
+				electromagnet.material = newMaterial;
+				setCamera();
+				magmodelLoad();
+				magnetPolarity();
+			});
+
+			// Move Button for barMagnet Action... Current Button for Current Change ...Rotate Armature Coil...Induce current...
+			buttonAction.addEventListener('click', function () {
+				if (element === 0) {
+
+					buttonAction.disabled = true;
+					buttonAction.style.cursor = 'default';
+					buttonFlip.disabled = true;
+					buttonFlip.style.cursor = 'default';
+					magZ = -5;
+					moveL = true;
+					stop = false;
+					i = 0;
+					magnetMove();
+				} else if (element === 1) {
+					arrow.visible = true;
+					// console.log('change current in solenoid');
+
+					buttonAction.disabled = true;
+					buttonAction.style.cursor = 'default';
+					buttonFlip.disabled = true;
+					buttonFlip.style.cursor = 'default';
+					buttonStop.disabled = true;
+					buttonStop.style.cursor = 'default';
+
+					supplyCurrent();
+				} else if (element === 2) {
+					// console.log('Induced AC current flows in Galvanometer');
+					cancelAnimationFrame(requestInduced);
+					cancelAnimationFrame(requestInducedSlow);
+					stop = false;
+					scene.remove(pointGroup)
+					pointGroup = new THREE.Group();
+					presentPoint = new THREE.Vector3(0, 0, 0);
+					nextPoint = new THREE.Vector3(0, 0, -1.3);
+					presentPoint = nextPoint
+					a = 0;
+					buttonAction.disabled = true;
+					buttonAction.style.cursor = 'default';
+					insulator.morphTargetInfluences[0] = 1;
+					currentwire.morphTargetInfluences[1] = 1;
+					scene.remove(pointGroup)
+					pointGroup = new THREE.Group();
+					presentPoint = new THREE.Vector3(0, 0, 0);
+					nextPoint = new THREE.Vector3(0, 0, -1.3);
+					inducedCurrent();
+				}
+
+			});
+
+			//Relative Button for barMagnet and Solenoid Move  ... Reset Button for Current Settings....Slow Motion Armature Coil
+			buttonRelative.addEventListener('click', function () {
+				if (element === 0) {
+					relative = true;
+					magZ = -5;
+					barMagnet.position.z = -4;
+					relativeMove();
+					// console.log("move both solenoid and magnet");
+
+				} else if (element === 1) {
+					// console.log('Reset knob');
+
+					resetSolenoid();
+				} else if (element === 2) {
+					stop = false;
+					buttonAction.disabled = false;
+					buttonAction.style.cursor = 'pointer';
+					cancelAnimationFrame(requestInduced);
+					cancelAnimationFrame(requestInducedSlow);
+					// insulator.scale.set(0, 0, 0);
+					insulator.morphTargetInfluences[0] = 0;
+					arrow1.visible = true;
+					arrow2.visible = true;
+					currentwire.morphTargetInfluences[1] = 1;
+					buttonFlip.disabled = false;
+					buttonFlip.style.cursor = 'pointer';
+					scene.remove(pointGroup)
+					pointGroup = new THREE.Group();
+					presentPoint = new THREE.Vector3(0, 0, 0);
+					nextPoint = new THREE.Vector3(0, 0, -1.3);
+					presentPoint = nextPoint
+					a = 0;
+					inducedCurrentSlow();
+				}
+
+			});
+
+			//Button for barmagnet flip and current polarity change
+			buttonFlip.addEventListener('click', function () {
+				if (element === 0) {
+					// magnet polarity flip
+					magnetRotate();
+
+				} else if (element === 1) {
+					//  current polarity flip 
+					actions['polarity1'].reset();
+					actions['polarity'].reset();
+					arrow.visible = false;
+					polarity();
+
+				} else if (element === 2) {
+					scene.remove(pointGroup)
+					pointGroup = new THREE.Group();
+					presentPoint = new THREE.Vector3(0, 0, 0);
+					nextPoint = new THREE.Vector3(0, 0, -1.3);
+					presentPoint = nextPoint
+					a = 0;
+					magnetPolarity()
+				}
+
+
+			});
+
+			//Button for barmagnet motion to stop and current to be hels steady
+			buttonStop.addEventListener('click', function () {
+				stop = true;
+
+				if (element === 0 && relative) {
+					cancelAnimationFrame(requestID);
+					inducedSolenoid.position.z = 0;
+					galvanometer.position.z = 0;
+					galvNeedle.position.z = 0;
+					barMagnet.position.z = -4;
+					galvNeedle.rotation.y = 0;
+					buttonAction.disabled = false;
+					buttonAction.style.cursor = 'pointer';
+					buttonFlip.disabled = false;
+					buttonFlip.style.cursor = 'pointer';
+
+				} else if (element === 0 && !relative) {
+					buttonAction.innerHTML = 'MOVE';
+					buttonAction.disabled = false;
+					buttonAction.style.cursor = 'pointer';
+					buttonFlip.disabled = false;
+					buttonFlip.style.cursor = 'pointer';
+					inducedSolenoid.position.z = 0;
+					barMagnet.position.z = -4;
+					galvNeedle.rotation.y = 0;
+
+				} else if (element === 1) {
+					arrow.visible = true;
+					// console.log('change current in solenoid');
+
+					buttonAction.disabled = true;
+					buttonAction.style.cursor = 'default';
+					buttonFlip.disabled = true;
+					buttonFlip.style.cursor = 'default';
+					buttonStop.disabled = true;
+					buttonStop.style.cursor = 'default';
+					steadyCurrent();
+
+				} else if (element === 2) {
+
+					buttonAction.disabled = false;
+					buttonAction.style.cursor = 'pointer';
+
+					buttonFlip.disabled = false;
+					buttonFlip.style.cursor = 'pointer';
+
+					currentwire.visible = false;
+					arrow1.visible = false;
+					arrow2.visible = false;
+					galvNeedle.rotation.y = 0;
+					cancelAnimationFrame(requestInduced);
+					cancelAnimationFrame(requestInducedSlow);
+
+				}
+
+				render();
+			});
+
+			buttonRule.addEventListener('click', function () {
+
+				ruleClue = !ruleClue;
+
+				ruleClues();
+			});
+
+		}
+
+		//Display the diffent laws-Faraday's law of induction, lenz's law, amd Fleming's right hand rule
+		function ruleClues() {
+
+			if (ruleClue && element == 0) {
+				lineGroup.visible = true;
+				ruleviewer.style.visibility = "visible";
+				flemingRule.style.visibility = "hidden";
+				messageEl.innerHTML = " Change in Magnetic flux linked with the solenoid, induces a current in it"
+				// console.log('Move magnet inside coil-Lens Law')
+			} else if (ruleClue && element == 1) {
+				ruleviewer.style.visibility = "visible";
+				flemingRule.style.visibility = "hidden";
+				messageEl.innerHTML = "Induced current opposes the change, of the magnetic flux, that induces it"
+				// console.log('Move magnet inside coil-Lens Law')
+			} else if (ruleClue && element == 2) {
+				ruleviewer.style.visibility = "visible";
+				messageEl.innerHTML = "FLEMING'S RIGHT HAND RULE:"
+				flemingRule.style.visibility = "visible";
+				// console.log('rotate coil in magnetic field-Fleming RH rule')
+				// scene.add(rightHand)
+			} else {
+				// scene.remove(rightHand)
+				ruleviewer.style.visibility = "hidden";
+				flemingRule.style.visibility = "hidden";
+				lineGroup.visible = false;
+				fieldLines.visible = false;
+				// console.log('hide message')
+			}
+			render();
+		}
+
+		//Field lines created around the solenoid electromagnet
+		function solenoidLines() {
+			scene.add(fieldLines);
+			fieldLines.scale.set(0, 0, 1);
+			let fieldLine = barField();
+			fieldLines.add(fieldLine)
+		}
+
+		//add multiple (3) barfield line planes
+		function addLines() {
+			scene.add(lineGroup);
+			let X = addLine(1.57, 1.57 - 1.0, 1.57);
+			lineGroup.add(X);
+			let Y = addLine(1.57, 1.57, 1.57);
+			lineGroup.add(Y);
+			let Z = addLine(1.57, 1.57 + 1.0, 1.57);
+			lineGroup.add(Z);
+
+
+		}
+
+		//barfield rotation
+		function addLine(a, b, c) {
+
+			let fieldLine = barField();
+			fieldLine.rotation.set(a, b, c);
+			return fieldLine
+		}
+
+		//load barfield png image on to a plane
+		function barField() {
+			let fieldPlane = new THREE.PlaneGeometry(2.5, 1);
+			let texture = new THREE.TextureLoader().load('../../assets/img/barfieldLines.png');
+			let X = new THREE.Mesh(fieldPlane, new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, map: texture, transparent: true }));
+
+			X.scale.set(2, 2, 2);
+
+			return X
+		}
+
+	</script>
+</body>
+
+</html>
