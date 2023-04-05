@@ -9,15 +9,16 @@
     <link rel="shortcut icon" href="../files/favicon.ico" media="(prefers-color-scheme: light)" />
     <link rel="stylesheet" type="text/css" href="../../css/style-page.css">
     <!-- Google tag (gtag.js) -->
-<!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-0JWHY29KD2"></script> -->
-<script async src="../../jsm/gtag/gtag.js"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-0JWHY29KD2"></script> -->
+    <script async src="../../jsm/gtag/gtag.js"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
 
-  gtag('config', 'G-0JWHY29KD2');
-</script>    <meta name="google-site-verification" content="mz0TRB59UNqdTxhwzmXmGdgVPh8pB4YqjuUr-aWNGIY">
+        gtag('config', 'G-0JWHY29KD2');
+    </script>
+    <meta name="google-site-verification" content="mz0TRB59UNqdTxhwzmXmGdgVPh8pB4YqjuUr-aWNGIY">
 
 </head>
 
@@ -31,64 +32,64 @@
         </div>
 
         <div style="display: none;" id="sidemenu">
-            <a> Lens Formula: </a><br>           
-                    <div class="fraction">
-                        <span class="fup">1</span>
-                        <span class="bar">/</span>
-                        <span class="fdn">f</span>
-                    </div>
-                    <a>=</a>
-                    <div class="fraction">
-                        <span class="fup">1</span>
-                        <span class="bar">/</span>
-                        <span class="fdn">v</span>
-                    </div>
-                    <a>-</a>
-                    <div class="fraction">
-                        <span class="fup">1</span>
-                        <span class="bar">/</span>
-                        <span class="fdn">u</span>
-                    </div>
+            <a> Lens Formula: </a><br>
+            <div class="fraction">
+                <span class="fup">1</span>
+                <span class="bar">/</span>
+                <span class="fdn">f</span>
+            </div>
+            <a>=</a>
+            <div class="fraction">
+                <span class="fup">1</span>
+                <span class="bar">/</span>
+                <span class="fdn">v</span>
+            </div>
+            <a>-</a>
+            <div class="fraction">
+                <span class="fup">1</span>
+                <span class="bar">/</span>
+                <span class="fdn">u</span>
+            </div>
             <br>
-            &nbsp; &nbsp; &nbsp; &nbsp; or 
+            &nbsp; &nbsp; &nbsp; &nbsp; or
             <br>
-                <div class="fraction">
-                    <span class="fup">1</span>
-                    <span class="bar">/</span>
-                    <span class="fdn">v</span>
-                </div>
-                <a>=</a>
-                <div class="fraction">
-                    <span class="fup">1</span>
-                    <span class="bar">/</span>
-                    <span class="fdn">f</span>
-                </div>
-                <a>+</a>
-                <div class="fraction">
-                    <span class="fup">1</span>
-                    <span class="bar">/</span>
-                    <span class="fdn">u</span>
-                </div>
-                <br>
-                magnification:
-                <br> 
-                <div class="fraction">
-                    m =
+            <div class="fraction">
+                <span class="fup">1</span>
+                <span class="bar">/</span>
+                <span class="fdn">v</span>
+            </div>
+            <a>=</a>
+            <div class="fraction">
+                <span class="fup">1</span>
+                <span class="bar">/</span>
+                <span class="fdn">f</span>
+            </div>
+            <a>+</a>
+            <div class="fraction">
+                <span class="fup">1</span>
+                <span class="bar">/</span>
+                <span class="fdn">u</span>
+            </div>
+            <br>
+            magnification:
+            <br>
+            <div class="fraction">
+                m =
 
-                </div>
-                <div class="fraction">
-                    <span class="fup">v</span>
-                    <span class="bar">/</span>
-                    <span class="fdn">u</span>
-                </div>
+            </div>
+            <div class="fraction">
+                <span class="fup">v</span>
+                <span class="bar">/</span>
+                <span class="fdn">u</span>
+            </div>
         </div>
 
-    <div id="menu">
-           
-                <a id="message-el"> Focal length, (f) = <b id="fmessage-el">5 </b> cm <br>
-                    Object Distance, (u) = <b id="umessage-el"> -10 </b> cm<br>
-                    Image Distance, (v) = <b style="color:red;" id="vmessage-el"> 10 </b> cm <br>
-                </a>
+        <div id="menu">
+
+            <a id="message-el"> Focal length, (f) = <b id="fmessage-el">5 </b> cm <br>
+                Object Distance, (u) = <b id="umessage-el"> -10 </b> cm<br>
+                Image Distance, (v) = <b style="color:red;" id="vmessage-el"> 10 </b> cm <br>
+            </a>
             <!-- calculation values to be updated here                 -->
             <a>
                 <div style="color:red;" class="fraction">
@@ -120,17 +121,17 @@
                 <a> &nbsp; =</a>
                 <a id="m-el">-1</a>
                 <br>
-                <button onClick="displayOn()">FORMULA</button> 
+                <button onClick="displayOn()">FORMULA</button>
                 <button id="theorybutton" onClick="theorySite()">THEORY</button>
                 <br>
-            </div>
-        
+        </div>
+
     </div>
     <script>
         let sideMenu = document.getElementById('sidemenu');
         let theoryButton = document.getElementById('theorybutton');
         function displayOn() {
-           
+
             if (sideMenu.style.display === 'block') {
                 sideMenu.style.display = 'none';
             } else {
@@ -343,7 +344,22 @@
 
             const lens = new THREE.Mesh(
                 new THREE.SphereGeometry(15, 12, 12),
-                new THREE.MeshBasicMaterial({ color: 'lightgreen', transparent: true, opacity: .8 })
+                new THREE.MeshPhysicalMaterial({
+                    metalness: 0,
+                    roughness: 0,
+                    refractionRatio: 0.1,
+                    // clearcoatRoughness: 0,
+                    // clearcoat: 0.01,
+                    // envMap: cubeRenderTarget.texture,
+                    // envMap: createEnvMap('refraction'),
+                    transparent: true,
+                    color: 0xffffff,
+                    transmission: 1,
+                    opacity: .5,
+                    // ior: 1.5
+                    // side: THREE.BackSide
+                })
+                // new THREE.MeshBasicMaterial({ color: 'lightgreen', transparent: true, opacity: .8 })
             );
             lens.scale.set(.7, .7, .06);
             scene.add(lens);
