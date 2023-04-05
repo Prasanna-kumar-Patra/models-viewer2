@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap');
 
 * {
   padding: 0;
@@ -35,6 +35,8 @@ body {
   margin: 0;
   margin-bottom: -20px;
   pointer-events: none;
+  box-sizing: border-box;
+  padding: 10px;
 }
 /* #menu button {
   pointer-events:visible;
@@ -46,8 +48,7 @@ body {
   top: 0;
   padding: 10px;
   width: 100%;
-  text-align: left;
-  font-weight: bold;  
+  text-align: center;
   /* text-decoration: underline;  */
   font-size: 18px;
   font-weight: 600; 
@@ -79,12 +80,17 @@ body {
 button {
   color: rgba(253, 251, 251, 0.75);
   background: rgb(3, 108, 156);
-  outline: 1px solid rgba(131, 10, 36, 0.75);
-  border: 10px;
+  background: rgba(243, 44, 87, 0.75);
+  
+  outline: 1px solid rgba(243, 44, 87, 0.75);
+  border: 0;
   margin: 5px;
   border-radius: 5px;
-  padding: 5px 10px;
+  padding:6px 15px;
   cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0px 1px 0px #000;
 }
 
 button:hover {
@@ -153,9 +159,13 @@ input {
 }
 
 .label {
-
   margin-left: 25px;
-  font-size: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  background-color: #00000070;
+  padding: 3px 10px;
+  border-radius:10px;
+  color: #fff;
 }
 
 caption {
@@ -257,6 +267,7 @@ caption {
     padding: 0;
     margin: 0;
     margin-bottom: -20px;
+   
   }
 
   .annotation {
@@ -292,4 +303,16 @@ caption {
     overflow-y: auto;
     z-index: 1;
   }
+}
+
+
+
+.lil-gui.autoPlace {
+  padding:10px 15px!important;
+  border-radius: 10px!important;
+  top: 15px!important;
+}
+
+.lil-gui button{
+  height: auto!important;
 }
