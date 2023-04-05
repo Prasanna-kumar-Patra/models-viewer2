@@ -63,28 +63,33 @@
 
         .menu li {
             display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 5px 10px;
+            /* justify-content: center; */
+            align-items: left;
+            padding:15px;
             font-size: 14px;
-            text-align: center;
-            margin-bottom: 22px;
+            text-align: left;
+            margin-bottom: 2px;
             /* background-color: #33b5e5; */
-            background-color: #5d5a5a;
+            /* background-color: #5d5a5a; */
             
-            color: #ffffffa9;
+            /* color: #ffffffa9; */
             cursor: pointer;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+            /* box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24); */
             border-radius: 20px;
-            transition: all 0.5s;
-            font-weight: 600;
-        }
+            transition: background-color 0.5s;
+            font-weight: 400;
 
-        .menu li.active,
-        .menu li:hover {
-            background-color: rgba(243, 44, 87, 0.75);
-            color: #fff;
         }
+        .menu li:hover {
+            background-color:#00000010;
+            /* color: #fff; */
+            
+        }
+        .menu li.active{
+            background-color:  #d9e7cb;
+            font-weight: 500;
+        }
+       
 
 
 
@@ -102,13 +107,15 @@
             /* Stay on top */
             top: 0;
             left: -250px;
-            background-color: #1f1f1f;
+            background-color: #f0eddd;
             /* Black*/
             overflow-x: hidden;
             transition: 0.5s;
-            padding: 20px;
+            padding: 20px 15px;
             padding-top: 60px;
             width: 250px;
+            border-radius: 0px 16px 16px 0px;
+            box-shadow: 0px 1px 2px 0px rgba(0,0,0,.3),0px 2px 6px 2px rgba(0,0,0,.15);
         }
 
         .sidebar a {
@@ -136,19 +143,19 @@
         .openbtn {
             font-size: 14px;
             cursor: pointer;
-            background-color: #111;
+            background-color: #e95c7c;
             color: white;
-            padding: 10px 15px;
+            padding: 6px 12px;
             border: none;
             position: fixed;
             left: 0;
-            top: 0;
+            top: 6px;
             z-index: 99;
             border-radius: 0 10px 10px 0;
         }
 
         .openbtn:hover {
-            background-color: #444;
+            background-color: #dd5a78;
         }
 
         #main {
@@ -158,13 +165,13 @@
         }
 
         @media screen and (max-height: 450px) {
-            .sidebar {
+            /* .sidebar {
                 padding-top: 15px;
-            }
+            } */
 
-            .sidebar a {
+            /* .sidebar a {
                 font-size: 18px;
-            }
+            } */
         }
 
         #labPlayer {
