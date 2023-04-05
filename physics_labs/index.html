@@ -9,12 +9,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet"> -->
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap');
-        body{
+
+        body {
             overflow: hidden;
             font-family: 'Montserrat', sans-serif;
-            margin:0;
-            padding:0;
+            margin: 0;
+            padding: 0;
+            /* background: #1f1f1f; */
         }
+
         * {
             box-sizing: border-box;
         }
@@ -35,7 +38,8 @@
             height: calc(100vh - 110px);
             overflow-y: scroll;
         }
-        .col-9{
+
+        .col-9 {
             width: 85%;
         }
 
@@ -45,7 +49,8 @@
             padding: 1px;
             height: 50px;
         }
-        .col-3  .menu{
+
+        .col-3 .menu {
             overflow: auto;
         }
 
@@ -53,14 +58,14 @@
             list-style-type: none;
             margin: 0;
             padding: 0;
-            
+
         }
 
         .menu li {
-            display:flex;
+            display: flex;
             justify-content: center;
             align-items: center;
-            padding:5px 10px;
+            padding: 5px 10px;
             font-size: 16px;
             text-align: center;
             margin-bottom: 22px;
@@ -69,95 +74,99 @@
             cursor: pointer;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
             border-radius: 20px;
-           transition: all 0.5s;
-           font-weight: 600;
+            transition: all 0.5s;
+            font-weight: 600;
         }
 
         .menu li.active,
         .menu li:hover {
-            background-color:rgba(243, 44, 87, 0.75);
+            background-color: rgba(243, 44, 87, 0.75);
         }
 
-        
 
-        .header{display:none;}
 
-       /*Side Menu style */
+        .header {
+            display: none;
+        }
 
-.sidebar {
-  height: 100vh; /* 100% Full-height */
-  /* width: 0; */
-   /* 0 width - change this with JavaScript */
-  position: fixed; /* Stay in place */
-  z-index: 1; /* Stay on top */
-  top: 0;
-  left: -250px;
-  background-color: #1f1f1f; /* Black*/
-  overflow-x: hidden; /* Disable horizontal scroll */
-  transition: 0.5s; /* 0.5 second transition effect to slide in the sidebar */
-  padding: 20px;
-  padding-top: 60px; /* Place content 60px from the top */
-  width: 250px;
-}
+        /*Side Menu style */
 
-/* The sidebar links */
-.sidebar a {
-  padding: 8px 8px 8px 32px;
-  text-decoration: none;
-  font-size: 25px;
-  color: #818181;
-  display: block;
-  transition: 0.3s;
-}
+        .sidebar {
+            height: 100vh;
+            position: fixed;
+            /* Stay in place */
+            z-index: 1;
+            /* Stay on top */
+            top: 0;
+            left: -250px;
+            background-color: #1f1f1f;
+            /* Black*/
+            overflow-x: hidden;
+            transition: 0.5s;
+            padding: 20px;
+            padding-top: 60px;
+            width: 250px;
+        }
 
-/* When you mouse over the navigation links, change their color */
-.sidebar a:hover {
-  color: #f1f1f1;
-}
+        .sidebar a {
+            padding: 8px 8px 8px 32px;
+            text-decoration: none;
+            font-size: 25px;
+            color: #818181;
+            display: block;
+            transition: 0.3s;
+        }
 
-/* Position and style the close button (top right corner) */
-.sidebar .closebtn {
-  position: absolute;
-  
-  top: -8px;
-    right: 12px;
-    font-size: 28px;
-    margin-left: 0;
-}
+        .sidebar a:hover {
+            color: #f1f1f1;
+        }
 
-/* The button used to open the sidebar */
-.openbtn {
-  font-size: 14px;
-  cursor: pointer;
-  background-color: #111;
-  color: white;
-  padding: 10px 15px;
-  border: none;
-  position: fixed;
-  left: 0;
-  top: 0;
-  z-index: 99;
-  border-radius: 0 10px 10px 0;
-}
+        .sidebar .closebtn {
+            position: absolute;
 
-.openbtn:hover {
-  background-color: #444;
-}
+            top: -8px;
+            right: 12px;
+            font-size: 28px;
+            margin-left: 0;
+        }
 
-/* Style page content - use this if you want to push the page content to the right when you open the side navigation */
-#main {
-  transition: margin-left .5s; /* If you want a transition effect */
-  padding: 0;
-}
+        .openbtn {
+            font-size: 14px;
+            cursor: pointer;
+            background-color: #111;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 99;
+            border-radius: 0 10px 10px 0;
+        }
 
-/* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) */
-@media screen and (max-height: 450px) {
-  .sidebar {padding-top: 15px;}
-  .sidebar a {font-size: 18px;}
-}
-#labPlayer{
-    border: 0;
-}
+        .openbtn:hover {
+            background-color: #444;
+        }
+
+        #main {
+            transition: margin-left .5s;
+            /* If you want a transition effect */
+            padding: 0;
+        }
+
+        @media screen and (max-height: 450px) {
+            .sidebar {
+                padding-top: 15px;
+            }
+
+            .sidebar a {
+                font-size: 18px;
+            }
+        }
+
+        #labPlayer {
+            border: 0;
+        }
     </style>
 </head>
 
@@ -165,7 +174,6 @@
 
 
     <div id="mySidebar" class="sidebar">
-        <a href="javascript:void(0)" class="closebtn" onclick="menuToggle()">&times;</a>
         <div class="menu">
             <ul id="ulList">
                 <!-- <a href="optics/microscope/Optics_Compound_Microscope.html">
@@ -188,7 +196,8 @@
                 <li class="list" value="thermodynamics/pressure/index.html"> Pressure </li>
                 <li class="list" value="thermodynamics/ideal_gas_equation/index.html"> Ideal Gas Equation </li>
                 <li class="list" value="thermodynamics/kinetic_theory_of_gases/index.html"> Kinetic Theory Of Gases</li>
-                <li class="list" value="magnetism/magnetic_effect_due_to_current/index.html"> Magnetic Effect Due To Current </li>
+                <li class="list" value="magnetism/magnetic_effect_due_to_current/index.html"> Magnetic Effect Due To
+                    Current </li>
                 <li class="list" value="magnetism/electromagnetic_induction/index.html"> Electromagnetic Induction </li>
                 <li class="list" value="quantum/photoelectric_effect/index.html"> Photo Electric Effect </li>
                 <li class="list" value="mechanics/simple_pendulum/index.html"> Simple Pendulum </li>
@@ -196,23 +205,19 @@
                 <li class="list" value="mechanics/gravitational_force/index.html"> Gravitational Force</li>
                 <li class="list" value="mechanics/circular_motion/index.html"> Circular Motion</li>
                 <li class="list" value="mechanics/projectile_motion/index.html"> Projectile Motion</li>
-                
+
 
             </ul>
         </div>
 
-      </div>
-      
-      <div id="main">
-        <button class="openbtn" onclick="menuToggle()">&#9776; Open Sidebar</button>
-       
+    </div>
 
-        <div class="iframe" >
+    <div id="main">
+        <button class="openbtn" onclick="menuToggle()">&#9776; Open Sidebar</button>
+        <div class="iframe">
             <iframe id="labPlayer" src="" style="width: 100%; height: 100vh;"></iframe>
         </div>
-
-
-      </div>
+    </div>
 
 
     <!-- <div class="header">
@@ -220,27 +225,26 @@
     </div> -->
 
 
-    
 
     <script>
         var ulList = document.querySelector("#ulList")
         var iframePlayer = document.getElementById("labPlayer")
-        console.log("list-->",ulList)
+        console.log("list-->", ulList)
         ulList.querySelectorAll("li.list").forEach((list) => {
             list.addEventListener('click', () => playIframe(list));
         });
 
-        function playIframe(data){
-            console.log("data come from list click---->",data)
+        function playIframe(data) {
+            console.log("data come from list click---->", data)
             removeAcriveClass()
             data.classList.add('active')
             let url = data.getAttribute("value");
-            console.log("url--->",url);
+            console.log("url--->", url);
             iframePlayer.src = url;
-           // iframePlayer.setAttribute("src",url);
+            // iframePlayer.setAttribute("src",url);
         }
 
-       function removeAcriveClass(){
+        function removeAcriveClass() {
             ulList.querySelectorAll("li.list").forEach((list) => {
                 list.classList.remove('active')
             });
@@ -252,18 +256,18 @@
         let openbtn = document.querySelector('.openbtn');
         function menuToggle() {
             menuOpened = !menuOpened;
-            if(menuOpened){
+            if (menuOpened) {
                 document.getElementById("mySidebar").style.left = "0";
                 document.getElementById("main").style.marginLeft = `${menuValue}px`;
                 openbtn.innerHTML = "&#x2715; Close"
-            }else{
+            } else {
                 document.getElementById("mySidebar").style.left = `-${menuValue}px`;
                 document.getElementById("main").style.marginLeft = "0";
                 openbtn.innerHTML = "&#9776; Open Sidebar"
             }
         }
 
-        
+
     </script>
 </body>
 

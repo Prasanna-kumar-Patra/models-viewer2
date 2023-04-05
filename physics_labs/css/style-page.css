@@ -43,13 +43,16 @@ body {
 #topmenu {
   position: absolute;
   float: top;
-  top: 5px;
+  top: 0;
+  padding: 10px;
   width: 100%;
-  text-align: center;
+  text-align: left;
   font-weight: bold;  
-  text-decoration: underline; 
-  font-size: 125%; 
-  padding-bottom: 2px;
+  /* text-decoration: underline;  */
+  font-size: 18px;
+  font-weight: 600; 
+  /* padding-bottom: 2px; */
+  border-bottom: 1px solid #000000c0;
 }
 
 #sidemenu {
