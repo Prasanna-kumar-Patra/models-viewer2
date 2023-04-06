@@ -215,8 +215,8 @@ caption {
 .annotation {
   display: block;
   position: absolute;
-  top: 0;
-  left: 0;
+  top: 15px;
+  left: 15px;
   z-index: 1;
   padding: 1em;
   width: 250px;

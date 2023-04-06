@@ -38,11 +38,15 @@ h1 {
 }
 
 article {
-    float: left;
+    /* float: left; */
     padding: 20px;
     width: 100%;
     background-color: #f1f1f1;
+    
+}
 
+article h2{
+  font-size: 20px;
 }
 
 .row {
@@ -150,6 +154,8 @@ article {
 dl {
   padding: 10px;
   background-color:rgba(78, 192, 245, 0.3);
+  border-radius: 10px;
+  box-shadow: 0px 2px 0px #000;
 }
 
 input {
@@ -201,7 +207,8 @@ select {
     background-color:  rgba(78, 192, 245,.4);
     font-size: 13px;
     text-align: center;
-    float: bottom;
+    padding: 10px;
+    /* float: bottom; */
     /* z-index: 500; */
     
 }

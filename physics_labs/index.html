@@ -15,7 +15,8 @@
             font-family: 'Montserrat', sans-serif;
             margin: 0;
             padding: 0;
-            /* background: #1f1f1f; */
+            
+            background: #d9e7cb;
         }
 
         * {
@@ -75,7 +76,7 @@
             /* color: #ffffffa9; */
             cursor: pointer;
             /* box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24); */
-            border-radius: 20px;
+            border-radius: 30px;
             transition: background-color 0.5s;
             font-weight: 400;
 
@@ -143,15 +144,23 @@
         .openbtn {
             font-size: 14px;
             cursor: pointer;
-            background-color: #e95c7c;
+            /* background-color: #e95c7c; */
             color: white;
-            padding: 6px 12px;
             border: none;
             position: fixed;
-            left: 0;
+            left: 10px;
             top: 6px;
             z-index: 99;
-            border-radius: 0 10px 10px 0;
+            /* border-radius: 0 10px 10px 0; */
+            color: rgba(253, 251, 251, 0.75);
+            background: rgba(243, 44, 87, 0.75);
+            outline: 1px solid rgba(243, 44, 87, 0.75);
+            border: 0;
+            margin: 0;
+            border-radius: 5px;
+            padding: 6px 15px;
+            font-weight: 600;
+            box-shadow: 0px 1px 0px #000;
         }
 
         .openbtn:hover {
@@ -175,7 +184,8 @@
         }
 
         #labPlayer {
-            border: 0;
+            padding:0;
+            border: 0;           
         }
     </style>
 </head>
@@ -224,7 +234,7 @@
     <div id="main">
         <button class="openbtn" onclick="menuToggle()">&#9776; Open Sidebar</button>
         <div class="iframe">
-            <iframe id="labPlayer" src="" style="width: 100%; height: 100vh;"></iframe>
+            <iframe id="labPlayer" src="optics/microscope/index.html" style="width: 100%; height: 100vh;"></iframe>
         </div>
     </div>
 
