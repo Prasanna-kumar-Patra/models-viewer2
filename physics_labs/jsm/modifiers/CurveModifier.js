@@ -13,16 +13,16 @@ import {
 	NearestFilter,
 	DynamicDrawUsage,
 	Matrix4
-} from '../../../build/three.module.js';
+} from '../../build/three.module.js';
 
 /**
  * Make a new DataTexture to store the descriptions of the curves.
  *
  * @param { number } numberOfCurves the number of curves needed to be described by this texture.
  */
-export function initSplineTexture( numberOfCurves = 1 ) {
+export function initSplineTexture(numberOfCurves = 1) {
 
-	const dataArray = new Float32Array( TEXTURE_WIDTH * TEXTURE_HEIGHT * numberOfCurves * BITS );
+	const dataArray = new Float32Array(TEXTURE_WIDTH * TEXTURE_HEIGHT * numberOfCurves * BITS);
 	const dataTexture = new DataTexture(
 		dataArray,
 		TEXTURE_WIDTH,
@@ -47,27 +47,27 @@ export function initSplineTexture( numberOfCurves = 1 ) {
  * @param { Curve } splineCurve The curve to describe
  * @param { number } offset Which curve slot to write to
  */
-export function updateSplineTexture( texture, splineCurve, offset = 0 ) {
+export function updateSplineTexture(texture, splineCurve, offset = 0) {
 
-	const numberOfPoints = Math.floor( TEXTURE_WIDTH * ( TEXTURE_HEIGHT / 4 ) );
+	const numberOfPoints = Math.floor(TEXTURE_WIDTH * (TEXTURE_HEIGHT / 4));
 	splineCurve.arcLengthDivisions = numberOfPoints / 2;
 	splineCurve.updateArcLengths();
-	const points = splineCurve.getSpacedPoints( numberOfPoints );
-	const frenetFrames = splineCurve.computeFrenetFrames( numberOfPoints, true );
+	const points = splineCurve.getSpacedPoints(numberOfPoints);
+	const frenetFrames = splineCurve.computeFrenetFrames(numberOfPoints, true);
 
-	for ( let i = 0; i < numberOfPoints; i ++ ) {
+	for (let i = 0; i < numberOfPoints; i++) {
 
-		const rowOffset = Math.floor( i / TEXTURE_WIDTH );
+		const rowOffset = Math.floor(i / TEXTURE_WIDTH);
 		const rowIndex = i % TEXTURE_WIDTH;
 
-		let pt = points[ i ];
-		setTextureValue( texture, rowIndex, pt.x, pt.y, pt.z, 0 + rowOffset + ( TEXTURE_HEIGHT * offset ) );
-		pt = frenetFrames.tangents[ i ];
-		setTextureValue( texture, rowIndex, pt.x, pt.y, pt.z, 1 + rowOffset + ( TEXTURE_HEIGHT * offset ) );
-		pt = frenetFrames.normals[ i ];
-		setTextureValue( texture, rowIndex, pt.x, pt.y, pt.z, 2 + rowOffset + ( TEXTURE_HEIGHT * offset ) );
-		pt = frenetFrames.binormals[ i ];
-		setTextureValue( texture, rowIndex, pt.x, pt.y, pt.z, 3 + rowOffset + ( TEXTURE_HEIGHT * offset ) );
+		let pt = points[i];
+		setTextureValue(texture, rowIndex, pt.x, pt.y, pt.z, 0 + rowOffset + (TEXTURE_HEIGHT * offset));
+		pt = frenetFrames.tangents[i];
+		setTextureValue(texture, rowIndex, pt.x, pt.y, pt.z, 1 + rowOffset + (TEXTURE_HEIGHT * offset));
+		pt = frenetFrames.normals[i];
+		setTextureValue(texture, rowIndex, pt.x, pt.y, pt.z, 2 + rowOffset + (TEXTURE_HEIGHT * offset));
+		pt = frenetFrames.binormals[i];
+		setTextureValue(texture, rowIndex, pt.x, pt.y, pt.z, 3 + rowOffset + (TEXTURE_HEIGHT * offset));
 
 	}
 
@@ -76,14 +76,14 @@ export function updateSplineTexture( texture, splineCurve, offset = 0 ) {
 }
 
 
-function setTextureValue( texture, index, x, y, z, o ) {
+function setTextureValue(texture, index, x, y, z, o) {
 
 	const image = texture.image;
 	const { data } = image;
 	const i = BITS * TEXTURE_WIDTH * o; // Row Offset
-	data[ index * BITS + i + 0 ] = x;
-	data[ index * BITS + i + 1 ] = y;
-	data[ index * BITS + i + 2 ] = z;
+	data[index * BITS + i + 0] = x;
+	data[index * BITS + i + 1] = y;
+	data[index * BITS + i + 2] = z;
 
 }
 
@@ -92,7 +92,7 @@ function setTextureValue( texture, index, x, y, z, o ) {
  *
  * @param { DataTexture } Texture which holds the curve description
  */
-export function getUniforms( splineTexture ) {
+export function getUniforms(splineTexture) {
 
 	const uniforms = {
 		spineTexture: { value: splineTexture },
@@ -106,17 +106,17 @@ export function getUniforms( splineTexture ) {
 
 }
 
-export function modifyShader( material, uniforms, numberOfCurves = 1 ) {
+export function modifyShader(material, uniforms, numberOfCurves = 1) {
 
-	if ( material.__ok ) return;
+	if (material.__ok) return;
 	material.__ok = true;
 
-	material.onBeforeCompile = ( shader ) => {
+	material.onBeforeCompile = (shader) => {
 
-		if ( shader.__modified ) return;
+		if (shader.__modified) return;
 		shader.__modified = true;
 
-		Object.assign( shader.uniforms, uniforms );
+		Object.assign(shader.uniforms, uniforms);
 
 		const vertexShader = `
 		uniform sampler2D spineTexture;
@@ -131,14 +131,14 @@ export function modifyShader( material, uniforms, numberOfCurves = 1 ) {
 
 		${shader.vertexShader}
 		`
-		// chunk import moved in front of modified shader below
-			.replace( '#include <beginnormal_vertex>', '' )
+			// chunk import moved in front of modified shader below
+			.replace('#include <beginnormal_vertex>', '')
 
 			// vec3 transformedNormal declaration overriden below
-			.replace( '#include <defaultnormal_vertex>', '' )
+			.replace('#include <defaultnormal_vertex>', '')
 
 			// vec3 transformed declaration overriden below
-			.replace( '#include <begin_vertex>', '' )
+			.replace('#include <begin_vertex>', '')
 
 			// shader override
 			.replace(
@@ -181,10 +181,10 @@ vec3 transformed = basis
 
 vec3 transformedNormal = normalMatrix * (basis * objectNormal);
 			` ).replace(
-				'#include <project_vertex>',
-				`vec4 mvPosition = modelViewMatrix * vec4( transformed, 1.0 );
+					'#include <project_vertex>',
+					`vec4 mvPosition = modelViewMatrix * vec4( transformed, 1.0 );
 				gl_Position = projectionMatrix * mvPosition;`
-			);
+				);
 
 		shader.vertexShader = vertexShader;
 
@@ -201,12 +201,12 @@ export class Flow {
 	 * @param {Mesh} mesh The mesh to clone and modify to bend around the curve
 	 * @param {number} numberOfCurves The amount of space that should preallocated for additional curves
 	 */
-	constructor( mesh, numberOfCurves = 1 ) {
+	constructor(mesh, numberOfCurves = 1) {
 
 		const obj3D = mesh.clone();
-		const splineTexure = initSplineTexture( numberOfCurves );
-		const uniforms = getUniforms( splineTexure );
-		obj3D.traverse( function ( child ) {
+		const splineTexure = initSplineTexture(numberOfCurves);
+		const uniforms = getUniforms(splineTexure);
+		obj3D.traverse(function (child) {
 
 			if (
 				child instanceof Mesh ||
@@ -214,14 +214,14 @@ export class Flow {
 			) {
 
 				child.material = child.material.clone();
-				modifyShader( child.material, uniforms, numberOfCurves );
+				modifyShader(child.material, uniforms, numberOfCurves);
 
 			}
 
-		} );
+		});
 
-		this.curveArray = new Array( numberOfCurves );
-		this.curveLengthArray = new Array( numberOfCurves );
+		this.curveArray = new Array(numberOfCurves);
+		this.curveLengthArray = new Array(numberOfCurves);
 
 		this.object3D = obj3D;
 		this.splineTexure = splineTexure;
@@ -229,18 +229,18 @@ export class Flow {
 
 	}
 
-	updateCurve( index, curve ) {
+	updateCurve(index, curve) {
 
-		if ( index >= this.curveArray.length ) throw Error( 'Index out of range for Flow' );
+		if (index >= this.curveArray.length) throw Error('Index out of range for Flow');
 		const curveLength = curve.getLength();
 		this.uniforms.spineLength.value = curveLength;
-		this.curveLengthArray[ index ] = curveLength;
-		this.curveArray[ index ] = curve;
-		updateSplineTexture( this.splineTexure, curve, index );
+		this.curveLengthArray[index] = curveLength;
+		this.curveArray[index] = curve;
+		updateSplineTexture(this.splineTexure, curve, index);
 
 	}
 
-	moveAlongCurve( amount ) {
+	moveAlongCurve(amount) {
 
 		this.uniforms.pathOffset.value += amount;
 
@@ -261,18 +261,18 @@ export class InstancedFlow extends Flow {
 	 * @param {Geometry} geometry The geometry to use for the instanced mesh
 	 * @param {Material} material The material to use for the instanced mesh
 	 */
-	constructor( count, curveCount, geometry, material ) {
+	constructor(count, curveCount, geometry, material) {
 
 		const mesh = new InstancedMesh(
 			geometry,
 			material,
 			count
 		);
-		mesh.instanceMatrix.setUsage( DynamicDrawUsage );
-		super( mesh, curveCount );
+		mesh.instanceMatrix.setUsage(DynamicDrawUsage);
+		super(mesh, curveCount);
 
-		this.offsets = new Array( count ).fill( 0 );
-		this.whichCurve = new Array( count ).fill( 0 );
+		this.offsets = new Array(count).fill(0);
+		this.whichCurve = new Array(count).fill(0);
 
 	}
 
@@ -282,14 +282,14 @@ export class InstancedFlow extends Flow {
 	 *
 	 * @param {number} index of the instanced element to update
 	 */
-	writeChanges( index ) {
+	writeChanges(index) {
 
 		matrix.makeTranslation(
-			this.curveLengthArray[ this.whichCurve[ index ] ],
-			this.whichCurve[ index ],
-			this.offsets[ index ]
+			this.curveLengthArray[this.whichCurve[index]],
+			this.whichCurve[index],
+			this.offsets[index]
 		);
-		this.object3D.setMatrixAt( index, matrix );
+		this.object3D.setMatrixAt(index, matrix);
 		this.object3D.instanceMatrix.needsUpdate = true;
 
 	}
@@ -300,10 +300,10 @@ export class InstancedFlow extends Flow {
 	 * @param {number} index Which element to update
 	 * @param {number} offset Move by how much
 	 */
-	moveIndividualAlongCurve( index, offset ) {
+	moveIndividualAlongCurve(index, offset) {
 
-		this.offsets[ index ] += offset;
-		this.writeChanges( index );
+		this.offsets[index] += offset;
+		this.writeChanges(index);
 
 	}
 
@@ -313,11 +313,11 @@ export class InstancedFlow extends Flow {
 	 * @param {number} index the index of the instanced element to update
 	 * @param {number} curveNo the index of the curve it should use
 	 */
-	setCurve( index, curveNo ) {
+	setCurve(index, curveNo) {
 
-		if ( isNaN( curveNo ) ) throw Error( 'curve index being set is Not a Number (NaN)' );
-		this.whichCurve[ index ] = curveNo;
-		this.writeChanges( index );
+		if (isNaN(curveNo)) throw Error('curve index being set is Not a Number (NaN)');
+		this.whichCurve[index] = curveNo;
+		this.writeChanges(index);
 
 	}
 
