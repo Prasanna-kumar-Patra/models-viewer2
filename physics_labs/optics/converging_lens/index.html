@@ -343,7 +343,22 @@
 
             const lens = new THREE.Mesh(
                 new THREE.SphereGeometry(15, 12, 12),
-                new THREE.MeshBasicMaterial({ color: 'lightgreen', transparent: true, opacity: .8 })
+                new THREE.MeshPhysicalMaterial({
+                    metalness: 0,
+                    roughness: 0,
+                    refractionRatio: 0.1,
+                    // clearcoatRoughness: 0,
+                    // clearcoat: 0.01,
+                    // envMap: cubeRenderTarget.texture,
+                    // envMap: createEnvMap('refraction'),
+                    transparent: true,
+                    color: 0xffffff,
+                    transmission: 1,
+                    opacity: .5,
+                    // ior: 1.5
+                    // side: THREE.BackSide
+                })
+                // new THREE.MeshBasicMaterial({ color: 'lightgreen', transparent: true, opacity: .8 })
             );
             lens.scale.set(.7, .7, .06);
             scene.add(lens);
