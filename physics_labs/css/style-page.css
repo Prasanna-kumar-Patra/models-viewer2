@@ -310,7 +310,8 @@ caption {
 .lil-gui.autoPlace {
   padding:10px 15px!important;
   border-radius: 10px!important;
-  top: 15px!important;
+  bottom: 15px!important;
+  top: auto!important;
 }
 
 .lil-gui button{
