@@ -260,7 +260,7 @@ caption {
     border-radius: 2px;
     padding: 2px 3px;
   }
-  #menu {
+  /* #menu {
     position: absolute;
     float: bottom;
     font-size: 14px;
@@ -268,7 +268,7 @@ caption {
     margin: 0;
     margin-bottom: -20px;
    
-  }
+  } */
 
   .annotation {
     display: none;
@@ -287,7 +287,7 @@ caption {
   #topmenu{
     font-size: 10px;
   }
-  #menu {
+  /* #menu {
     position: absolute;
     float: bottom;
     bottom: 20px;
@@ -295,7 +295,7 @@ caption {
     padding: 0;
     margin: 0;
     margin-bottom: -20px;
-  }
+  } */
   .annotation {
     display: none;
     width: 150px;
