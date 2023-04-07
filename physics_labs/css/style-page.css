@@ -79,10 +79,10 @@ body {
 
 button {
   color: rgba(253, 251, 251, 0.75);
-  background: rgb(3, 108, 156);
-  background: rgba(243, 44, 87, 0.75);
   
-  outline: 1px solid rgba(243, 44, 87, 0.75);
+  background: #55f;
+  
+  outline: 1px solid #55f;
   border: 0;
   margin: 5px;
   border-radius: 5px;
@@ -95,12 +95,12 @@ button {
 
 button:hover {
 
-  background-color: rgba(243, 44, 87, 0.75);
+  background-color: rgb(59, 59, 243);
 }
 
 button:active {
 
-  background-color: rgba(131, 10, 36, 0.75);
+  background-color: #55f;
 }
 
 #sidemenu button {
@@ -308,8 +308,8 @@ caption {
 
 
 .lil-gui.autoPlace {
-  padding:10px 15px!important;
-  border-radius: 10px!important;
+  /* padding:10px 15px!important; */
+  /* border-radius: 10px!important; */
   bottom: 15px!important;
   top: auto!important;
 }
