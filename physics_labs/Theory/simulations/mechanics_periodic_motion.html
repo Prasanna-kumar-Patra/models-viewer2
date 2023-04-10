@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Spring Force (Hook's Law) </title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+
+
+<!-- Here is our page's main content -->
+
+<article>
+
+    <div style="float: left; margin-right:10px;">
+       
+        <canvas width="300px" height="600px" id="canvas"></canvas>
+        <canvas width="300px" height="600px" id="canvas1"></canvas>
+    </div>
+
+    <div>
+        <!-- <p style="font-size: 24px; ">Mass = <a id="mass"> </a>g</p> -->
+       
+        <div>
+            <input type="range" id="freq" name="freq" min="1" max="3" value="1" step="1">
+            <p>
+                <label for="freq">Angular frequency, <em>&omega; = 2 &pi;/T = </em> </label><a id="freqDisplay"></a> rad<sup>-1</sup>
+            </p>
+           <!-- <p>Time Period, <em>T = 2 &pi;/&omega; =</em> <a id="period"></a>s </p> -->
+           <p>Time Period,T = <a id="periodDisplay"></a> s</p>
+        </div>
+        
+        <p><button id="pausebtn"> PAUSE </button></p>
+    </div>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const canvasContext = canvas.getContext('2d');
+
+        const pauseButton = document.getElementById('pausebtn');
+       
+        let freqEl = document.getElementById('freq');
+        let periodDisplay = document.getElementById('periodDisplay');
+        let freqDisplay = document.getElementById('freqDisplay');
+
+        let backgroundImage = new Image();
+        backgroundImage.src = 'Graph-paper.png';
+        let freq = 1;
+        let period = 2 * Math.PI / freq;
+
+        const cx = canvas.width / 2, cy = canvas.height / 4;
+        let radius = 75, angle = 0, height = radius * 50;
+        let t = period / 1000, T = 0;
+        let requestID,timeID, pause = false;
+        let amp = 0.018;
+        let points1 = []; 
+        let points2 = [];
+        let canvas1 = document.getElementById("canvas1");
+        let ctx = canvas1.getContext("2d");
+        let cw = canvas1.width;
+        let ch = canvas1.height;
+        let index1 = 0;
+        let opr = -1;
+        let index2 = 0;
+        let tests = 50; 
+        let mode = [50,100,500]
+        // fast = 50, medium =100, slow= 500
+       
+
+        
+        freqEl.addEventListener("input", function (event) {
+            // console.log(freqEl.valueAsNumber)
+             index1 = 0;
+            opr = -1;
+            index2 = 0;
+            cancelAnimationFrame(timeID);
+            // pause = false
+            adjustFreq()
+        });
+        pauseButton.addEventListener('click', function () {
+            pause = !pause
+            if (pause) {
+                console.log('pause');
+                pauseButton.innerHTML = 'START';
+               
+                cancelAnimationFrame(timeID);
+                cancelAnimationFrame(requestID);
+            } else {
+                console.log('Start');
+                pauseButton.innerHTML = 'PAUSE';
+                plotCurve();
+                adjustFreq()
+            }
+        });
+       
+        
+
+        function plotCurve() {
+            let x = Math.cos(2.39 * freq * angle) * 1.3 * radius;
+            canvasContext.clearRect(0, 0, canvas.width, canvas.height);
+            canvasContext.drawImage(backgroundImage, 0, 0);
+
+            drawAxes(canvasContext, 0, 30, 300, 30, 'red');
+            canvasContext.beginPath();    
+            canvasContext.lineWidth = 2;
+            canvasContext.fillStyle = 'green';            
+            canvasContext.arc(cx+x, 30 , 12, 0, Math.PI * 2);
+            canvasContext.fill();
+            canvasContext.closePath();
+            drawCosine(canvasContext, 1.3 * radius, 2.39 * freq * angle, 'green', 30, cx)
+            angle += t;
+            requestID = requestAnimationFrame(plotCurve);
+            
+        }
+
+        function drawAxes(ctx, x1, y1, x2, y2, col) {
+            // console.log('axis')
+            ctx.beginPath();
+            ctx.strokeStyle = col;
+            ctx.fillStyle = 'green';
+            ctx.lineWidth = 2;
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2)
+            ctx.stroke();
+        }
+
+        function drawCosine(ctx, A, t, col, xAxis, yAxis) {
+            ctx.beginPath();
+            ctx.strokeStyle = col;
+            // Set the initial x and y, starting at 0,0 and translating to the origin on
+            // the canvas.
+            let y = t;
+            let x = Math.cos(y);
+            ctx.moveTo(A * x + yAxis, xAxis);
+
+
+            // Loop to draw segments
+            for (i = xAxis; i <= height; i += 5) {
+                y = t + (-xAxis + i) / A;
+                x = Math.cos(y);
+
+                ctx.lineTo(A * x + yAxis, i);
+            }
+            ctx.stroke();
+        }
+        
+        let cBez1 = [{ x: 0, y: 0 }, { x: 150, y: 400 }, { x: 300, y: 0 }]
+        // drawBez(cBez1);
+       
+        let SPoints1 = findCBezPoints(cBez1, mode[2]);
+        let cBez2 = [{ x: 0, y: 500 }, { x: 150, y: 100 }, { x: 300, y: 500 }]
+        plotCurve();
+        adjustFreq()
+        function adjustFreq() {
+            freq = freqEl.valueAsNumber;
+            period = 2 * Math.PI / freq;
+           
+            points1 = [], points2 = [];
+            // console.log(freq);
+            if (freq==1) {
+                points1 = findCBezPoints(cBez1, mode[2]);
+                points2 = findCBezPoints(cBez2, mode[2]);
+                timeAnim()
+            } else if ((freq==2)) {
+                points1 = findCBezPoints(cBez1, mode[1]);
+                points2 = findCBezPoints(cBez2, mode[1]);
+                timeAnim()
+            } else if ((freq==3)) {
+                points1 = findCBezPoints(cBez1, mode[0]);
+                points2 = findCBezPoints(cBez2, mode[0]);
+                timeAnim()
+            }
+            freqDisplay.innerText = freq.toFixed(2);
+            periodDisplay.innerText = period.toFixed(2);
+        }
+
+        function timeAnim() {
+            //reset view
+            ctx.clearRect(0, 0, cw, ch);
+
+            drawBez(cBez1);
+            drawBez(cBez2);
+            //draw dot
+            ctx.fillStyle = 'red';
+           
+            ctx.beginPath();
+            ctx.arc(points1[index1].x, points1[index1].y, 8, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.font = "12px arial";
+            ctx.fillStyle = "red";
+            ctx.textAlign = "center";
+            ctx.fillText("POTENTIAL ENERGY ", cw/2, 20);
+            ctx.fillText("KINETIC ENERGY ", cw/2, ch/2+150 );
+            ctx.font = "16px arial";
+            ctx.fillStyle = "black";
+            ctx.fillText("TOTAL ENERGY VS DISPLACEMENT", cw/2, ch/2 -50 );
+
+            
+
+            ctx.fillStyle = 'blue';
+            ctx.beginPath();
+            ctx.arc(points2[index2].x, points2[index2].y, 8, 0, Math.PI * 2);
+            ctx.fill();
+
+            //reversing the dot in motion
+
+            if (index1 + opr > points1.length - 2 || index1 + opr < 0) {
+                opr *= -1;
+            }
+
+            if (index2 + opr > points2.length - 2 || index2 + opr < 0) {
+                opr *= -1;
+            }
+            index1 += opr;
+            index2 += opr;
+            timeID = requestAnimationFrame(timeAnim)
+        }
+        
+        function findCBezPoints(b,mode) {
+            let startPt = b[0];
+            let controlPt1 = b[1];
+            let controlPt2 = b[2];
+            let endPt = b[3];
+            let pts = [b[0]];
+            let lastPt = b[0];
+            // console.log(mode)
+            for (let t = 0; t <= mode; t++) {
+                // calc another point along the curve
+                // let pt = getCubicBezierXYatT(b[0], b[1], b[2], b[3], t / tests);
+                let pt = getQuadraticBezierXYatT(b[0], b[1], b[2], t / mode)
+                // add the pt if it's not already in the pts[] array
+                let dx = pt.x - lastPt.x;
+                let dy = pt.y - lastPt.y;
+                let d = Math.sqrt(dx * dx + dy * dy);
+                let dInt = parseInt(d);
+                if (dInt > 0 || t == tests) {
+                    lastPt = pt;
+                    pts.push(pt);
+                }
+            }
+            return (pts);
+        }
+
+        
+        function getQuadraticBezierXYatT(startPt, controlPt, endPt, T) {
+            let x = Math.pow(1 - T, 2) * startPt.x + 2 * (1 - T) * T * controlPt.x + Math.pow(T, 2) * endPt.x;
+            let y = Math.pow(1 - T, 2) * startPt.y + 2 * (1 - T) * T * controlPt.y + Math.pow(T, 2) * endPt.y;
+            return ({ x: x, y: y });
+        }
+        
+
+        function drawBez(b) {
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(b[0].x, b[0].y);
+            ctx.quadraticCurveTo(b[1].x, b[1].y, b[2].x, b[2].y);
+            // ctx.bezierCurveTo(b[1].x, b[1].y, b[2].x, b[2].y, b[3].x, b[3].y);
+            ctx.stroke();
+        }
+        
+    </script>
+    </body>
+
+</html>
