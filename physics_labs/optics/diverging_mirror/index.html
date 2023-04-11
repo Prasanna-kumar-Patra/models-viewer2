@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Image Formation with Convex Mirror</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel="shortcut icon" href="../files/favicon_white.ico" media="(prefers-color-scheme: dark)" />
+    <link rel="shortcut icon" href="../files/favicon.ico" media="(prefers-color-scheme: light)" />
+    <link rel="stylesheet" type="text/css" href="../../css/style-page.css">
+    <link rel="stylesheet" type="text/css" href="../../css/watermark.css">
+   
+
+</head>
+
+<body>
+
+    <div id="container">
+        <div id="topmenu">
+            <div>Image Formation with Convex Mirror</div>
+
+        </div>
+
+        <div id="sidemenu">
+            <a><input type="range" id="focal" name="focal" min="1" max="25" value="7" step="0.5">
+                <label for="focal">Focal Length =</label><a id="focalDisplay"> 7 </a>cm<br>
+            </a>
+
+            <div id="items"><input type="range" id="object" name="object" min="-50" max="-0.5" value="-7" step="0.5">
+                <label for="object">Object Distance =</label><a id="objectDisplay"> -7 </a>cm<br>
+                <input type="range" id="height" name="height" min="0.5" max="5" value="3" step="0.5">
+                <label for="height">Object Height =</label><a id="heightDisplay"> 3 </a> cm<br>
+            </div>
+
+
+           
+        </div>
+
+        <div id="menu">
+            <div style="display: none;" id="formula">
+            <a> <strong> Formula: <br>
+            
+                <div class="fraction">
+                    <span class="fup">1</span>
+                    <span class="bar">/</span>
+                    <span class="fdn">f</span>
+                </div>
+                <a>=</a>
+                <div class="fraction">
+                    <span class="fup">1</span>
+                    <span class="bar">/</span>
+                    <span class="fdn">v</span>
+                </div>
+                <a>+</a>
+                <div class="fraction">
+                    <span class="fup">1</span>
+                    <span class="bar">/</span>
+                    <span class="fdn">u</span>
+                </div>
+                <a> or v</a>
+                <a>=</a>
+                <div class="fraction">
+                    <span class="fup">u f</span>
+                    <span class="bar">/</span>
+                    <span class="fdn">(u-f)</span>
+                </div></strong></a>
+                <br>
+                <a><strong>Magnification:<br>
+                <div class="fraction">
+                    m =
+                </div>
+                <div class="fraction">
+                    -
+                </div>
+                <div class="fraction">
+                    <span class="fup">v</span>
+                    <span class="bar">/</span>
+                    <span class="fdn">u</span>
+                </div>
+                <div class="fraction">
+                    =
+                </div>
+                <div class="fraction">
+                    <span class="fup">h<sub>i</sub></span>
+                    <span class="bar">/</span>
+                    <span class="fdn">h<sub>o</sub></span>
+                </div>
+            </strong></a>
+        </div>
+        <div id="display">            
+            <a>
+                <div class="fraction">
+                    <span class="fup">1</span>
+                    <span class="bar">/</span>
+                    <span id="ff-el" class="fdn"></span>
+                </div>
+                <a>=</a>
+                <div style="color:red;" class="fraction">
+                    <span class="fup">1</span>
+                    <span class="bar">/</span>
+                    <span id="fv-el" class="fdn"></span>
+                </div>
+
+                <a>+</a>
+                <div class="fraction">
+                    <span class="fup">1</span>
+                    <span class="bar">/</span>
+                    <span id="fu-el" class="fdn"></span>
+                </div>
+               &amp; m = - <b> <div class="fraction">
+                    <span style="color:red;" id="mv-el" class="fup"></span>
+                    <span class="bar">/</span>
+                    <span id="mu-el" class="fdn"></span>
+                </div> =</a>
+                <a id="mm-el"></a></b>
+                <br>
+                <a id="message-el"> 
+                    <table>
+                        <tr>
+                            <td>
+                                Focal length, (f) = <b id="f-el"> </b> cm
+                            </td>
+                            <td>&nbsp; &nbsp;</td>
+                            <td>
+                                Magnification, (m) =  <b id="m-el"></b>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Object Distance, (u) = <b id="u-el">  </b> cm
+                            </td>
+                            <td>&nbsp; &nbsp;</td>
+                            <td>
+                                Object Height, (h<sub>o</sub>) = <b id="ho-el"> </b> cm
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Image Distance, (v) = <b style="color:red;" id="v-el">  </b> cm
+                            </td>
+                            <td>&nbsp; &nbsp;</td>
+                            <td>
+                                Image Height, h<sub>i</sub> = <b style="color:red;" id="hi-el">  </b> cm 
+                            </td>
+                        </tr>
+                    </table>
+                    
+                </a>
+               
+        </div>    
+            
+                <button id="change"> Object at Infinity </button>
+                <button onClick=" displayOn()">FORMULA</button>
+                
+        </div>
+
+    </div>
+    <script>
+        let formula = document.getElementById('formula');
+        let theoryButton = document.getElementById('theorybutton');
+        function displayOn() {
+           
+            if (formula.style.display === 'block') {
+                formula.style.display = 'none';
+            } else {
+                formula.style.display = 'block';
+            }
+        };
+
+        function theorySite() {
+
+            window.open("../../theory/optics_converging_lens.html", "_self")
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from '../../build/three.module.js';
+        import { GLTFLoader } from '../../jsm/loaders/GLTFLoader.js';
+        import { OrbitControls } from '../../jsm/controls/OrbitControls.js';
+        import { CSS2DRenderer, CSS2DObject } from '../../jsm/renderers/CSS2DRenderer.js';
+        import Stats from '../../jsm/libs/stats.module.js';
+        import g, { GUI } from '../../jsm/libs/lil-gui.module.min.js';
+
+        let scene, camera, renderer, controls, mirror, labelRenderer;
+        let incidentRay1, incidentRay2, incidentRay3, incidentRay;
+        let incidentArrow1, incidentArrow2, incidentArrow3, incidentArrow;
+        let reflectedRay1, reflectedRay2, reflectedRay3, reflectedRay;
+        let reflectedArrow1, reflectedArrow2, reflectedArrow3, reflectedArrow;
+        let rayLine, rayArrow, eye;
+        let object, objectTip, image, imageTip, imagePoint, pole, pointP1, pointA, pointB, pointF, pointC, pointD, pointP2, opticalAxis, pointX, pointP, pointY;
+
+        let infinity = false;
+        let width = window.innerWidth, height = window.innerHeight;
+        let objLabel, virtualLabel, fPoint, fLabel, cPoint, cLabel, opticalLabel, lensLabel, infinityLabel;
+        // let v, f, u, m, ho, hi;
+
+        let params = {
+            f: 7,
+            ho: 3,
+            u: -7,
+            m: -1,
+            v: 0,
+            hi: 0,
+            c: 14
+        }
+        let uPos = [-(1000 - params.f), -(params.f - 2 * (params.f)), -(-params.f * 2), -(-params.f * 2 - 2), -(-params.f * 2 + 3.5), -(-params.f + .01), -((-params.f) - 1.5), -(-params.f) / 2]
+
+        let fEl = document.getElementById('f-el');
+        let uEl = document.getElementById('u-el');        
+        let vEl = document.getElementById('v-el');
+        let mEl = document.getElementById('m-el');
+        let hoEl = document.getElementById('ho-el');
+        let hiEl = document.getElementById('hi-el');
+
+        let ffEl = document.getElementById('ff-el');
+        let fvEl = document.getElementById('fv-el');
+        let fuEl = document.getElementById('fu-el');
+
+        let mvEl = document.getElementById('mv-el');
+        let muEl = document.getElementById('mu-el');
+        let mmEl = document.getElementById('mm-el');
+
+        let focalEl = document.getElementById('focal');
+        let focalDisplay = document.getElementById('focalDisplay');
+        let objectEl = document.getElementById('object');
+        let objectDisplay = document.getElementById('objectDisplay');
+        let heightEl = document.getElementById('height');
+        let heightDisplay = document.getElementById('heightDisplay');
+
+        let itemsMenu = document.getElementById('items');
+        let displayMenu = document.getElementById('display');
+        let changeButton = document.getElementById('change');
+
+        function inputChange() {
+            focalEl.addEventListener("input", function (event) {
+                if (infinity) {
+                    params.f = focalEl.valueAsNumber;
+                    params.c = 2 * params.f;
+                    focalDisplay.innerText = params.f;
+                    muEl.innerText =' At infinity';
+                    // console.log(params.f);
+                    pointX = new THREE.Vector3(0, (params.ho * (params.f + Math.abs(params.u))) / (params.f), params.u)
+                    pointY = new THREE.Vector3(0, (-params.ho * (params.f + Math.abs(params.u))) / (params.f), params.u)
+                    pointP = new THREE.Vector3(0, -params.ho, 0)
+                    pointD = new THREE.Vector3(0, -params.ho, params.u)
+                    pointF = new THREE.Vector3(0, 0, params.f)
+                    pointC = new THREE.Vector3(0, 0, params.c)
+                    fPoint.position.copy(pointF);
+                    cPoint.position.copy(pointC);
+                    fLabel.position.copy(pointF)
+                    cLabel.position.copy(pointC)
+                    adjustRays(reflectedRay1, pointP1.distanceTo(pointF));
+                    adjustRays(reflectedRay2, pointP.distanceTo(pointF));
+                    adjustRays(reflectedRay, pointP1.distanceTo(pointX));
+                    adjustRays(reflectedRay3, pointP.distanceTo(pointY));
+                    reflectedRay.lookAt(pointX);
+                    reflectedRay1.lookAt(pointF);
+                    reflectedRay2.lookAt(pointF);
+                    reflectedRay3.lookAt(pointY);
+                    mirrorFormula()
+                } else {
+                    params.f = focalEl.valueAsNumber;
+                    params.c = 2 * params.f
+                    focalDisplay.innerText = params.f;
+                    params.v = ((params.u * params.f) / (params.u - params.f)).toFixed(2);
+                    params.m = (params.v / params.u).toFixed(2);
+                    
+                    changeElements()
+                }
+                
+            });
+
+            objectEl.addEventListener("input", function (event) {
+
+                params.u = objectEl.valueAsNumber;
+                objectDisplay.innerText = params.u;
+                // console.log(params.u);
+                params.v = ((params.u * params.f) / (params.u - params.f)).toFixed(2);
+                params.m = (params.v / params.u).toFixed(2);
+                // params.hi = params.m*params.ho;
+                // changeElements(params.f, params.u, params.v, params.ho, params.m)
+                changeElements()
+            });
+
+            heightEl.addEventListener("input", function (event) {
+
+                params.ho = heightEl.valueAsNumber;
+                heightDisplay.innerText = params.ho;
+                params.m = (params.v / params.u).toFixed(2);
+                params.hi = params.m * params.ho
+                changeElements()
+                // params.hi = params.m*params.ho;
+                // changeElements(params.f, params.u, params.v, params.ho, params.m)
+                // console.log(params.m, params.h)
+            });
+
+            changeButton.addEventListener("click", function (event) {
+                infinity = !infinity;
+                if (infinity) {
+                    console.log('Object at infinity');
+                    changeButton.innerHTML = 'Adjust Object Distance';
+                    itemsMenu.style.display = 'none';
+                    displayMenu.style.display = 'none';
+                    pointX = new THREE.Vector3(0, (params.ho * (params.f + Math.abs(params.u))) / (params.f), params.u)
+                    pointY = new THREE.Vector3(0, (-params.ho * (params.f + Math.abs(params.u))) / (params.f), params.u)
+                    pointP = new THREE.Vector3(0, -params.ho, 0)
+                    pointD = new THREE.Vector3(0, -params.ho, params.u)
+                    pointF = new THREE.Vector3(0, 0, params.f)
+                    pointC = new THREE.Vector3(0, 0, params.c)
+                    fPoint.position.copy(pointF);
+                    cPoint.position.copy(pointC);
+                    fLabel.position.copy(pointF)
+                    cLabel.position.copy(pointC)
+                    
+                    reflectedRay2.visible = false;
+                    reflectedRay3.visible = false;
+                    object.visible = false;
+                    image.visible = false;
+                    infinityDisplay()
+                } else {
+                    reflectedRay2.visible = true;
+                    reflectedRay3.visible = true;
+                    
+                    incidentRay3.visible = false;
+                    incidentRay.visible = false;
+                    object.visible = true;
+                    image.visible = true;
+                    let newMaterial = new THREE.MeshBasicMaterial({ color: 'blue' });
+                    incidentRay1.material = newMaterial;
+                    console.log('Adjust Object Distance');
+                    changeButton.innerHTML = 'Object at infinity'
+                    itemsMenu.style.display = 'block'
+                    displayMenu.style.display = 'block';
+                    focalDisplay.innerText = params.f;
+                    focalEl.value = params.f;
+                    mirrorFormula()
+                    changeElements()
+                }
+
+
+            });
+        }
+
+        function createCamera() {
+            // Create a Camera
+            const fov = 50; // AKA Field of View
+            const aspect = width / height;
+            const near = 0.1; // the near clipping plane
+            const far = 1000; // the far clipping plane
+
+            camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+
+            camera.position.set(-35, 0, 0);
+            // camera.position.set(-10, 3, 40);
+        }
+
+        function createLights() {
+            // Create a directional light
+            const ambientLight = new THREE.HemisphereLight(0xddeeff, 0x202020, 4);
+            const mainLight = new THREE.DirectionalLight(0xffffff, 3.0);
+            scene.add(ambientLight);
+
+            // move the light back and up a bit
+            mainLight.position.set(10, 10, 10);
+
+            // remember to add the light to the scene
+            scene.add(ambientLight, mainLight);
+        }
+
+        //for object and image representation
+        function addObject(height) {
+            let tube = new THREE.Mesh(
+                new THREE.CylinderGeometry(.1, .1, height).translate(0, height / 2, 0),
+                new THREE.MeshBasicMaterial({ color: 'black' })
+            );
+
+            let cone = new THREE.Mesh(
+                new THREE.ConeGeometry(.5, 1, 6).translate(0, height + 0.5, 0),
+                new THREE.MeshBasicMaterial({ color: 'brown' })
+            );
+
+
+            return { tube, cone }
+        }
+
+        //ray diagram constructor
+        function addRays(length) {
+            let rayGeometry = new THREE.CylinderBufferGeometry(.05, .05, length).translate(0, length / 2, 0);
+            rayGeometry.rotateX(Math.PI / 2);
+
+            rayLine = new THREE.Mesh(rayGeometry, new THREE.MeshBasicMaterial({ color: 'blue' }));
+            let coneGeometry = new THREE.ConeGeometry(.3, .5, 6).translate(0, length / 2, 0);
+            coneGeometry.rotateX(Math.PI / 2);
+            rayArrow = new THREE.Mesh(coneGeometry, new THREE.MeshBasicMaterial({ color: 'red' }));
+
+            return { rayLine, rayArrow }
+        }
+
+        function adjustRays(vector, length) {
+            vector.geometry.dispose();
+            let newrayGeometry = new THREE.CylinderBufferGeometry(.05, .05, length).translate(0, length / 2, 0);
+            newrayGeometry.rotateX(Math.PI / 2);
+            vector.geometry = newrayGeometry;
+            // vector.position.set(0,height,0);
+
+        }
+
+        function adjustArrows(vector, pos) {
+            vector.geometry.dispose();
+            let newconeGeometry = new THREE.ConeGeometry(.3, .5, 6).translate(0, pos / 2, 0);
+            newconeGeometry.rotateX(Math.PI / 2);
+            vector.geometry = newconeGeometry;
+        }
+
+        function adjustTube(vector, height) {
+            vector.geometry.dispose();
+            let newheightGeometry = new THREE.CylinderGeometry(.1, .1, height).translate(0, height / 2, 0);
+            vector.geometry = newheightGeometry;
+
+        }
+
+        //for object and image height adjustment
+        function adjustTip(vector, height) {
+            vector.geometry.dispose();
+            let newconeGeometry = new THREE.ConeGeometry(.5, 1, 6).translate(0, height + 0.5, 0);
+            vector.geometry = newconeGeometry;
+        }
+
+        function createRenderer() {
+            // create the renderer
+            renderer = new THREE.WebGLRenderer({
+                antialias: true
+            });
+            renderer.alpha = true;
+            renderer.setSize(width, height);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            document.body.appendChild(renderer.domElement);
+
+            labelRenderer = new CSS2DRenderer();
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.domElement.style.position = 'absolute';
+            labelRenderer.domElement.style.top = '0px';
+            labelRenderer.domElement.style.pointerEvents = 'none';
+            container.appendChild(labelRenderer.domElement);
+        }
+
+        function init() {
+            scene = new THREE.Scene;
+            scene.background = new THREE.Color(0xbfd1e5);
+            createCamera();
+            createLights();
+            createRenderer();
+            mirrorFormula();
+            mirror = new THREE.Mesh(
+                new THREE.SphereGeometry(35, 16, 8, 0, Math.PI * 2, 0, 0.15).translate(0, -35, 0),
+                new THREE.MeshStandardMaterial({
+                    color: 0x000000,
+                    transparent: true,
+                    opacity: .6,
+                    side: THREE.DoubleSide
+                })
+
+            );
+            // mirror.rotateX(Math.PI / 2);
+            mirror.rotation.set(-Math.PI / 2, 0, 0);
+            let mirrorBack = mirror.clone();
+            mirrorBack.material = new THREE.MeshStandardMaterial({ color: 'orange', side: THREE.FrontSide });
+            mirrorBack.position.set(0, 0, -0.15)
+            scene.add(mirror, mirrorBack);
+
+            pole = new THREE.Vector3(0, 0, 0);
+            pointP1 = new THREE.Vector3(0, params.ho, 0);
+            pointA = new THREE.Vector3(0, params.ho, params.u);
+
+            pointB = new THREE.Vector3(0, 0, 0);
+            pointB.set(0, params.hi, params.v);
+            pointF = new THREE.Vector3(0, 0, 0);
+            pointF.set(0, 0, params.f);
+            pointP2 = new THREE.Vector3(0, (params.hi * params.c) / (params.c - params.v), 0);
+            pointC = new THREE.Vector3(0, 0, 0);
+            pointC.set(0, 0, params.c);
+            pointP = new THREE.Vector3(0, -params.ho, 0);
+            pointD = new THREE.Vector3(0, -params.ho, params.u)
+            pointX = new THREE.Vector3(0, (params.ho * (params.f + Math.abs(params.u))) / (params.f), params.u);
+
+            //Add object
+            object = addObject(params.ho).tube;
+            objectTip = addObject(params.ho).cone;
+            object.position.z = params.u;
+            object.add(objectTip)
+
+
+            //place the image at the calculated point with proper magnification
+            image = addObject(params.ho).tube;
+            imageTip = addObject(params.ho).cone;
+            image.position.z = params.v;
+            image.scale.set(params.m, params.m, params.m)
+            // image.scale.set(params.m, params.m, params.m);
+            image.add(imageTip)
+            scene.add(object, image);
+
+            //add optical axis
+            opticalAxis = addRays(80).rayLine;
+            opticalAxis.material = new THREE.MeshBasicMaterial({ color: 'black' });
+            opticalAxis.position.z = -40;
+            scene.add(opticalAxis)
+            // console.log(object, image)
+            imageDisplay();
+
+
+            const scaleHorizontal = new THREE.GridHelper(70, 70);
+            scene.add(scaleHorizontal);
+
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enablePan = true;
+            controls.enableZoom = true;
+            controls.target.set(0, 2, -2);
+
+            document.body.appendChild(renderer.domElement);
+            showLabels();
+            inputChange()
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function imageDisplay() {
+
+            console.log(pointA)
+            incidentRay1 = addRays(pointA.distanceTo(pointP1)).rayLine;
+            incidentRay2 = addRays(pointA.distanceTo(pointP2)).rayLine;
+
+            incidentArrow1 = addRays(pointA.distanceTo(pointP1)).rayArrow;
+            incidentArrow2 = addRays(pointA.distanceTo(pointP2)).rayArrow;
+
+            incidentRay1.position.copy(pointP1);
+            incidentRay2.position.copy(pointP1);
+
+            incidentRay1.add(incidentArrow1);
+            incidentRay2.add(incidentArrow2);
+
+            object.add(incidentRay1, incidentRay2);
+
+                        //Actual reflected rays (diverging) 
+            //ray parallel to optical axis
+            reflectedRay = addRays(pointP1.distanceTo(pointX)).rayLine;
+            reflectedArrow = addRays(pointP1.distanceTo(pointX)).rayArrow;
+            reflectedRay.position.copy(pointP1);
+            scene.add(reflectedRay);
+            reflectedRay.add(reflectedArrow);
+            reflectedRay.lookAt(pointX);
+            //ray meeting at the center of curvature
+            reflectedRay3 = addRays(pointP2.distanceTo(pointA)).rayLine;
+            reflectedArrow3 = addRays(pointP2.distanceTo(pointA)).rayArrow;
+            reflectedRay3.position.copy(pointP2);
+            scene.add(reflectedRay3);
+            // reflectedArrow3.position.z = -params.u - (params.u/2) ;
+            reflectedRay3.add(reflectedArrow3);
+            reflectedRay3.lookAt(pointA);
+
+            //extended reflected rays to obtain the virtual imageS
+
+            reflectedRay1 = addRays(pointP1.distanceTo(pointF)).rayLine;
+            reflectedRay1.position.copy(pointP1);
+            scene.add(reflectedRay1);
+
+            reflectedRay2 = addRays(pointP2.distanceTo(pointC)).rayLine;
+            reflectedRay2.position.copy(pointP2);
+            scene.add(reflectedRay2);
+
+            incidentRay1.lookAt(pointP1);
+            incidentRay2.lookAt(pointP2);
+
+            reflectedRay1.lookAt(pointF);
+            reflectedRay2.lookAt(pointC);
+
+            let newMaterial = new THREE.MeshBasicMaterial({ color: 'grey' });
+            reflectedRay1.material = newMaterial;
+            reflectedRay2.material = newMaterial;
+
+            eyeShow()
+
+        }
+
+        function mirrorFormula() {
+            params.v = (params.u * params.f) / (params.u - params.f);
+            params.m = -params.v / params.u;
+            params.hi = (params.m * params.ho);
+
+            fEl.innerHTML = params.f;
+            uEl.innerHTML = params.u;
+            vEl.innerHTML =  params.v.toFixed(2);
+            hoEl.innerHTML = params.ho;
+
+            ffEl.innerHTML = params.f;
+            fuEl.innerHTML = params.u;
+            fvEl.innerHTML = params.v.toFixed(2);
+
+            muEl.innerHTML = params.u;
+            mvEl.innerHTML = params.v.toFixed(2);
+            mmEl.innerHTML = params.m.toFixed(2);
+
+            hiEl.innerHTML = params.hi.toFixed(2);
+            mEl.innerHTML = params.m.toFixed(2);
+        }
+
+        function showLabels() {
+            //labels
+            objLabel = addLabels('Object');
+            virtualLabel = addLabels('Virtual Image');
+            infinityLabel = addLabels('Object at infinity');
+            object.add(infinityLabel);
+            objLabel.position.y = params.ho + 1;
+            infinityLabel.position.y = params.hi + 1;
+            infinityLabel.position.z = - 3;
+            objectTip.add(objLabel);
+
+            imageTip.add(virtualLabel);
+            virtualLabel.position.y = params.hi + 5;
+            virtualLabel.visible = true;
+            infinityLabel.visible = false;
+            fLabel = addLabels('F');
+            fPoint = initPoint({
+                vertices: new Float32Array([0, 0, 0]),
+                material: new THREE.PointsMaterial({ color: 0xFF8888, size: 0.8 }),
+                x: 0,
+                y: 0,
+                z: 0
+            });
+            scene.add(fPoint, fLabel);
+            fPoint.position.z = params.f;
+            fLabel.position.z = params.f;
+
+            cLabel = addLabels('C');
+            cPoint = fPoint.clone();
+            cPoint.position.copy(pointC);
+            cLabel.position.copy(pointC);
+            scene.add(cPoint, cLabel);
+
+            opticalLabel = addLabels('Optical Axis');
+            opticalLabel.position.z = 50;
+            opticalLabel.position.y = -1;
+            opticalAxis.add(opticalLabel);
+
+            lensLabel = addLabels('Convex Mirror');
+            lensLabel.position.y = -params.f + 2;
+            scene.add(lensLabel);
+        }
+
+        function addLabels(name, col) {
+
+            let text = document.createElement('div');
+            text.className = 'label';
+            text.textContent = name;
+            text.style.color = col;
+
+            let label = new CSS2DObject(text);
+            // label.position.z = -2;
+            // label.position.y = 1;
+
+            return label
+        }
+
+        window.onload = function () {
+
+            init();
+            controls.update()
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.rotateSpeed = 0.1;
+            animate();
+            // scene.add(new THREE.AmbientLight(0xffffff));  
+        }
+
+        function initPoint(data) {
+            let pointGeometry = new THREE.BufferGeometry();
+            pointGeometry.setAttribute('position', new THREE.BufferAttribute(data.vertices, 3));
+            let pointMaterial = data.material;
+            let point = new THREE.Points(pointGeometry, pointMaterial);
+
+            point.position.x = data.x;
+            point.position.y = data.y;
+            point.position.z = data.z;
+            return point;
+        }
+
+        function render() {
+
+            renderer.setSize(innerWidth, innerHeight);
+            camera.aspect = innerWidth / innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.render(scene, camera);
+            labelRenderer.render(scene, camera);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+
+            render();
+        }
+
+        function onWindowResize() {
+
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+            render();
+
+        }
+
+        function adjustDisplay() {
+
+            object.position.z = params.u;
+
+            image.position.z = params.v;
+            // //set image to proportion with magnification
+            image.scale.set(params.m, params.m, params.m);
+
+            pointP1 = new THREE.Vector3(0, params.ho, 0);
+            pointA = new THREE.Vector3(0, params.ho, params.u);
+
+            pointB = new THREE.Vector3(0, 0, 0);
+            pointB.set(0, params.hi, params.v);
+            pointF = new THREE.Vector3(0, 0, params.f);
+            fPoint.position.copy(pointF);
+            fLabel.position.copy(pointF);
+            pointP2 = new THREE.Vector3(0, (params.hi * params.c) / (params.c - params.v), 0);
+            pointC = new THREE.Vector3(0, 0, params.c);
+            cPoint.position.copy(pointC);
+            cLabel.position.copy(pointC);
+            pointX = new THREE.Vector3(0, (params.ho * (params.f + Math.abs(params.u))) / (params.f), params.u);
+           
+            adjustRays(incidentRay1, pointA.distanceTo(pointP1));
+
+            adjustRays(incidentRay2, pointA.distanceTo(pointP2));
+            adjustArrows(incidentArrow1, pointA.distanceTo(pointP1));
+
+            adjustArrows(incidentArrow2, pointA.distanceTo(pointP2) );
+
+            adjustRays(reflectedRay, pointP1.distanceTo(pointX));
+            adjustArrows(reflectedArrow, pointP1.distanceTo(pointX));
+
+            adjustRays(reflectedRay1, pointP1.distanceTo(pointF));
+            adjustRays(reflectedRay2, pointP2.distanceTo(pointC));
+
+            adjustRays(reflectedRay3, pointP2.distanceTo(pointA));
+            adjustArrows(reflectedArrow3, pointP2.distanceTo(pointA));
+            // reflectedArrow3.position.z = params.u/2 -0.1;
+            incidentRay1.position.copy(pointP1);
+            incidentRay2.position.copy(pointP1);
+
+            reflectedRay.position.copy(pointP1);
+            reflectedRay1.position.copy(pointP1);
+            reflectedRay2.position.copy(pointP2);
+            reflectedRay3.position.copy(pointP2);
+            incidentRay1.lookAt(pointP1);
+            incidentRay2.lookAt(pointP2);
+
+            reflectedRay1.lookAt(pointF);
+            reflectedRay2.lookAt(pointC);
+
+            reflectedRay3.lookAt(pointA);
+            reflectedRay.lookAt(pointX);
+
+        }
+
+        function changeElements() {
+            // image.remove(imgLabel);
+            mirrorFormula()
+            adjustTube(object, params.ho);
+            adjustTip(objectTip, params.ho)
+            // console.log(object)
+            adjustTube(image, params.ho);
+            adjustTip(imageTip, params.ho);
+            adjustDisplay()
+        }
+
+        function eyeShow() {
+
+            const map1 = new THREE.TextureLoader().load('./assets/img/eyeIcon.png');
+            const material1 = new THREE.SpriteMaterial({ map: map1, color: 0xffffff });
+
+            eye = new THREE.Sprite(material1);
+            eye.scale.set(2.5, 2.5, 2.5);
+            eye.position.set(-2, 0, params.u - 2);
+            scene.add(eye);
+            eye.visible = true;
+        }
+    
+        function infinityDisplay() {
+            let newMaterial = new THREE.MeshBasicMaterial({ color: 'brown' });
+            incidentRay3 = incidentRay1.clone();
+            incidentRay = incidentRay1.clone();
+            incidentRay.material = newMaterial;
+            incidentRay3.material = newMaterial;
+
+            scene.add(incidentRay, incidentRay3);
+            incidentRay.position.copy(pointA);
+            incidentRay3.position.copy(pointD);
+            incidentRay.lookAt(pointP1);
+            incidentRay3.lookAt(pointP);
+            reflectedRay3 = reflectedRay.clone();
+            reflectedRay2 = reflectedRay1.clone();
+            scene.add(reflectedRay2, reflectedRay3);
+            reflectedRay3.position. y = -3;
+            reflectedRay2.position. y = -3;
+            reflectedRay2.lookAt(pointF);
+            reflectedRay3.lookAt(pointY);
+
+        }
+    </script>
+    <script src="../../js/watermark.js"></script>
+</body>
+
+</html>
