@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Vector Addition</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel="shortcut icon" href="../files/favicon_white.ico" media="(prefers-color-scheme: dark)" />
+    <link rel="shortcut icon" href="../files/favicon.ico" media="(prefers-color-scheme: light)" />
+    <link rel="stylesheet" type="text/css" href="../../css/style-page.css">
+    <link rel="stylesheet" type="text/css" href="../../css/watermark.css">
+</head>
+
+<body>
+    <div id="topmenu">Vector Addition</div>
+    <div id="sidemenu"> </div>
+
+
+    <div id="menu">
+        Total Distance Travelled= <a id="distEl">----</a> units<br>
+        <button onClick="vectorAlgebra() ">VECTOR ALGEBRA</button>
+    </div>
+    <script>
+        function vectorAlgebra() {
+
+            window.open("mechanics_vector_algebra.html", "_self")
+        }
+
+    </script>
+        <script type="module">
+
+            import * as THREE from '../../build/three.module.js';
+            import { OrbitControls } from '../../jsm/controls/OrbitControls.js';
+            import { TransformControls } from '../../jsm/controls/TransformControls.js';
+            import Stats from '../../jsm/libs/stats.module.js';
+            import { GUI } from '../../jsm/libs/lil-gui.module.min.js';
+            import { CSS2DRenderer, CSS2DObject } from '../../jsm/renderers/CSS2DRenderer.js';
+
+            let camera, scene, renderer, orbitControls, labelRenderer, transformControls;
+            let plane;
+            let pointer, raycaster, isShiftDown = false;
+            let initialPos, POS = [];
+            let cubeGeo, cubeMaterial;
+            const objects = [];
+            let SELECTED;
+            let obj;
+            let LINE = new THREE.Group();
+            let LAST = new THREE.Group();
+            let LABEL = new THREE.Group();
+            let line, lineLast;
+            let distEl = document.getElementById('distEl');
+
+            init();
+            animate();
+
+            function init() {
+
+                camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
+                camera.position.set(20, 15, 60);
+                // camera.lookAt(0, 0, 0);
+
+                scene = new THREE.Scene();
+                scene.background = new THREE.Color(0xf0f0f0);
+
+
+
+                cubeGeo = new THREE.BoxGeometry(1, 1, 1).translate(0, 0.5, 0);
+                cubeMaterial = new THREE.MeshLambertMaterial({ color: 0xfeb74c });
+                let blueMaterial = new THREE.MeshPhongMaterial({ color: 0x4cb7ff })
+                let redMaterial = new THREE.MeshPhongMaterial({ color: 0xff374c })
+                let greyMaterial = new THREE.MeshPhongMaterial({ color: 0x676767 })
+                
+                let cube = new THREE.Mesh(cubeGeo, cubeMaterial);
+                cube.position.set(-20, 10, 20);
+                cube.scale.set(5, 5, 5)
+                objects.push(cube)
+                scene.add(cube);
+               
+
+                let cuboid = cube.clone();
+                cuboid.material = blueMaterial;
+                cuboid.position.set(20, 0, 10);
+                cuboid.scale.set(10, 5, 5)
+                objects.push(cuboid)
+                scene.add(cuboid)
+                
+
+                let pillar = cube.clone();
+                pillar.material = redMaterial;
+                pillar.position.set(-30, 0, -25);
+                pillar.scale.set(5, 15, 5)
+                objects.push(pillar)
+                scene.add(pillar)
+                
+
+                let block = cube.clone();
+                block.material = greyMaterial;
+                block.position.set(-5, 0, -15);
+                block.scale.set(15, 15, 5)
+                objects.push(block)
+                scene.add(block)
+                
+
+                const gridHelper = new THREE.GridHelper(100, 20);
+                scene.add(gridHelper);
+
+                raycaster = new THREE.Raycaster();
+                pointer = new THREE.Vector2();
+
+                const axesHelper = new THREE.AxesHelper(50);
+                scene.add(axesHelper);
+
+                // lights
+
+                const ambientLight = new THREE.AmbientLight(0x606060);
+                scene.add(ambientLight);
+
+                const directionalLight = new THREE.DirectionalLight(0xffffff);
+                directionalLight.position.set(1, 0.75, 0.5).normalize();
+                scene.add(directionalLight);
+
+                createRenderer()
+
+                orbitControls = new OrbitControls(camera, renderer.domElement);
+                orbitControls.enablePan = true;
+                orbitControls.enableZoom = true;
+                orbitControls.target.set(-9, 10, -9);
+                orbitControls.enableDamping = true;
+                orbitControls.dampingFactor = 0.05;
+                orbitControls.rotateSpeed = 0.1;
+
+                orbitControls.addEventListener('change', render);
+
+                transformControls = new TransformControls(camera, renderer.domElement);
+                scene.add(LINE);
+                scene.add(LAST);
+                scene.add(LABEL);
+                // guiControls()
+
+                transformControls.attach(objects[3]);
+                transformControls.setTranslationSnap(2);
+                SELECTED = objects[3];
+                obj = SELECTED;
+                initialPos = SELECTED.position;    
+                drawLine(SELECTED.position)
+                scene.add(transformControls);
+                // add event listener to highlight dragged objects
+                transformControls.addEventListener('change', render);
+                transformControls.addEventListener('dragging-changed', function (event) {
+
+                    orbitControls.enabled = !event.value;
+                    drawLine(SELECTED.position);
+                    
+                });
+
+                transformControls.addEventListener('dragover', function (event) {
+
+                    orbitControls.enabled = !event.value;
+                    console.log(SELECTED);
+
+                });
+                document.addEventListener('click', onClick);
+
+                window.addEventListener('resize', onWindowResize);
+
+            }
+
+            function createRenderer() {
+                // create the renderer
+                renderer = new THREE.WebGLRenderer({ antialias: true });
+                renderer.alpha = true;
+                renderer.setPixelRatio(window.devicePixelRatio);
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.outputEncoding = THREE.sRGBEncoding;
+                document.body.appendChild(renderer.domElement);
+
+                labelRenderer = new CSS2DRenderer();
+                labelRenderer.setSize(window.innerWidth, window.innerHeight);
+                labelRenderer.domElement.style.position = 'absolute';
+                labelRenderer.domElement.style.top = '-25px';
+                labelRenderer.domElement.style.left = '-25px';
+                labelRenderer.domElement.style.pointerEvents = 'none';
+                document.body.appendChild(labelRenderer.domElement);
+
+            }
+
+            function onWindowResize() {
+
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                labelRenderer.setSize(window.innerWidth, window.innerHeight);
+                render();
+
+            }
+
+            function render() {
+
+                renderer.render(scene, camera);
+                labelRenderer.render(scene, camera);
+            }
+
+            function previousLine(pos1, pos2, len) {
+
+                lineLast = initLine({
+                    points: [pos1, pos2],
+                    lineMaterial: new THREE.LineBasicMaterial({ color: "rgb(0%, 0%, 100%)" })
+                });
+                LAST.add(lineLast)
+
+            }
+
+            
+            function onClick(event) {
+                // console.log(event); 
+                event.preventDefault();
+
+                pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+                pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
+
+                raycaster.setFromCamera(pointer, camera);
+                let intersects = raycaster.intersectObjects(objects, true);
+                if (intersects.length > 0) {
+                    initialPos = SELECTED.position;                  
+                    
+                    SELECTED = intersects[0].object;
+                    if  (obj != SELECTED) {
+                        while ( LINE.children.length > 0 ) {
+                            const A = LINE.children[ 0 ];
+                            A.parent.remove( A );
+                        }
+                        while ( LAST.children.length > 0 ) {
+                            const A = LAST.children[ 0 ];
+                            A.parent.remove( A );
+                        }
+                        while ( LABEL.children.length > 0 ) {
+                            const A = LABEL.children[ 0 ];
+                            A.parent.remove( A );
+                        }
+                        
+                        let A = POS[POS.length-1].geometry.getAttribute('position');
+                        let B = new THREE.Vector3(A.getX(1), A.getY(1), A.getZ(1));
+                        let C = POS[0].geometry.getAttribute('position');
+                        let D = new THREE.Vector3(C.getX(1), C.getY(1), C.getZ(1));
+                       
+                        line = initLine({
+                            points: [B, D],
+                            lineMaterial: new THREE.LineBasicMaterial({ color: "rgb(100%, 100%, 0%)" })
+                        });
+                        LINE.add(line)
+                        LABEL.add(addLabels(B))
+                        LABEL.add(addLabels(D))
+                        distEl.innerHTML = B.distanceTo(D).toFixed(2)
+                        // console.log(B, D, B.distanceTo(D))
+                        
+                        obj = SELECTED
+                        POS=[]
+                    
+                        transformControls.attach(SELECTED);
+                        // console.log(SELECTED)
+                        drawLine(SELECTED.position)
+                    }
+                }
+            }
+
+            function guiControls() {
+                let gui = new GUI();
+                // gui.close()
+
+
+                gui.add(camera.position, 'x', -100, 100);
+                gui.add(camera.position, 'y', -100, 100);
+                gui.add(camera.position, 'z', -100, 100);
+                let controlFolder = gui.addFolder("Control");
+                controlFolder.add(orbitControls.target, 'x', -100, 100);
+                controlFolder.add(orbitControls.target, 'y', -100, 100);
+                controlFolder.add(orbitControls.target, 'z', -100, 100);
+                
+            }
+
+            function drawLine(pos) {
+                line = initLine({
+                    points: [new THREE.Vector3(0, 0, 0), pos],
+                    lineMaterial: new THREE.LineBasicMaterial({ color: "rgb(100%, 0%, 0%)" })
+                });
+                
+                LABEL.add(addLabels(pos))
+                POS.push(line);
+                let len = POS.length;
+                LINE.add(line)
+                if (len >= 2) {
+                    let A = POS[len - 2].geometry.getAttribute('position');
+                    let B = new THREE.Vector3(A.getX(1), A.getY(1), A.getZ(1));
+                    let X = POS[0].geometry.getAttribute('position')
+                    initialPos = new THREE.Vector3(X.getX(1), X.getY(1), X.getZ(1));
+                    let dist = (B.distanceTo(pos)).toFixed(2)
+                    
+                    previousLine(B, pos, dist);
+                }
+
+            }
+
+            function addLabels(A, D) {
+                let X = A.x >= 0 ? '' + A.x : A.x; //d[2]<10?'0'+d[2]:''+ d[2];
+                let Y =  A.y >= 0 ? '+' + A.y : A.y;
+                let Z = A.z >= 0 ? '+' + A.z : A.z;
+                
+                let text = document.createElement('div');
+                text.className = 'label';
+                text.innerHTML = X + ' i ' + Y + ' j ' + Z + ' z ';
+                text.style.color = 'black';
+
+                let label = new CSS2DObject(text);
+                label.position.copy(A);
+
+                return label
+            }
+
+            function addDistance(A, D) {
+               let B = A.add(new THREE.Vector3(0.5,0.5,0.5))
+                let text = document.createElement('div');
+                text.className = 'label';
+                text.innerHTML = D + 'm'
+                text.style.color = 'red';
+
+                let label = new CSS2DObject(text);
+                label.position.copy(A)
+                console.log(D)
+                return label
+            }
+            
+            function animate() {
+                requestAnimationFrame(animate);
+                
+                orbitControls.update();
+
+                render();
+            }
+
+            
+            function initLine(data) {
+                let lineGeometry = new THREE.BufferGeometry().setFromPoints(data.points);
+                line = new THREE.Line(lineGeometry, data.lineMaterial);
+                return line;
+            }
+        </script>
+            <script src="../../js/watermark.js"></script>
+    </body>
+
+</html>
