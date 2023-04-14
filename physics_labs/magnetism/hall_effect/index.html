@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Hall Effect</title>
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<link rel="shortcut icon" href="../files/favicon_white.ico" media="(prefers-color-scheme: dark)" />
+	<link rel="shortcut icon" href="../files/favicon.ico" media="(prefers-color-scheme: light)" />
+	<link rel="stylesheet" type="text/css" href="../../css/style-page.css">
+	<link rel="stylesheet" type="text/css" href="../../css/watermark.css">
+</head>
+
+<body>
+
+	<div id="topmenu">
+		<div style="font-weight: bold;  text-decoration-line: underline; font-size: 125%; padding-bottom: 2px;">
+			Hall Effect
+		</div>
+
+	</div>
+
+
+
+	<div id="menu">
+		<a style=" margin-bottom: -15px; color: darkred; font-weight: bolder;" id="conductor-el"></a>
+		<br>
+		<a id="message-el">
+			Investigate the effect of magnetic field on a thin slab of conductor
+		</a><br>
+		<button id="theorybutton" onClick="theorySite()">THEORY</button>
+		<button id="change-el">CURRENT CHANGE</button>
+		<button id="flip-el">FIELD FLIP</button>
+		<button id="move-el">MOVE MAGNET</button>
+		<button style="visibility:hidden" id="reset-el">RESET MAGNET</button>
+		
+	  </div>
+	  <script>
+		function theorySite() {
+	
+			window.open("../../theory/magnetism/magnetism_hall_effect.html", "_self")
+		}
+	  </script>
+
+	<script type="module">
+		import * as THREE from '../../build/three.module.js';
+		import { GLTFLoader } from '../../jsm/loaders/GLTFLoader.js';
+		import { OrbitControls } from '../../jsm/controls/OrbitControls.js';
+		import Stats from '../../jsm/libs/stats.module.js';
+		import { GUI } from '../../jsm/libs/lil-gui.module.min.js';
+		import { InstancedFlow } from '../../jsm/modifiers/CurveModifier.js';
+		import { TWEEN } from '../../jsm/libs/tween.module.min.js';
+
+
+		let element = 0;
+		let flip = false;
+		let flow;
+		let slow = false;
+		let direction = true;
+		let mrotate = false;
+		let change = false;
+		let camera, aspect, fov, stats, clock, gui;
+		let scene, renderer, controls, electronGeometry, electronMaterial, container;
+		let magField;
+		let galvNeedle;
+		let disp = 0.0, t = 0.001;
+		let curveHandles = [];
+		let curves = [];
+		let cell = new THREE.Group();
+		let magnet = new THREE.Group();
+		let hallElectrons = new THREE.Group();
+		let hall = new THREE.Group();
+		// let voltHandles=[];		
+
+		//button and html elements
+		let message = "";
+		let messageEl = document.getElementById("message-el");
+		const buttonMagnet = document.getElementById('flip-el');
+		const buttonCurrent= document.getElementById('change-el');
+		const buttonMove= document.getElementById('move-el');
+		const buttonReset= document.getElementById('reset-el');
+		
+		init()
+		animate()
+
+		function init() {
+			//scene
+			scene = new THREE.Scene();
+			scene.background = new THREE.Color(0xbfd1e5);
+
+			//camera
+			createCamera();
+			stats = new Stats();
+			clock = new THREE.Clock();
+			document.body.appendChild(stats.dom);
+
+			//renderer
+			createRenderer();
+
+			//cameracontrols
+			createControls(0, 1, 0);
+
+			//create light 
+			createLights();
+
+			//create controls
+			guiControls();
+			buttonLoad();
+
+			let sample = createConnector(4, .8, 4, 0xb0b0b0, new THREE.Vector3(0, 0, 0), true)
+			let connector1 = createConnector(.6, 1, .5, 0xEF3523, new THREE.Vector3(2, 0, 0), false);
+			let connector2 = createConnector(.6, 1, .5, 0xEF3523, new THREE.Vector3(-2, 0, 0), false);
+			scene.add(sample, connector1, connector2)
+			let connector3 = createConnector(.5, 1, .6, 0xEF3523, new THREE.Vector3(0, 0, 2), false);
+			let connector4 = createConnector(.5, 1, .6, 0xEF3523, new THREE.Vector3(0, 0, -2), false);
+			scene.add(connector3, connector4)
+
+			const gridHelper = new THREE.GridHelper(10, 10);
+			scene.add(gridHelper);
+
+			const measureSpline = new THREE.CatmullRomCurve3([
+				new THREE.Vector3(2, 0, 0),
+				new THREE.Vector3(4, 1, 0),
+				new THREE.Vector3(4, 3, 0),
+				new THREE.Vector3(-4, 3, 0),
+				new THREE.Vector3(-4, 1, 0),
+				new THREE.Vector3(-2, 0, 0)
+			]);
+
+			let tubeGeometry = new THREE.TubeGeometry(measureSpline, 60, .1, 4, false);
+			let material = new THREE.MeshLambertMaterial({ color: 0xb00000, wireframe: false });
+			let mesh = new THREE.Mesh(tubeGeometry, material);
+			scene.add(mesh)
+
+			const supplySpline = new THREE.CatmullRomCurve3([
+				new THREE.Vector3(0, 0, 2),
+				new THREE.Vector3(.5, 0, 4),
+				new THREE.Vector3(5, 0.5, 3.6),
+				new THREE.Vector3(5, 0.5, -4),
+				new THREE.Vector3(.5, 0, -3.6),
+				new THREE.Vector3(0, 0, -2)
+			]);
+
+			let tubeGeometry1 = new THREE.TubeGeometry(supplySpline, 60, .1, 4, false);
+			let material1 = new THREE.MeshLambertMaterial({ color: 'yellow', wireframe: false });
+			let mesh1 = new THREE.Mesh(tubeGeometry1, material1);
+			scene.add(mesh1)
+
+			//create cell to apply to the sample
+			let cell1 = createConnector(1.5, 1, 2.5, 0xFF3500, new THREE.Vector3(0, 0.5, 1), false);
+			let positive1 = createConnector(.1, .05, 0.6, 0x000000, new THREE.Vector3(0, .5, 0.5), false);
+			let positive2 = createConnector(.6, .05, 0.1, 0x000000, new THREE.Vector3(0, .5, 0.5), false);
+			let positive = new THREE.Group();
+			positive.add(positive1, positive2)
+			cell1.add(positive)
+			let cell2 = createConnector(1.5, 1, 1.5, 'black', new THREE.Vector3(0, 0.5, -1), false);
+			let negative = createConnector(.1, .05, 0.6, 0xffffff, new THREE.Vector3(0, 0.5, -0.3), false);
+			cell2.add(negative)
+			cell.add(cell1,cell2)
+			scene.add(cell)
+			cell.position.x = 5.5;
+			cell.rotation.y= 0;
+
+			//create magnet with magnetic field up
+			let north1 = createConnector(3, 1, 1.5, 0xFF0030, new THREE.Vector3(0, -1.5, 1), false);
+			let north2 = createConnector(1, 2.0, 1.5, 0xFF0030, new THREE.Vector3(-2, -1.0, 1), false);
+			let south1 = createConnector(3, 1, 1.5, 0x3000FF, new THREE.Vector3(0, 1.5, 1), false);
+			let south2 = createConnector(1, 2.0, 1.5, 0x3000FF, new THREE.Vector3(-2, 1.0, 1), false);
+			magnet.add(north1, north2, south1, south2);
+			
+			magField = createConnector(.06, 1.8, .05, 0x000000, new THREE.Vector3(0, 0, 0), false);
+			const magHead1 = createConnector(.06, 0.6, .05, 0x000000, new THREE.Vector3(0.15, 0.6, 0), false);
+			const magHead2 = createConnector(.06, 0.6, .05, 0x000000, new THREE.Vector3(-0.15, 0.6, 0), false);
+			const magNorth = createConnector(.06, 0.6, .05, 0x000000, new THREE.Vector3(-0.15, -1.3, 0), false);
+			const magN1 = createConnector(.06, 0.6, .05, 0x000000, new THREE.Vector3(0.15, 0, 0), false);
+			const magN2 = createConnector(.06, 0.6, .05, 0x000000, new THREE.Vector3(0.32, 0, 0), false);
+			magN1.rotation.z = .5;
+			magNorth.add(magN1, magN2)
+			magHead1.rotation.z = .5;
+			magHead2.rotation.z = -.5;
+			magField.add(magHead1, magHead2, magNorth);
+			
+			magnet.add(magField)
+			scene.add(magnet);
+			magField.position.z = 1.8;
+			magnet.position.x = -8;
+
+			//create galvanometer with a rotatable needle
+			let galv = createConnector(2.5, 2, .5, 0xEFb035, new THREE.Vector3(0, 4.5, 0), false);
+			galvNeedle = createConnector(.06, 1, .05, 0x000000, new THREE.Vector3(0, 4, 0.26), false);
+			scene.add(galv, galvNeedle)
+			galvNeedle.geometry.translate(0,.5,0)
+			galvNeedle.rotation.z = 0;
+			let texture = new THREE.TextureLoader().load('../../assets/img/galvReading.png');
+			texture.needsUpdate = false;
+
+			let spriteMaterial = new THREE.SpriteMaterial(
+				{ map: texture });
+			let galvDisplay = new THREE.Mesh(new THREE.PlaneGeometry(.45, .5),
+				new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, map: texture, transparent: true }));
+			galvDisplay.scale.set(5, 2.5, 1.0);
+			galvDisplay.position.copy(new THREE.Vector3(0, 4.6, 0.26))
+			scene.add(galvDisplay)
+
+			let hallElectron = createConnector(.5, 0.9, 4.1, 0x00b0ff, new THREE.Vector3(1.8, 0, 0), true)
+			let hallPositron = createConnector(.5, 0.9, 4.1, 0xff020b, new THREE.Vector3(-1.8, 0, 0), true)
+				
+			hallElectrons.add(hallElectron, hallPositron)
+			scene.add(hallElectrons)
+			hallElectrons.visible = false;
+			currentFlow()
+			// positiveHall()
+			// negativeHall()
+
+			document.body.appendChild(renderer.domElement);
+
+			window.addEventListener('resize', onWindowResize);
+		}
+
+		function createConnector(x, y, z, col, loc, boolean) {
+			let geometry = new THREE.BoxGeometry(x, y, z);
+			let material = new THREE.MeshPhongMaterial({
+				color: col,
+				side: THREE.DoubleSide,
+				transparent: boolean,
+				opacity: 0.45
+			});
+
+			let connector = new THREE.Mesh(geometry, material);
+			connector.position.copy(loc)
+			return connector
+		}
+
+		function guiControls() {
+			gui = new GUI();
+			gui.close()
+			// camera control adjust
+			// console.log(camera.position)
+			let controlFolder = gui.addFolder("Control");
+			controlFolder.add(controls.target, 'x', -100, 100);
+			controlFolder.add(controls.target, 'y', -100, 100);
+			controlFolder.add(controls.target, 'z', -100, 100);
+			// let cameraFolder = gui.addFolder("Camera");
+			gui.add(camera.position, 'x', -100, 100);
+			gui.add(camera.position, 'y', -100, 100);
+			gui.add(camera.position, 'z', -100, 100);
+
+			// change current flow path
+
+		}
+
+		function currentFlow() {
+			const boxGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+			const boxMaterial = new THREE.MeshBasicMaterial();
+
+			curves = [[
+				{ x: 0, y: 0, z: 2 },
+				{ x: 0.5, y: 0, z: 4 },
+				{ x: 5, y: 0.5, z: 3.6 },
+				{ x: 5, y: 0.5, z: -4 },
+				{ x: 0.5, y: 0, z: -3.6 },
+				{ x: 0, y: 0, z: -2 },
+				{ x: disp, y: 0, z: 0 },
+			]].map(function (curvePoints) {
+				// console.log(curvePoints)
+				const curveVertices = curvePoints.map(function (handlePos) {
+
+					const handle = new THREE.Mesh(boxGeometry, boxMaterial);
+					handle.position.copy(handlePos);
+					curveHandles.push(handle);
+					// scene.add(handle);
+					return handle.position;
+
+				});
+
+				const curve = new THREE.CatmullRomCurve3(curveVertices);
+				curve.curveType = 'centripetal';
+				curve.closed = true;
+
+				const points = curve.getPoints(50);
+				const line = new THREE.LineLoop(
+					new THREE.BufferGeometry().setFromPoints(points),
+					new THREE.LineBasicMaterial({
+						color: 0x00ff00
+					})
+				);
+
+				scene.add(line);
+
+				return {
+					curve,
+					line
+				};
+
+			});
+
+			electronGeometry = new THREE.IcosahedronGeometry(.15, 0);
+			electronMaterial = new THREE.MeshBasicMaterial({
+				color: 0x00b0ff,
+				// transparent: true,
+				// opacity: 0.5, 
+			});
+
+			const numberOfInstances = 20;
+			flow = new InstancedFlow(numberOfInstances, curves.length, electronGeometry, electronMaterial);
+
+			curves.forEach(function ({ curve }, i) {
+
+				flow.updateCurve(i, curve);
+				scene.add(flow.object3D);
+
+			});
+
+			for (let i = 0; i < numberOfInstances; i++) {
+
+				const curveIndex = i % curves.length;
+				flow.setCurve(i, curveIndex);
+				flow.moveIndividualAlongCurve(i, i * 1 / numberOfInstances);
+				flow.object3D.setColorAt(i, new THREE.Color(0x00b0ff));
+
+			}
+
+			//add this in animation loop
+			// flow.moveAlongCurve(0.001);
+		}
+
+		function squareFromPoints(points) {
+			let dataPoints = points;
+			let squareGeometry = new THREE.BufferGeometry()
+			const vertices = new Float32Array(dataPoints);
+			squareGeometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+			let squareMaterial = new THREE.MeshBasicMaterial({ color:0x111111,
+				transparent: true,
+				opacity: 0.9, 
+				side: THREE.DoubleSide });
+			let square = new THREE.Mesh(squareGeometry, squareMaterial);
+			return square;
+		}
+
+		function positiveHall() {
+			scene.remove(hall)
+			hall = new THREE.Group();
+			new TWEEN.Tween(magnet.position)
+					.to({ x: -1 }, 3000)
+					.easing(TWEEN.Easing.Cubic.Out)
+					.start()
+			magnet.position.z = 0;
+			change = 2
+			
+			setTimeout(function () {
+				pointChange()
+				setTimeout(function() {
+					hallElectrons.visible = true;
+					hallElectrons.rotation.y = 0;
+					hall.add(squareFromPoints([ 3.5, .4, -.6, 3.5, .4, .6, 2.5, .2, 0]))
+					hall.add(squareFromPoints([-3.5, .6, 0, -2.5, .2, -.6, -2.5, .2, .6]))
+					hall.add(squareFromPoints([-1.5, 3.6, 0, -2.5, 3.5, -.6, -2.5, 3.5, .6]))
+					hall.add(squareFromPoints([1.5, 3.6, -.6, 1.5, 3.6, .6, 2.5, 3.5, 0, ]))
+					scene.add(hall)
+					new TWEEN.Tween(galvNeedle.rotation)
+						.to({ z: 0.8 }, 1500)
+						.easing(TWEEN.Easing.Cubic.In)
+						.start()
+				}, 1500)
+			}, 2500);
+			
+			// galvNeedle.rotation.z = 0.8;
+			
+		}
+
+		function negativeHall() {
+			scene.remove(hall)
+			hall = new THREE.Group();
+			new TWEEN.Tween(magnet.position)
+					.to({ x: -1 }, 3000)
+					.easing(TWEEN.Easing.Cubic.Out)
+					.start()
+			magnet.position.z = 0;
+			change = 1
+			
+			setTimeout(function () {			
+				pointChange()
+				setTimeout(function() {
+					hallElectrons.visible = true;
+					hallElectrons.rotation.y = 3.14;	
+					hall.add(squareFromPoints([ 2.5, .2, -.6, 2.5, .2, .6, 3.5, .5, 0]))
+					hall.add(squareFromPoints([-2.5, .2, 0, -3.5, .5, -.2, -3.5, .5, .6]))
+					hall.add(squareFromPoints([-2.5, 3.5, 0, -1.5, 3.6, -.6, -1.5, 3.6, .6]))
+					hall.add(squareFromPoints([2.5, 3.5, -.6, 2.5, 3.5, .6, 1.5, 3.6, 0, ]))
+					scene.add(hall)
+					new TWEEN.Tween(galvNeedle.rotation)
+						.to({ z: -0.8 }, 1500)
+						.easing(TWEEN.Easing.Cubic.In)
+						.start()
+				}, 1500)
+			}, 2500);
+		}
+		
+		function pointChange() {
+
+			if ( change == 0 ) {
+				curves[0].curve.points[6] = new THREE.Vector3(0, 0, 0)
+						curves.forEach( function ( { curve, line } ) {
+                            // console.log(curves[0].curve.points[5])
+                            // console.log(curveHandles)
+							const points = curve.getPoints( 50 );
+							line.geometry.setFromPoints( points );
+							flow.updateCurve( 0, curve );
+						} );
+
+			}
+
+			
+			if ( change == 1 ) {
+				curves[0].curve.points[6] = new THREE.Vector3(-0.9, 0, 0)
+						curves.forEach( function ( { curve, line } ) {
+                            // console.log(curves[0].curve.points[5])
+                            // console.log(curveHandles)
+							const points = curve.getPoints( 50 );
+							line.geometry.setFromPoints( points );
+							flow.updateCurve( 0, curve );
+						} );
+
+			}
+
+			if ( change == 2) {
+				curves[0].curve.points[6] = new THREE.Vector3(0.9, 0, 0)
+						curves.forEach( function ( { curve, line } ) {
+                            // console.log(curves[0].curve.points[5])
+                            // console.log(curveHandles)
+							const points = curve.getPoints( 50 );
+							line.geometry.setFromPoints( points );
+							flow.updateCurve( 0, curve );
+						} );
+
+					}
+
+
+		}
+		
+		function createCamera() {
+
+			fov = 50;
+			const aspect = window.innerWidth / window.innerHeight;
+			const near = 0.1;
+			const far = 1500;
+
+			camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+
+			camera.position.set(6, 9, 11);
+		}
+
+		function createControls(x, y, z) {
+			controls = new OrbitControls(camera, renderer.domElement);
+			controls.enablePan = true;
+			controls.enableZoom = true;
+			controls.target.set(x, y, z);
+			controls.enableDamping = true;
+			controls.dampingFactor = 0.05;
+			controls.rotateSpeed = 0.1;
+			controls.update();
+			controls.addEventListener('change', render);
+		}
+
+		function createRenderer() {
+			// create the renderer
+			renderer = new THREE.WebGLRenderer({ antialias: true });
+			renderer.alpha = true;
+			renderer.setPixelRatio(window.devicePixelRatio);
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			renderer.outputEncoding = THREE.sRGBEncoding;
+			document.body.appendChild(renderer.domElement);
+		}
+
+		function createLights() {
+			let hemiLight = new THREE.AmbientLight(0xffffff, .20);
+			hemiLight.position.set(0, 20, 0);
+			scene.add(hemiLight);
+
+			let dirLight = new THREE.DirectionalLight(0xffffff, 1);
+			dirLight.position.set(-30, 50, -30);
+			dirLight.castShadow = true;
+			dirLight.shadow.camera.top = 70;
+			dirLight.shadow.camera.bottom = -70;
+			dirLight.shadow.camera.left = -70
+			dirLight.shadow.camera.right = 70;
+			dirLight.shadow.mapSize.width = 2048;
+			dirLight.shadow.mapSize.height = 2048;
+			scene.add(dirLight);
+
+			scene.add(new THREE.AmbientLight(0xffffff, .4));
+		}
+
+		function onWindowResize() {
+
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			render();
+
+		}
+
+		function render() {
+
+			renderer.render(scene, camera);
+
+		}
+
+		function animate() {
+			requestAnimationFrame(animate);
+			const delta = clock.getDelta();
+
+			controls.update();
+			TWEEN.update();
+			stats.update();
+			flow.moveAlongCurve(t);
+			// hall.moveAlongCurve(0.0005);
+			render();
+		};
+
+		function buttonLoad() {
+
+			// current flow action switch
+			buttonCurrent.addEventListener('click', function () {
+				console.log('change current')
+				direction = !direction
+				if (direction) {
+					cell.rotation.y= 0;
+					cell.position.z = 0;
+					t = 0.001;
+					
+					console.log('+ to -', direction)
+				} else {
+					cell.rotation.y= 3.14;
+					cell.position.z = 0.5;
+					t = -0.001;
+					console.log('- to +', direction)
+				}
+
+			});
+
+			// polarity flip button
+			buttonMagnet.addEventListener('click', function () {
+				console.log('flip magnet')
+				mrotate = !mrotate;
+				if (mrotate) {
+					magField.rotation.y =  3.14;
+					magField.position.z = 0.25;
+					magnet.rotation.x = 3.14;
+
+				} else {
+					magnet.rotation.x = 0;
+					magField.position.z = 1.8;
+					magField.rotation.y = 0;
+				}
+			});
+
+			//move magnet towars the sample
+			buttonMove.addEventListener('click', function () {
+				console.log('move magnet')
+				buttonCurrent.disabled = true;
+				buttonMagnet.disabled = true;
+				if (!mrotate && direction) {
+					positiveHall()
+					setTimeout( function () {
+						buttonReset.style.visibility = 'visible';
+						
+					}, 7000)
+				} else if (mrotate && direction) {
+					negativeHall()
+					setTimeout( function () {
+						buttonReset.style.visibility = 'visible';
+						
+					}, 7000)
+				} else if (!mrotate && !direction) {
+					negativeHall()
+					setTimeout( function () {
+						buttonReset.style.visibility = 'visible';
+						
+					}, 7000)
+				} else if (mrotate && !direction) {
+					positiveHall()
+					setTimeout( function () {
+						buttonReset.style.visibility = 'visible';
+						
+					}, 7000)
+				}
+					
+				// if (direction == 0) {
+					
+				// }
+			});
+
+			buttonReset.addEventListener('click', function () {
+				console.log('reset magnet')
+				
+				new TWEEN.Tween(magnet.position)
+					.to({ x: -8 }, 8000)
+					.easing(TWEEN.Easing.Cubic.Out)
+					.start()
+				magnet.position.z = 0;
+				change = 0
+			
+				setTimeout(function () {			
+					pointChange()
+					buttonReset.style.visibility ='hidden';
+					buttonCurrent.disabled = false;
+					buttonMagnet.disabled = false;
+					hallElectrons.visible = false;
+					hall.visible = false;
+					new TWEEN.Tween(galvNeedle.rotation)
+					.to({ z: 0 }, 2000)
+					.easing(TWEEN.Easing.Cubic.Out)
+					.start()
+				}, 2500);
+			});
+		}
+
+	</script>
+</body>
+
+</html>
