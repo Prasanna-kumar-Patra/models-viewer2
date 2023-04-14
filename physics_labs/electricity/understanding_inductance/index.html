@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Inductor - Understanding inductance</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link type="text/css" rel="stylesheet" href="../../css/style-page.css">
+    <link type="text/css" rel="stylesheet" href="../../css/watermark.css">
+</head>
+
+<body>
+    <div id="topmenu">Inductor - Understanding inductance</div>
+    <div id="menu">
+        L = N
+        <div class="fraction">
+            <span class="fup">&Delta; &phi;</span>
+            <span class="bar">/</span>
+            <span class="fdn">&Delta; I</span>
+        </div>
+        =
+        <div class="fraction">
+            <span class="fup"><a id="factor-el">&mu;<sub>0</sub>N<sup>2</sup></a>A</span>
+            <span class="bar">/</span>
+            <span class="fdn">&ell;</span>
+        </div> <br> <a id="calDisplay">Unit of inductance is Henry, (H)</a><br>
+                <div style="font-weight: bolder;"><a id="message-el">Self-inductance: The effect of Faraday’s law of induction of a device on itself. For a changing current, the magnetic field and flux linked with the coil also changes there by inducing a counter emf, as required by Lenz’s law.</a></div>
+        <div style="display: none;" id="freq"><button id="lowF">LOW f</button><button id="highF">HIGH f</button></div>
+        <button style="background-color: rgb(164, 26, 26);" id="flow">OFF</button>
+        <button id="flip">DC VOLTAGE</button>
+       
+
+    </div>
+    <script type="module">
+
+        import * as THREE from '../../build/three.module.js'
+        import { GLTFLoader } from '../../jsm/loaders/GLTFLoader.js';
+        import { OrbitControls } from '../../jsm/controls/OrbitControls.js';
+        import Stats from '../../jsm/libs/stats.module.js';
+        import { GUI } from '../../jsm/libs/lil-gui.module.min.js';
+
+        let camera, scene, renderer, controls;
+        let model, mixer, plus, minus, knob;
+        let plate1, plate2;
+        let modelReady = false, flow = false, acVolt = false, lowF = true;
+        let objects = [], actions = [], action;
+        let SELECTED;
+        let raycaster = new THREE.Raycaster();
+        let pointer = new THREE.Vector2();
+        let parent, iDisplay, connector = new THREE.Group(), dMaterial, dSlab;
+        let labelGeometry = new THREE.PlaneBufferGeometry(10, 10);
+        let reqAC, positions, reqID, A = 1;
+        let intensity = 0, group;
+
+        const clock = new THREE.Clock();
+        let redPoints, bluePoints, waveform;
+        let INDUCTOR = new THREE.Group();
+        let graph = new THREE.Group();
+        let charge, iWave, vWave;
+        let t = 0, s = 1;
+        let drawCount, drawCount1;
+        let bulbMaterial, bulbLight;
+        let stats;
+        let spring = new THREE.Group();
+        let redMat = new THREE.PointsMaterial({ color: 0xff0000, size: 30 })
+        let blueMat = new THREE.PointsMaterial({ color: 0x0000ff, size: 30 })
+        let connectorMaterial = new THREE.MeshPhongMaterial({
+            color: 0xb87333,
+            side: THREE.DoubleSide,
+        });
+        let chargeMaterial = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true });
+        let plusMaterial = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true });
+        let minusMaterial = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true });
+        // let plotMaterial = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true });
+        // let mesh = new THREE.Mesh(new THREE.PlaneGeometry(400, 200).translate(0, 100, 0), plotMaterial);
+
+        const messages = {
+            0: ' Impedence of the Inductor, X<sub>L</sub> = 2&pi; f L ',
+            1: ' For a given inductor, impedence depends on the frequency (f) of the ac voltage source. ',
+            2: ' Unit of inductance is Henry, (H) ',
+            3: ' Self-inductance: The effect of Faraday’s law of induction of a device on itself. For a Changing current through a coil, the magnetic field and flux also changeinds there by inducing a counter emf, as required by Lenz’s law.',
+            4: 'Charging - discharging of the capacitor, depends on the frequency of the AC voltage',
+            6: 'Discharging of the capacitor happens for a while and then returns to its native state'
+        }
+
+        const buttonFlip = document.getElementById('flip');
+        const buttonFlow = document.getElementById('flow');
+        const buttonCalculate = document.getElementById('cal');
+        let inputDist = document.getElementById('dist');
+        let inputArea = document.getElementById('area');
+        let distDisplay = document.getElementById('distDisplay');
+        let areaDisplay = document.getElementById('areaDisplay');
+        let calDisplay = document.getElementById('calDisplay');
+        let messageEl = document.getElementById('message-el');
+
+        let freqDisplay = document.getElementById('freq');
+        let lowFreq = document.getElementById('lowF');
+        let highFreq = document.getElementById('highF');
+        let params = {
+            b: 2.4,
+            p: 500,
+            extrude: 5,
+            r: 40,
+            t: 119.6,
+            f: [30, 1, 1],
+            points: 200 // i * 21 total points row x column
+        }
+        
+
+
+        init()
+        animate()
+
+        
+        function buttonAction() {
+            buttonFlow.addEventListener('click', function () {
+                flow = !flow;
+                chargeAction()
+            });
+            buttonFlip.addEventListener('click', function () {
+                // console.log('animate')
+                acVolt = !acVolt;
+                flow = false;
+                actions['Action'].reset().stop();
+                knob.rotation.y = 0;
+                freqSelect();
+                // makeWaveform(params.f[0], params.f[1], params.f[2])
+                buttonFlow.innerText = 'OFF';
+                buttonFlow.style.backgroundColor = 'rgb(164, 26, 26)';
+                // freqButton()
+                if (acVolt) {
+                    freqDisplay.style.display = 'block';
+
+                    //low 30,1, 1...high 15,0.67, 3
+                    // makeWaveform1()
+                    actions['DC_connector'].reset().stop()
+                    actions['AC_connector'].setDuration(2).play();
+                    buttonFlip.innerText = 'AC VOLTAGE';
+                    calDisplay.innerHTML = messages[0];
+                    messageEl.innerHTML = messages[1];
+                } else {
+                    freqDisplay.style.display = 'none';
+                    actions['AC_connector'].reset().stop();
+                    actions['DC_connector'].setDuration(2).play();
+                    buttonFlip.innerText = 'DC VOLTAGE';
+                    calDisplay.innerHTML = messages[2];
+                    messageEl.innerHTML = messages[3];
+                }
+            });
+            lowFreq.addEventListener('click', function () {
+                lowF = true;
+                freqSelect()
+
+            });
+            highFreq.addEventListener('click', function () {
+                lowF = false;
+                freqSelect()
+            });
+        }
+
+        function freqSelect() {
+            if (lowF) {
+                params.f = [30, 1, 1]
+                lowFreq.style.backgroundColor = 'rgb(26, 164, 26)';
+                highFreq.style.backgroundColor = 'rgb(164, 26, 26)';
+
+            } else {
+                params.f = [15, 0.67, 3]
+                highFreq.style.backgroundColor = 'rgb(26, 164, 26)';
+                lowFreq.style.backgroundColor = 'rgb(164, 26, 26)';
+            }
+
+        }
+
+        function addSpring(extrude, b, t, data) {
+
+            let iMaterial = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true });
+
+            let iLabel = makeText(-250, 120, 0, 30, iMaterial, 'INDUCTOR', "rgba(0, 0, 0, 0)", "rgba(05, 05, 05, 1)")
+            iLabel.rotation.y = 1.57;
+            scene.add(iLabel)
+            let xDist = b;
+
+
+            const helixPoints = helixPointsArray(params.r, xDist, t);
+            const curve = new THREE.CatmullRomCurve3(helixPoints);
+
+            let tubeGeometry = new THREE.TubeBufferGeometry(curve, data, extrude, 15, false);
+            let material = new THREE.MeshPhongMaterial({
+                color: 0xff3333,
+                flatShading: false,
+                side: THREE.DoubleSide
+            })
+            material.color.convertSRGBToLinear();
+
+            addGeometry(tubeGeometry, connectorMaterial);
+
+
+        }
+
+        function helixPointsArray(a, b, value) {
+
+            const curvePoints = [];
+
+            for (let t = 0; t < value; t += 0.1) {
+
+                curvePoints.push(helixPoint(a, b, t));
+
+            }
+
+            return curvePoints;
+
+        }
+
+        function helixPoint(a, b, t) {
+
+            return new THREE.Vector3(a * Math.cos(t), a * Math.sin(t), b * t);
+
+        }
+
+        function addGeometry(geometry, mat) {
+            // console.log(spring)
+            let mesh = new THREE.Mesh(geometry, mat);
+            spring.add(mesh)
+        }
+
+        function makeConnector(x1, y1, z1, x2, y2, z2, gap) {
+            const measureSpline = new THREE.CatmullRomCurve3([
+                new THREE.Vector3(x1, y1, z1),
+                new THREE.Vector3(x1 - 40, y1 + 5, z2),
+
+                new THREE.Vector3(x2, y2 + 1, z2),
+                new THREE.Vector3(x2, y2, gap)
+            ]);
+
+            let tubeGeometry = new THREE.TubeGeometry(measureSpline, 25, 6, 4, false);
+
+            let mesh = new THREE.Mesh(tubeGeometry, connectorMaterial);
+
+            connector.add(mesh)
+        }
+
+        function makeResistor() {
+            let geo = new THREE.BoxGeometry(120, 40, 40).translate(0, 20, 0)
+            let material = new THREE.MeshPhongMaterial({
+                color: 0x221011
+            });
+            let rMaterial = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true });
+            let rLabel1 = makeText(0, 20, 20.1, 20, rMaterial, ' RESISTOR ', "rgba(0, 0, 0, 0.1)", "rgba(250, 55, 05, 1)")
+            let rLabel2 = rLabel1.clone();
+            rLabel2.position.set(0, 20, -20.1)
+            rLabel2.rotation.y = 3.14;
+            let rLabel3 = rLabel1.clone();
+            rLabel3.position.set(0, 40.1, 0)
+            rLabel3.rotation.set(-1.57, 0, 0);
+            let resistor = new THREE.Mesh(geo, material);
+            scene.add(resistor)
+            resistor.add(rLabel1, rLabel2, rLabel3)
+            resistor.position.set(-80, 0, 280);
+        }
+
+        function init() {
+
+            camera = new THREE.PerspectiveCamera(20, window.innerWidth / window.innerHeight, 1, 50000);
+            // camera.position.set(2250, 900, 1500);
+            camera.position.set(1650, 435, 800);
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xbfd1e5);
+
+            camera.lookAt(scene.position);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.alpha = true;
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.setClearColor(0xcce0ff, 0.5);
+            // renderer.outputEncoding = THREE.sRGBEncoding;
+            document.body.appendChild(renderer.domElement);
+
+            let light = new THREE.HemisphereLight(0xffffff, 1.2);
+
+            light.position.set(1, 1, 1).normalize();
+            scene.add(light);
+
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enablePan = true;
+            controls.enableZoom = true;
+            controls.target.set(-50, 160, -30);
+            controls.update();
+
+            scene.add(new THREE.GridHelper(2000, 50));
+            createLight()
+            // guiControls()
+            createModel()
+            //stats
+            stats = new Stats();
+
+            buttonAction();
+            document.body.appendChild(stats.dom);
+
+            scene.add(connector);
+            scene.add(INDUCTOR);
+            scene.add(graph); //dc charging and discharging
+            addSpring(params.extrude, params.b, params.t, params.p);
+            scene.add(spring)
+            spring.position.set(-250, 52, -120);
+            spring.rotation.z = -1.7;
+            // makeDisplay()
+            makeConnector(92, 2, -20, -250, 10, -250, -120)
+            makeConnector(92, 2, 20, -250, 10, 250, 163)
+
+            makeResistor()
+            makeBulb()
+            makeGround()
+
+
+            window.addEventListener('resize', onWindowResize);
+
+        }
+
+        function makeDisplay() {
+            while (INDUCTOR.children.length > 0) {
+                const A = INDUCTOR.children[0];
+                A.parent.remove(A);
+            }
+            iDisplay = makeText(-200, 50, 0, 35, chargeMaterial, 'Induced EMF', "rgba(0, 0, 0, 0.1)", "rgba(0, 05, 05, 1)")
+            iDisplay.rotation.y = 1.57;
+            INDUCTOR.add(iDisplay);
+            plus = makeText(80, 20, 70, 40, plusMaterial, '+', "rgba(0, 0, 0, 0)", "rgba(0, 05, 05, 1)")
+            plus.rotation.y = 1.57;
+            INDUCTOR.add(plus);
+            let A = plus.clone();
+            A.position.set(-200, 50, 140)
+            INDUCTOR.add(A)
+            minus = makeText(80, 20, -70, 50, minusMaterial, '-', "rgba(0, 0, 0, 0)", "rgba(0, 05, 05, 1)")
+            minus.rotation.y = 1.57;
+            INDUCTOR.add(minus);
+            let B = minus.clone();
+            B.position.set(-200, 50, -140)
+            INDUCTOR.add(B);
+
+            for (let i = 0, l = INDUCTOR.children.length; i < l; i++) {
+                const A = INDUCTOR.children[i];
+                A.visible = false;
+            }
+            // plus.visible = false;
+            // minus.visible = false;
+
+        }
+
+        function inducedEmf() {
+            // params.k = sy > 1 ? 81 * sy : 80 * sy;
+            // console.log(s, intensity)  if (intensity <= 20) {
+            // let count = charge.geometry.attributes.position.count;
+
+            if (s >= 0) {
+                bulbMaterial.emissiveIntensity = intensity;
+                bulbLight.intensity = intensity;
+                for (let i = 0, l = INDUCTOR.children.length; i < l; i++) {
+                    const A = INDUCTOR.children[i];
+                    s = s < 0 ? 0 : s;
+
+                    A.scale.set(s, s, s);
+                }
+                reqID = requestAnimationFrame(inducedEmf)
+
+            } else {
+                s = 0;
+                cancelAnimationFrame(reqID)
+            }
+            s = s - 0.003
+            intensity = intensity + 0.08;
+
+
+            t = t + 1
+        }
+
+        function chargeAction() {
+
+            if (acVolt) {
+                makeWaveform(params.f[0], params.f[1], params.f[2])
+                periodicAction()
+
+            } else if (!acVolt) {
+                makeDisplay()
+                flowAction()
+                buttonFlip.disabled = true;
+                buttonFlip.style.cursor = 'default';
+            }
+
+        }
+
+        function flowAction() {
+            cancelAnimationFrame(reqID)
+            cancelAnimationFrame(reqAC)
+            if (flow) {
+                buttonFlow.disabled = true;
+                buttonFlow.style.cursor = 'default';
+                actions['Action'].play();
+                actions['knob_reset'].reset().stop();
+                actions['Action_knob'].setDuration(5).play();
+                // Action_knob
+                buttonFlow.innerText = 'ON';
+                buttonFlow.style.backgroundColor = 'rgb(26, 164, 26)';
+                plus.visible = true;
+                minus.visible = true;
+                s = 1;
+                for (let i = 0, l = INDUCTOR.children.length; i < l; i++) {
+                    const A = INDUCTOR.children[i];
+                    A.visible = true;
+                    A.scale.set(1, 1, 1);
+                }
+                setTimeout(function () {
+                    inducedEmf();
+                }, 5000)
+                setTimeout(function () {
+
+                    buttonFlow.disabled = false;
+                    buttonFlow.style.cursor = 'pointer';
+                }, 10000)
+
+
+            } else if (!flow) {
+                s = 1, intensity = 20;
+
+                for (let i = 0, l = INDUCTOR.children.length; i < l; i++) {
+                    const A = INDUCTOR.children[i];
+                    A.visible = true;
+
+                    A.scale.set(1, 1, 1);
+                }
+
+                actions['Action_knob'].reset().stop();
+                actions['knob_reset'].play();
+                setTimeout(function () {
+                    offEmf()
+                }, 1500)
+                setTimeout(function () {
+
+                    plus.visible = false;
+                    minus.visible = false;
+                    actions['Action'].reset().stop();
+                    buttonFlip.disabled = false;
+                    buttonFlip.style.cursor = 'pointer';
+                }, 5000)
+
+                buttonFlow.innerText = 'OFF';
+                buttonFlow.style.backgroundColor = 'rgb(164, 26, 26)';
+                // console.log(bulbLight.intensity)
+            }
+
+        }
+
+        function offEmf() {
+            if (s >= 0) {
+                bulbMaterial.emissiveIntensity = intensity;
+                bulbLight.intensity = intensity;
+                for (let i = 0, l = INDUCTOR.children.length; i < l; i++) {
+                    const A = INDUCTOR.children[i];
+                    A.scale.set(s, s, s);
+                }
+                reqID = requestAnimationFrame(offEmf)
+
+            } else {
+
+                for (let i = 0, l = INDUCTOR.children.length; i < l; i++) {
+                    const A = INDUCTOR.children[i];
+                    A.visible = false;
+                }
+                intensity = 0;
+                s = 0;
+                bulbMaterial.emissiveIntensity = intensity;
+                bulbLight.intensity = intensity;
+                cancelAnimationFrame(reqID)
+            }
+            s = s - 0.005
+            intensity = intensity - 0.01;
+
+
+        }
+
+        function periodicAction() {
+            cancelAnimationFrame(reqID)
+            cancelAnimationFrame(reqAC)
+            if (flow) {
+                actions['Action'].play();
+                buttonFlow.innerText = 'ON';
+                buttonFlow.style.backgroundColor = 'rgb(26, 164, 26)';
+                knob.rotation.y = -1.4;
+
+                setTimeout(function () {
+                    for (let i = 0, l = INDUCTOR.children.length; i < l; i++) {
+                        const A = INDUCTOR.children[i];
+                        A.visible = true;
+                    }
+                    drawWaveform()
+                    INDUCTOR.position.set(-250, 150, 100)
+                    INDUCTOR.rotation.set(0, 1.57, 0)
+                }, 500)
+
+            } else {
+
+                actions['Action'].reset().stop();
+                knob.rotation.y = 0;
+                plus.visible = false;
+                minus.visible = false;
+                buttonFlow.innerText = 'OFF';
+                buttonFlow.style.backgroundColor = 'rgb(164, 26, 26)';
+                INDUCTOR.position.set(0, 0, 0)
+                INDUCTOR.rotation.set(0, 0, 0)
+                for (let i = 0, l = INDUCTOR.children.length; i < l; i++) {
+                    const A = INDUCTOR.children[i];
+                    A.visible = false;
+                }
+                setTimeout(function () {
+
+                    vWave.geometry.setDrawRange(0, 0);
+                    iWave.geometry.setDrawRange(0, 0);
+                    t = 0
+                }, 500)
+                makeWaveform(params.f[0], params.f[1], params.f[2])
+            }
+        }
+
+        function createLight() {
+            //create light 
+            let hemiLight = new THREE.AmbientLight(0xffffff, .350);
+            hemiLight.position.set(0, 20, 0);
+            scene.add(hemiLight);
+
+            let dirLight = new THREE.DirectionalLight(0xffffff, 1);
+            dirLight.position.set(-30, 50, -30);
+            dirLight.castShadow = true;
+            dirLight.shadow.camera.top = 70;
+            dirLight.shadow.camera.bottom = -70;
+            dirLight.shadow.camera.left = -70
+            dirLight.shadow.camera.right = 70;
+            dirLight.shadow.mapSize.width = 2048;
+            dirLight.shadow.mapSize.height = 2048;
+            scene.add(dirLight);
+        }
+
+        function onWindowResize() {
+
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+
+            camera.lookAt(scene.position);
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+        }
+
+        function animate() {
+
+            requestAnimationFrame(animate);
+            const delta = clock.getDelta();
+
+            if (modelReady) mixer.update(delta);
+            render();
+            controls.update()
+            // renderer.render(scene, camera);
+            stats.update();
+
+        }
+
+        function render() {
+
+            renderer.render(scene, camera);
+
+        }
+
+        function guiControls() {
+            let gui = new GUI();
+            // gui.close()
+
+
+            gui.add(camera.position, 'x', -3000, 3000);
+            gui.add(camera.position, 'y', -1000, 1000);
+            gui.add(camera.position, 'z', -10000, 10000);
+            let controlFolder = gui.addFolder("Control");
+            controlFolder.add(controls.target, 'x', -100, 100);
+            controlFolder.add(controls.target, 'y', -300, 300);
+            controlFolder.add(controls.target, 'z', -100, 100);
+
+        }
+
+        function createModel() {
+            const loader = new GLTFLoader();
+            loader
+                .setPath('../../model/')
+                .load('powersupply.glb', function (gltf) {
+                    model = gltf.scene;
+
+                    action = gltf.animations
+                    // console.log(action)
+                    scene.add(model);
+                    model.scale.set(100, 100, 100);
+
+                    knob = model.getObjectByName('knob');
+                    objects.push(knob);
+                    knob.rotation.y = 0;
+
+                    let plus = model.getObjectByName('plus');
+                    // plus.position.set(1, 0.2, 0.6);
+                    let minus = model.getObjectByName('minus');
+                    // minus.position.set(1, 0.2, - 0.6);
+
+
+                    plus.visible = false;
+                    minus.visible = false;
+                    render();
+                    mixer = new THREE.AnimationMixer(model);
+                    modelReady = true;
+                    let fixedStates = ['polarity', 'Action', 'Action_knob', 'AC_connector', 'DC_connector', 'knob_reset'];
+
+
+                    for (let i = 0; i < gltf.animations.length; i++) {
+
+                        let clip = gltf.animations[i];
+                        let action = mixer.clipAction(clip);
+                        actions[clip.name] = action;
+
+                        if (fixedStates.indexOf(clip.name) >= 0) {
+                            action.clampWhenFinished = true;
+                            action.loop = THREE.LoopOnce;
+
+                            // console.log(i, clip.name, fixedStates.indexOf(clip.name))
+                        }
+                    }
+
+
+
+
+
+                }, undefined, function (e) {
+
+                    console.error(e);
+
+                });
+
+
+
+        }
+
+        function calCapacitance() {
+            const e = 8.854e-12; //1e-12 Fm-1 or m-3kg-1s4A2 or C2N−1m−2 or CV−1m−1 
+            let k = params.factor;
+            let A = (params.a);
+            let d = params.dist;
+            let b = Number((e * k * A) / d);
+            let C = countPower(b).num;
+            let exp = countPower(b).count
+            // console.log(b)
+            return { C, exp }
+        }
+
+        function countPower(num) {
+            let count = 0;
+
+            while (num < 1) {
+                num = (num * 10);
+                count++;
+                // console.log(num,count)
+            }
+            return { num, count };
+        }
+
+        //make the  texture for labels
+        function makeLabelCanvas(size, name, backgdCol, color) {
+            const borderSize = 2;
+            const ctx = document.createElement('canvas').getContext('2d');
+            const font = `${size}px bold sans-serif`;
+            ctx.font = font;
+            // measure how long the name will be
+            const doubleBorderSize = borderSize * 2;
+            const width = ctx.measureText(name).width + doubleBorderSize;
+            const height = size + doubleBorderSize;
+            ctx.canvas.width = width;
+            ctx.canvas.height = height;
+
+            // need to set font again after resizing canvas
+            ctx.font = font;
+            ctx.textBaseline = 'top';
+
+            ctx.fillStyle = backgdCol;
+            ctx.fillRect(0, 0, width, height);
+            ctx.fillStyle = color;
+            ctx.fillText(name, borderSize, borderSize);
+
+            return ctx.canvas;
+        }
+
+        function makeText(x, y, z, size, material, name, backgdCol, color) {
+            const canvas = makeLabelCanvas(size, name, backgdCol, color);
+            material.map = new THREE.CanvasTexture(canvas);
+
+            const root = new THREE.Object3D();
+            root.position.set(x, y, z);
+
+            const label = new THREE.Mesh(labelGeometry, material);
+            root.add(label);
+            const labelBaseScale = 0.1;
+            label.scale.x = canvas.width * labelBaseScale;
+            label.scale.y = canvas.height * labelBaseScale;
+
+            // scene.add(root);
+            return root;
+        }
+
+        function makeGround() {
+            let groundGeo = new THREE.PlaneGeometry(100, 100);
+            let groundMat = new THREE.MeshStandardMaterial({
+                color: 0xffffff,
+                metalness: 0.65
+            });
+            groundMat.color.setHex(0x779977);
+
+            let ground = new THREE.Mesh(groundGeo, groundMat);
+            ground.rotation.x = -Math.PI / 2;
+            ground.position.y = 0;
+
+            scene.add(ground);
+            ground.scale.set(20, 20, 20)
+            ground.receiveShadow = true;
+        }
+
+        function makeBulb() {
+            group = new THREE.Group();
+            //main bulb
+            let bulbGeometry = new THREE.SphereGeometry(1, 32, 32);
+            bulbLight = new THREE.PointLight(0x986b65, intensity, 300, 6);
+            bulbMaterial = new THREE.MeshStandardMaterial({
+                emissive: 0xffffee,
+                emissiveIntensity: intensity,
+                color: 0xeeeeee,
+                roughness: 1
+            });
+
+            bulbLight.add(new THREE.Mesh(bulbGeometry, bulbMaterial));
+            bulbLight.position.set(0, 1, 0);
+            bulbLight.castShadow = true;
+
+            let d = 2000;
+
+            bulbLight.shadow.camera.left = -d;
+            bulbLight.shadow.camera.right = d;
+            bulbLight.shadow.camera.top = d;
+            bulbLight.shadow.camera.bottom = -d;
+
+            bulbLight.shadow.camera.far = 1000;
+
+            //stem
+            let bulbStem = new THREE.CylinderGeometry(0.65, 0.5, 0.55, 32);
+            // let stemMat = new THREE.MeshStandardMaterial({
+            //     color: 0xffffff,
+            //     emissive: 0xffffee,
+            //     emissiveIntensity: intensity,
+            //     metalness: 0.8,
+            //     roughness: 0
+            // });
+
+            let bStem = new THREE.Mesh(bulbStem, bulbMaterial);
+            bStem.position.set(0, 1, 0);
+            bStem.castShadow = true;
+            bStem.receiveShadow = true;
+
+            //plug main
+            let bulbPlug = new THREE.CylinderGeometry(0.52, 0.52, 1.2, 32);
+
+            let plugMat = new THREE.MeshPhongMaterial({
+                color: 0x837d7a
+            });
+
+            let plug = new THREE.Mesh(bulbPlug, plugMat);
+            plug.position.set(0, 0.5, 0);
+            plug.receiveShadow = true;
+            plug.castShadow = true;
+
+
+
+            bulbLight.position.y = 2.0;
+
+            //add to group
+            group.add(bStem);
+            group.add(bulbLight);
+            group.add(plug);
+            // group.add(plugTop);
+            // group.add(botRing);
+            // group.add(topRing);
+
+            scene.add(group);
+            group.scale.set(20, 20, 20)
+            group.position.y = 0;
+            group.position.z = -200;
+            group.position.x = -260;
+        }
+
+
+        function drawWaveform() {
+
+
+            let count = iWave.geometry.attributes.position.count;
+
+            if (t < count) {
+                vWave.geometry.setDrawRange(0, t);
+                iWave.geometry.setDrawRange(0, t);
+                reqAC = requestAnimationFrame(drawWaveform);
+            } else {
+                vWave.geometry.setDrawRange(0, t);
+                iWave.geometry.setDrawRange(0, 0);
+                t = 0;
+                reqAC = requestAnimationFrame(drawWaveform);
+            }
+            t = t + 1
+        }
+
+        function makeWaveform(X, F, factor) {
+
+            while (INDUCTOR.children.length > 0) {
+                const A = INDUCTOR.children[0];
+                A.parent.remove(A);
+            }
+            if (iWave != undefined) {
+                iWave.geometry.dispose();
+                iWave.material.dispose();
+            }
+
+
+            let a = 0, b = 100, c = 0, d = 0, w = 200;
+            let lmaterial = new THREE.LineBasicMaterial({ color: 0x000000 })
+            INDUCTOR.add(initLine({
+                points: [new THREE.Vector3(a, d + w, c), new THREE.Vector3(a, 0, c)],
+                lineMaterial: lmaterial
+            }))
+            INDUCTOR.add(initLine({
+                points: [new THREE.Vector3(a, b, c), new THREE.Vector3(a + w, b, c)],
+                lineMaterial: lmaterial
+            }))
+            INDUCTOR.add(initLine({
+                points: [new THREE.Vector3(a + w, d + w, c), new THREE.Vector3(a + w, d, c)],
+                lineMaterial: lmaterial
+            }))
+            INDUCTOR.add(initLine({
+                points: [new THREE.Vector3(a, d + w, c), new THREE.Vector3(a + w, d + w, c)],
+                lineMaterial: lmaterial
+            }))
+            INDUCTOR.add(initLine({
+                points: [new THREE.Vector3(a, d, c), new THREE.Vector3(a + w, d, c)],
+                lineMaterial: lmaterial
+            }))
+            minus = makeText(a + 180, b + 70, c, 20, minusMaterial, 'I- ', "rgba(0, 0, 0, 0)", "rgba(0, 0, 255, 1)");
+            plus = makeText(a + 180, b + 90, c, 20, plusMaterial, 'V- ', "rgba(0, 0, 0, 0)", "rgba(255, 0, 0, 1)");
+            INDUCTOR.add(plus, minus)
+
+
+            let wavePoints = [];
+            for (let j = 0, l = 2 * factor * Math.PI; j <= l; j = j + 0.25) {
+
+                let Z = new THREE.Vector3(a + j * X * F, b + 80 * Math.sin(j * F), 0);
+
+                wavePoints.push(Z)
+            }
+
+            for (let k = 1; k <= wavePoints.length - 1; k++) {
+                INDUCTOR.add(initLine({
+                    points: [wavePoints[k - 1], wavePoints[k]],
+                    lineMaterial: lmaterial
+                }))
+            }
+            for (let i = 0, l = INDUCTOR.children.length; i < l; i++) {
+                const A = INDUCTOR.children[i];
+                A.visible = false;
+            }
+            const igeometry = new THREE.BufferGeometry();
+            const pos = new Float32Array(params.points * 4 * 3); // 3 vertices per point
+            igeometry.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+
+            const imaterial = new THREE.PointsMaterial({ size: 10, color: 0xff0000 });
+
+
+            iWave = new THREE.Points(igeometry, imaterial);
+
+            const vgeometry = new THREE.BufferGeometry();
+            const vpos = new Float32Array(params.points * 4 * 3);
+            vgeometry.setAttribute('position', new THREE.BufferAttribute(vpos, 3));
+
+            const vmaterial = new THREE.PointsMaterial({ size: 10, color: 0x0000ff });
+
+
+            vWave = new THREE.Points(vgeometry, vmaterial);
+            vWave.geometry.setDrawRange(0, 0);
+            let i = 0;
+            let x, y, z, index;
+            x = a;
+            y = b;
+            index = 0;
+            z = c;
+            let count = 0;
+            let index1 = 0;
+            let y1 = c;
+
+            for (let j = 0, l = params.points * 4; j < l; j++) {
+                let t = i
+                z = c;
+                x = a + t * X * F;
+                y = b + 80 * Math.sin(t * F);
+                y1 = b + 100 * Math.cos(t * F);
+
+                vpos[index1++] = x;
+                vpos[index1++] = y1;
+                vpos[index1++] = z;
+
+                pos[index++] = x;
+                pos[index++] = y;
+                pos[index++] = z;
+                i = i + 0.00835 * factor
+                count = (count + 1);
+
+            }
+            INDUCTOR.add(iWave)
+            iWave.geometry.setDrawRange(0, 0);
+            INDUCTOR.add(vWave)
+            vWave.geometry.setDrawRange(0, 0);
+        }
+
+        function makeWaveform1() {
+
+            while (INDUCTOR.children.length > 0) {
+                const A = INDUCTOR.children[0];
+                A.parent.remove(A);
+            }
+            let a = 0, b = 100, c = 0, d = 0, w = 200;
+            let lmaterial = new THREE.LineBasicMaterial({ color: 0x000000 })
+            INDUCTOR.add(initLine({
+                points: [new THREE.Vector3(a, d + w, c), new THREE.Vector3(a, 0, c)],
+                lineMaterial: lmaterial
+            }))
+            INDUCTOR.add(initLine({
+                points: [new THREE.Vector3(a, b, c), new THREE.Vector3(a + w, b, c)],
+                lineMaterial: lmaterial
+            }))
+            INDUCTOR.add(initLine({
+                points: [new THREE.Vector3(a + w, d + w, c), new THREE.Vector3(a + w, d, c)],
+                lineMaterial: lmaterial
+            }))
+            INDUCTOR.add(initLine({
+                points: [new THREE.Vector3(a, d + w, c), new THREE.Vector3(a + w, d + w, c)],
+                lineMaterial: lmaterial
+            }))
+            INDUCTOR.add(initLine({
+                points: [new THREE.Vector3(a, d, c), new THREE.Vector3(a + w, d, c)],
+                lineMaterial: lmaterial
+            }))
+            minus = makeText(a + 180, b + 70, c, 20, minusMaterial, 'I- ', "rgba(0, 0, 0, 0)", "rgba(0, 0, 255, 1)");
+            plus = makeText(a + 180, b + 90, c, 20, plusMaterial, 'V- ', "rgba(0, 0, 0, 0)", "rgba(255, 0, 0, 1)");
+            INDUCTOR.add(plus, minus)
+            let wavePoints = [];
+            for (let j = 0, l = 6 * Math.PI; j <= l; j = j + 0.25) {
+                //freq. double
+                let Z = new THREE.Vector3(a + 15 * j * 0.67, b + 80 * Math.sin(j * 0.67), 0);
+                //freq. triple
+                // let Z = new THREE.Vector3(a + 10 * j * 1.02, b + 80 * Math.sin(j*1.006), 0);
+
+                wavePoints.push(Z)
+            }
+
+            for (let k = 1; k <= wavePoints.length - 1; k++) {
+                INDUCTOR.add(initLine({
+                    points: [wavePoints[k - 1], wavePoints[k]],
+                    lineMaterial: lmaterial
+                }))
+            }
+
+            for (let i = 0, l = INDUCTOR.children.length; i < l; i++) {
+                const A = INDUCTOR.children[i];
+                A.visible = false;
+            }
+
+
+            const igeometry = new THREE.BufferGeometry();
+            const pos = new Float32Array(params.points * 4 * 3); // 3 vertices per point
+            igeometry.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+
+            const imaterial = new THREE.PointsMaterial({ size: 10, color: 0xff0000 });
+
+
+            iWave = new THREE.Points(igeometry, imaterial);
+
+            const vgeometry = new THREE.BufferGeometry();
+            const vpos = new Float32Array(params.points * 4 * 3);
+            vgeometry.setAttribute('position', new THREE.BufferAttribute(vpos, 3));
+
+            const vmaterial = new THREE.PointsMaterial({ size: 10, color: 0x0000ff });
+
+
+            vWave = new THREE.Points(vgeometry, vmaterial);
+            vWave.geometry.setDrawRange(0, 0);
+            let i = 0;
+            let x, y, z, index;
+            x = a;
+            y = b;
+            index = 0;
+            z = c;
+            let count = 0;
+            let index1 = 0;
+            let y1 = c;
+
+            for (let j = 0, l = params.points * 4; j < l; j++) {
+                let t = i
+                z = c;
+                x = a + t * 15 * 0.67;
+                y = b + 80 * Math.sin(t * 0.67);
+                y1 = b + 100 * Math.cos(t * 0.67);
+
+                vpos[index1++] = x;
+                vpos[index1++] = y1;
+                vpos[index1++] = z;
+
+                pos[index++] = x;
+                pos[index++] = y;
+                pos[index++] = z;
+                i = i + 0.00835 * 3
+                count = (count + 1);
+
+            }
+            INDUCTOR.add(iWave)
+            iWave.geometry.setDrawRange(0, 0);
+            INDUCTOR.add(vWave)
+            vWave.geometry.setDrawRange(0, 0);
+        }
+
+        //construct line between points for drawing the sinusodial waveform
+        function initLine(data) {
+            let lineGeometry = new THREE.BufferGeometry().setFromPoints(data.points);
+            let line = new THREE.Line(lineGeometry, data.lineMaterial);
+            return line;
+        }
+
+
+        function setupCanvasDrawing() {
+
+            drawingCanvas = document.getElementById('drawing-canvas');
+            drawingContext = drawingCanvas.getContext('2d');
+
+            // draw white background
+            drawingContext.clearRect(0, 0, maxWidth, maxHeight);
+            drawingContext.fillStyle = '#FFFFFF';
+            drawingContext.fillRect(0, 0, maxWidth, maxHeight);
+
+            plotMaterial.map = new THREE.CanvasTexture(drawingCanvas);
+
+        }
+
+        function drawAxes(context, X, Y, A) {
+
+            // Draw X and Y axes
+            context.beginPath();
+            context.lineWidth = 2;
+            context.strokeStyle = 'black';
+            context.moveTo(X, 0);
+            context.lineTo(X, maxHeight);
+            context.moveTo(0, Y);
+            context.lineTo(maxWidth, Y);
+            canvas_arrow(context, X - 10, 90, X - 10, 10);
+            canvas_arrow(context, maxWidth - A, Y + 10, maxWidth - 5, Y + 10);
+            context.stroke();
+        }
+
+        function canvas_arrow(context, fromx, fromy, tox, toy) {
+            let headlen = 10; // length of head in pixels
+            let dx = tox - fromx;
+            let dy = toy - fromy;
+            let angle = Math.atan2(dy, dx);
+            context.moveTo(fromx, fromy);
+            context.lineTo(tox, toy);
+            context.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
+            context.moveTo(tox, toy);
+            context.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
+        }
+
+        function plotGraph(ctx, x, y, r, col, x1, y1) {
+            ctx.beginPath();
+            ctx.arc(x1, y1, r, 0, 2 * Math.PI, false);
+            ctx.moveTo(x, y);
+            ctx.lineTo(x1, y1);
+            ctx.lineWidth = 1;
+
+            ctx.fillStyle = col;
+            ctx.strokeStyle = col;
+
+            ctx.fill();
+            ctx.stroke();
+        }
+
+        function listLabel(ctx, data, cutOff) {
+            ctx.beginPath();
+            ctx.fillStyle = data.col1;
+            ctx.strokeStyle = data.col1;
+            ctx.stroke();
+            ctx.font = "16px arial";
+            ctx.fillText(data.label1, data.label1Posx, data.label1Posy);
+            ctx.beginPath();
+            ctx.fillStyle = data.col2;
+            ctx.strokeStyle = data.col2;
+            ctx.stroke();
+            ctx.font = "16px arial";
+            ctx.fillText(data.label2, data.label2Posx, data.label2Posy);
+            ctx.fillStyle = "#000000";
+            ctx.fillText(data.xlabel, data.x - data.length, data.xPos);
+            ctx.fillText(data.ylabel, data.y, data.yPos);
+            // ctx.fillText(-data.cutOff, 200 - data.length, data.voltPos1x);
+            // ctx.fillText(data.cutOff, 55, data.voltPos2x);
+
+
+        }
+
+    </script>
+
+</body>
+
+</html>

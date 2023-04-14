@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Capacitor - Factors effecting capacitance</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link type="text/css" rel="stylesheet" href="../../css/style-page.css">
+    <link type="text/css" rel="stylesheet" href="../../css/watermark.css">
+</head>
+
+<body>
+    <div id="topmenu">Capacitor - Factors effecting capacitance</div>
+    <div id="sidemenu">
+
+        <a><label for="area">Area of the plates, A = </label><a id="areaDisplay"> 1 </a> m<sup>2</sup><br>
+            <input type="range" id="area" name="area" min="5000" max="15000" value="10000" step="1000">
+        </a><br>
+
+        <a><label for="dist">Distance between the plates, d =</label><a id="distDisplay"> 1 </a> x 10<sup>-3</sup>m<br>
+            <input type="range" id="dist" name="dist" min="1" max="10" value="5" step="1">
+        </a><br>
+
+        <a><label for="dielectric">Dielectric Constant, &kappa; = </label><a id="dielectricDisplay"></a><br>
+            <select id="dielectric-el" name="dielectric-el"> </select>
+        </a><br>
+
+
+    </div>
+    <div id="menu">
+        <div id="z-el" style="visibility: hidden;"> Impedence Z<sub>C</sub> =
+            <div class="fraction">
+                <span class="fup">1</span>
+                <span class="bar">/</span>
+                <span class="fdn">2 &pi; f C</span>
+            </div> = <a id="zDisplay"></a> &ohm;<br>
+        </div>
+        C =
+        <div class="fraction">
+            <span class="fup">Q</span>
+            <span class="bar">/</span>
+            <span class="fdn">V</span>
+        </div>
+        =
+        <div class="fraction">
+            <span class="fup"><a id="factor-el">&epsilon;<sub>0</sub></a>A</span>
+            <span class="bar">/</span>
+            <span class="fdn">d</span>
+        </div> = <a id="calDisplay"></a> F<br>
+
+        <a id="message-el" style="font-weight: bolder;">Click on the 3D model switch (ON) to visualise charging of the
+            capacitor for DC voltage</a><br>
+
+        <button style="background-color: rgb(164, 26, 26);" id="flow">OFF</button>
+        <button id="flip">DC VOLTAGE</button>
+        <button id="theorybutton" onClick="theorySite()">THEORY</button>
+        <button id="cal">CAPACITANCE</button>
+
+    </div>
+
+    <script type="module">
+
+        import * as THREE from '../../build/three.module.js'
+        import { GLTFLoader } from '../../jsm/loaders/GLTFLoader.js';
+        import { OrbitControls } from '../../jsm/controls/OrbitControls.js';
+        import Stats from '../../jsm/libs/stats.module.js';
+        import { GUI } from '../../jsm/libs/lil-gui.module.min.js';
+
+        let camera, scene, renderer, mesh1, mesh2, controls;
+        let model, mixer, plus, minus, knob;
+        let plate1, plate2;
+        let modelReady = false, flow = false, acVolt = false;
+        let actions = [];
+
+        let parent, cMaterial, connectorMaterial, connector = new THREE.Group(), dMaterial, dSlab;
+
+        let reqAC, positions, reqID, A = 1;
+
+        const clock = new THREE.Clock();
+        let redPoints, bluePoints;
+        let drawCount, drawCount1;
+
+        let stats;
+        let redMat = new THREE.PointsMaterial({ color: 0xff0000, size: 30 })
+        let blueMat = new THREE.PointsMaterial({ color: 0x0000ff, size: 30 })
+        connectorMaterial = new THREE.MeshPhongMaterial({
+            color: 0xb87333,
+            side: THREE.DoubleSide,
+        });
+
+        const messages = {
+            1: 'Click on the 3D model switch (OFF) to visualise charging of the capacitor for DC voltage',
+            2: 'Click on the 3D model switch (ON) to visualise discharging of the capacitor for DC voltage',
+            3: 'Click on the 3D model switch (OFF) to visualise the capacitor action for AC voltage',
+            4: 'Charging of the capacitor stops after a while and no current flows through the circuit (open circuit)',
+            5: 'Charging - discharging of the capacitor, depends on the frequency of the AC voltage',
+            6: 'Discharging of the capacitor happens for a while and then returns to its native state'
+        }
+
+
+        const buttonFlip = document.getElementById('flip');
+        const buttonFlow = document.getElementById('flow');
+        const buttonCalculate = document.getElementById('cal');
+        let messageEl = document.getElementById('message-el');
+        let inputDist = document.getElementById('dist');
+        let inputArea = document.getElementById('area');
+        let distDisplay = document.getElementById('distDisplay');
+        let areaDisplay = document.getElementById('areaDisplay');
+        let calDisplay = document.getElementById('calDisplay');
+        let dielectricDisplay = document.getElementById('dielectricDisplay');
+        let selectDielectric = document.getElementById("dielectric-el");
+        let factorElement = document.getElementById("factor-el");
+        let impedenceEl = document.getElementById('z-el')
+
+        let params = {
+            dist: 50,
+            factor: 1,
+            l: 170,
+            h: 210,
+            a: 10000,
+            area: 10000,
+            k: 80, // points position adjust
+            i: 9,  // ( 9 -17 )No. of points in a row
+            j: 20, // (20 - 10) spacing between points
+            points: 9 * 21 // i * 21 total points row x column
+        }
+        let dielectric = { 'Air': [1.0, new THREE.Color(0, 0, 0)], 'Paper': [3.5, new THREE.Color(1, 1, 1)], 'Bakelite': [4.8, new THREE.Color(0.75, 0.5, 1)], 'Mica': [5.4, new THREE.Color(0.4, 0.7, 0.75)] }
+        calDisplay.innerHTML = (calCapacitance().C).toFixed(2) + ' x 10 <sup> -' + calCapacitance().exp + '</sup>'
+
+        for (const key in dielectric) {
+            // for (let i = 0; i < elmts.length; i++) {
+            let optn = key;
+            let el = document.createElement("option");
+            el.textContent = optn;
+            el.value = optn;
+
+            selectDielectric.appendChild(el);
+        }
+        dielectricDisplay.innerHTML = dielectric['Air'][0]
+
+        init()
+        animate()
+
+        function buttonAction() {
+            buttonFlow.addEventListener('click', function () {
+                flow = !flow;
+                // console.log(flow)
+                chargeAction()
+            });
+            buttonFlip.addEventListener('click', function () {
+                acVolt = !acVolt;
+                duringAction()
+                buttonFlow.disabled = true;
+                buttonFlow.style.cursor = 'default';
+                // pointsRecreate()
+                if (acVolt) {
+
+                    cancelAnimationFrame(reqID)
+                    cMaterial.transparent = false;
+                    actions['DC_connector'].reset().stop()
+                    actions['AC_connector'].setDuration(2).play();
+                    buttonFlip.innerText = 'AC VOLTAGE';
+                    impedenceEl.style.visibility = 'visible';
+                    messageEl.innerHTML = messages[3];
+                    setTimeout(function () {
+                        buttonFlow.disabled = false;
+                        buttonFlow.style.cursor = 'pointer';
+                    }, 3000)
+
+                } else {
+                    cancelAnimationFrame(reqAC)
+                    actions['AC_connector'].reset().stop();
+                    actions['DC_connector'].setDuration(2).play();
+                    buttonFlip.innerText = 'DC VOLTAGE';
+                    impedenceEl.style.visibility = 'hidden';
+                    messageEl.innerHTML = messages[1];
+                    setTimeout(function () {
+
+                        buttonFlow.disabled = false;
+                        buttonFlow.style.cursor = 'pointer';
+                    }, 3000)
+                }
+
+            });
+            buttonCalculate.addEventListener('click', function () {
+                console.log('calculate C =' + (calCapacitance().C) + calCapacitance().exp);
+
+            });
+            selectDielectric.addEventListener('input', function (e) {
+                duringAction()
+                // console.log(selectDielectric.value, dielectric[selectDielectric.value])
+                dielectricDisplay.innerHTML = dielectric[selectDielectric.value][0];
+                params.factor = Number(dielectric[selectDielectric.value][0]);
+                factorElement.innerHTML = '&epsilon;<sub>0</sub>&kappa;'
+                calDisplay.innerHTML = (calCapacitance().C).toFixed(2) + ' x 10 <sup>-' + calCapacitance().exp + '</sup>';
+                dSlab.visible = selectDielectric.value == 'Air' ? false : true;
+                dSlab.material.color = dielectric[selectDielectric.value][1];
+
+            });
+
+            inputDist.addEventListener("input", function (event) {
+                let X = Number(inputDist.value);
+                let A = (X - 1)
+                distDisplay.innerHTML = X;
+                params.dist = X * 10;
+                plate1.position.z = -params.dist;
+                plate2.position.z = params.dist;
+                redPoints.position.z = params.dist;
+                bluePoints.position.z = -params.dist;
+
+                dSlab.scale.z = X / 5;
+                duringAction()
+                remakeConnection()
+                pointsRecreate()
+                calDisplay.innerHTML = (calCapacitance().C).toFixed(2) + ' x 10 <sup>-' + calCapacitance().exp + '</sup>'
+
+            });
+            inputArea.addEventListener("input", function (event) {
+                areaDisplay.innerHTML = inputArea.value / 1e4;
+                let s = Number(inputArea.value - params.area) / 1e4, sy = 1 + s;
+                plate1.scale.x = plate2.scale.x = plate1.scale.y = plate2.scale.y = sy;
+                duringAction()
+                dSlab.scale.x = dSlab.scale.y = sy;
+                params.a = inputArea.value;
+
+                params.k = sy > 1 ? 81 * sy : 80 * sy;
+                params.i = sy > 0.6 ? Math.floor(9 * sy) : Math.ceil(9 * sy);
+
+                params.points = params.i * Math.floor(21 * sy);
+                pointsRecreate()
+                calDisplay.innerHTML = (calCapacitance().C).toFixed(2) + ' x 10 <sup>-' + calCapacitance().exp + '</sup>'
+            });
+        }
+
+        function duringAction() {
+
+            flow = false;
+
+            buttonFlow.innerText = 'OFF';
+            buttonFlow.style.backgroundColor = 'rgb(164, 26, 26)';
+            actions['Action'].reset().stop();
+            knob.rotation.y = 0;
+
+            plus.visible = false;
+            minus.visible = false;
+        }
+
+        function makeCapacitor(x, y, z, l, h, dist, t, col, col2) {
+            let capacitor = new THREE.Group();
+            let geo = new THREE.BoxGeometry(l, h, t).translate(0, h / 2, 0)
+            cMaterial = new THREE.MeshPhongMaterial({
+                color: col,
+                transparent: false,
+                opacity: 0.3
+            });
+            let baseGeo = new THREE.BoxGeometry(l + 5, 10, t + 4).translate(0, 0, 0)
+            let baseMaterial = new THREE.MeshPhongMaterial({
+                color: col2
+            });
+            let base1 = new THREE.Mesh(baseGeo, baseMaterial)
+            plate1 = new THREE.Mesh(geo, cMaterial)
+
+            plate1.add(base1)
+            plate2 = plate1.clone()
+            plate2.rotation.y = 3.14;
+            capacitor.add(plate1)
+            capacitor.add(plate2)
+            plate1.position.z = -dist;
+            plate2.position.z = dist;
+            scene.add(capacitor)
+            capacitor.position.set(x, y, z)
+        }
+
+        function makeConnector(x1, y1, z1, x2, y2, z2, gap) {
+            const measureSpline = new THREE.CatmullRomCurve3([
+                new THREE.Vector3(x1, y1, z1),
+                new THREE.Vector3(x1 - 40, y1 + 5, z2),
+
+                new THREE.Vector3(x2, y2 + 1, z2),
+                new THREE.Vector3(x2, y2, gap)
+            ]);
+
+            let tubeGeometry = new THREE.TubeGeometry(measureSpline, 25, 4, 4, false);
+
+            let mesh = new THREE.Mesh(tubeGeometry, connectorMaterial);
+
+            connector.add(mesh)
+        }
+
+        function remakeConnection() {
+            // console.log(connector)
+            while (connector.children.length > 0) {
+                const A = connector.children[0];
+                A.geometry.dispose()
+                // A.material.dispose()
+                A.parent.remove(A);
+            }
+            makeConnector(92, 2, -20, -250, 2, -250, -params.dist)
+            makeConnector(92, 2, 20, -250, 2, 250, params.dist)
+        }
+
+        function init() {
+
+            camera = new THREE.PerspectiveCamera(20, window.innerWidth / window.innerHeight, 1, 50000);
+            // camera.position.set(2250, 900, 1500);
+            camera.position.set(1650, 300, 800);
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xbfd1e5);
+
+            camera.lookAt(scene.position);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.alpha = true;
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.outputEncoding = THREE.sRGBEncoding;
+            document.body.appendChild(renderer.domElement);
+
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enablePan = true;
+            controls.enableZoom = true;
+            controls.target.set(80, 130, -30);
+            controls.update();
+
+            scene.add(new THREE.GridHelper(1000, 50));
+            createLight()
+            // guiControls()
+            createModel()
+            //stats
+            stats = new Stats();
+
+            buttonAction();
+            document.body.appendChild(stats.dom);
+
+
+            scene.add(connector)
+            makeCapacitor(-250, 0, 0, params.l + 10, params.h + 10, params.dist, 5, 0xff7d7a, 'brown')
+            makeConnector(92, 2, -20, -250, 2, -250, -params.dist)
+            makeConnector(92, 2, 20, -250, 2, 250, params.dist)
+            plusPoints()
+            minusPoints()
+            makeDiectric()
+            window.addEventListener('resize', onWindowResize);
+
+        }
+
+        function makeDiectric() {
+            let geo = new THREE.BoxGeometry(params.l, params.h + 10, 2 * params.dist).translate(0, params.h / 2, 0)
+            dMaterial = new THREE.MeshPhongMaterial({
+                color: dielectric['Air'][1],
+                // transparent: false,
+                // opacity: 0.8
+            });
+            dSlab = new THREE.Mesh(geo, dMaterial)
+            scene.add(dSlab)
+            dSlab.visible = false;
+            dSlab.position.set(-250, 0, 0)
+        }
+
+        function pointsRecreate() {
+            redPoints.geometry.dispose();
+            redPoints.material.dispose();
+            bluePoints.geometry.dispose();
+            bluePoints.material.dispose();
+            scene.remove(redPoints, bluePoints);
+            plusPoints();
+            minusPoints();
+            updatePoints();
+        }
+
+        function plusPoints() {
+            //create chargingpoints geometry
+            const geometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(params.points * 3); // 3 vertices per point
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+            drawCount = 0; // draw the first 2 points, only
+
+
+            const material = new THREE.PointsMaterial({ size: 20, color: 0xff0000 });
+
+            redPoints = new THREE.Points(geometry, material);
+
+            scene.add(redPoints);
+            redPoints.position.z = params.dist;
+            // updateReds();
+            let i = 0;
+            let x, y, z, index;
+            x = -250 - params.k;
+            y = 10 // 80
+            index = 0;
+            z = 0;
+            for (let j = 0, l = params.points; j < l; j++) {
+                i = i + 1
+
+                y += (Math.random() - 0.5) * 1;
+                z += 0;
+                positions[index++] = x;
+                positions[index++] = y;
+                positions[index++] = z;
+
+                x += params.j;
+
+                if (i == params.i) {
+                    i = 0
+                    x = -250 - params.k
+                    y += 10
+                }
+                // drawCount1 = (drawCount1 + 1);
+            }
+        }
+
+        function minusPoints() {
+            //create chargingpoints geometry
+            const geometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(params.points * 3); // 3 vertices per point
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+            drawCount1 = 0; // draw the first 2 points, only
+
+
+            const material = new THREE.PointsMaterial({ size: 20, color: 0x0000ff });
+
+            bluePoints = new THREE.Points(geometry, material);
+            scene.add(bluePoints);
+            bluePoints.position.z = -params.dist;
+            // cMaterial.transparent = true;
+
+            let i = 0;
+            let x, y, z, index;
+            x = -250 - params.k;
+            y = 10;
+            index = 0;
+            z = 0;
+
+            // updateBlues();
+            for (let j = 0, l = params.points; j < l; j++) {
+                i = i + 1
+
+                y += (Math.random() - 0.5) * 1;
+                z += 0;
+                positions[index++] = x;
+                positions[index++] = y;
+                positions[index++] = z;
+
+                x += params.j;
+
+                if (i == params.i) {
+                    i = 0
+                    x = -250 - params.k
+                    y += 10
+                }
+                // drawCount1 = (drawCount1 + 1);
+            }
+
+            updatePoints()
+            // removePoints()
+
+
+        }
+
+        function updatePoints() {
+            redPoints.geometry.setDrawRange(0, 0);
+            bluePoints.geometry.setDrawRange(0, 0);
+
+        }
+
+        function removePoints() {
+
+            if (drawCount1 >= 0) {
+                redPoints.geometry.setDrawRange(0, drawCount1)
+                bluePoints.geometry.setDrawRange(0, drawCount1)
+                reqID = requestAnimationFrame(removePoints)
+
+            } else {
+                // console.log('over')
+
+                cancelAnimationFrame(reqID)
+            }
+
+            drawCount1 = drawCount1 - 1
+        }
+
+        function addPoints() {
+
+            if (drawCount1 < params.points + 1) {
+                // console.log('start adding')
+                redPoints.geometry.setDrawRange(0, drawCount1)
+                bluePoints.geometry.setDrawRange(0, drawCount1)
+                reqID = requestAnimationFrame(addPoints)
+
+            } else {
+                plus.visible = false;
+                minus.visible = false;
+                cancelAnimationFrame(reqID)
+            }
+            drawCount1 = drawCount1 + 1
+
+        }
+
+        function chargeAction() {
+            cancelAnimationFrame(reqAC)
+
+            if (flow && acVolt) {
+
+                actions['Action'].play();
+                cMaterial.transparent = true;
+                buttonFlow.innerText = 'ON';
+                buttonFlow.style.backgroundColor = 'rgb(26, 164, 26)';
+                buttonFlow.disabled = true;
+                buttonFlow.style.cursor = 'default';
+                setTimeout(function () {
+                    knob.rotation.y = -1.4;
+
+
+                }, 500)
+                setTimeout(function () {
+                    cMaterial.transparent = true;
+                    periodicAction()
+                    buttonFlow.disabled = false;
+                    buttonFlow.style.cursor = 'pointer';
+                }, 1500)
+
+            } else if (flow && !acVolt) {
+
+                // cMaterial.transparent = true;
+
+                // buttonFlow.innerText = 'ON';
+                // buttonFlow.style.backgroundColor = 'rgb(26, 164, 26)';
+                flowAction()
+            } else if (!flow && !acVolt) {
+                removePoints()
+                messageEl.innerHTML = messages[6];
+                actions['Action'].reset().stop();
+                knob.rotation.y = 0;
+                plus.visible = false;
+                minus.visible = false;
+                cMaterial.transparent = true;
+                buttonFlow.innerText = 'OFF';
+                buttonFlow.style.backgroundColor = 'rgb(164, 26, 26)';
+                // console.log('dc stop action')
+                setTimeout(function () {
+                    cMaterial.transparent = false;
+                }, 5000)
+            } else if (!flow && acVolt) {
+                removePoints()
+                messageEl.innerHTML = messages[6];
+                drawCount = 0;
+                A = 1;
+                actions['Action'].reset().stop();
+                knob.rotation.y = 0;
+                plus.visible = false;
+                minus.visible = false;
+                buttonFlow.innerText = 'OFF';
+                buttonFlow.style.backgroundColor = 'rgb(164, 26, 26)';
+                setTimeout(function () {
+                    cMaterial.transparent = false;
+                }, 3500)
+            }
+
+        }
+
+        function flowAction() {
+            messageEl.innerHTML = messages[4];
+            actions['Action'].play();
+            buttonFlow.innerText = 'ON';
+            buttonFlow.style.backgroundColor = 'rgb(26, 164, 26)';
+            buttonFlow.disabled = true;
+            buttonFlow.style.cursor = 'default';
+            setTimeout(function () {
+                knob.rotation.y = -1.4;
+
+                plus.visible = true;
+                minus.visible = true;
+
+            }, 500)
+            setTimeout(function () {
+                cMaterial.transparent = true;
+                addPoints()
+            }, 1500)
+            setTimeout(function () {
+                messageEl.innerHTML = messages[2]
+                buttonFlow.disabled = false;
+                buttonFlow.style.cursor = 'pointer';
+            }, 3000)
+        }
+
+        function periodicAction() {
+
+            drawCount = drawCount + A
+
+            if (drawCount > 0 && drawCount < params.points + 1) {
+                // console.log('start adding/removing', drawCount, drawCount1)
+
+                redPoints.geometry.setDrawRange(0, drawCount)
+                bluePoints.geometry.setDrawRange(0, drawCount)
+                reqAC = requestAnimationFrame(periodicAction)
+
+            } else {
+                A *= -1
+                if (A > 0) {
+                    redPoints.material.color.r = redPoints.material.color.r < 1 ? 1 : 0;
+                    redPoints.material.color.b = redPoints.material.color.b < 1 ? 1 : 0;
+                    bluePoints.material.color.r = bluePoints.material.color.r < 1 ? 1 : 0;
+                    bluePoints.material.color.b = bluePoints.material.color.b < 1 ? 1 : 0;
+                }
+
+                reqAC = requestAnimationFrame(periodicAction)
+
+                // console.log('restart', A)
+            }
+
+        }
+
+        function createLight() {
+            //create light 
+            let hemiLight = new THREE.AmbientLight(0xffffff, .650);
+            hemiLight.position.set(0, 20, 0);
+            scene.add(hemiLight);
+
+            let dirLight = new THREE.DirectionalLight(0xffffff, 1);
+            dirLight.position.set(-30, 50, -30);
+            dirLight.castShadow = true;
+            dirLight.shadow.camera.top = 70;
+            dirLight.shadow.camera.bottom = -70;
+            dirLight.shadow.camera.left = -70
+            dirLight.shadow.camera.right = 70;
+            dirLight.shadow.mapSize.width = 2048;
+            dirLight.shadow.mapSize.height = 2048;
+            scene.add(dirLight);
+        }
+
+        function onWindowResize() {
+
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+
+            camera.lookAt(scene.position);
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+        }
+
+        function animate() {
+
+            requestAnimationFrame(animate);
+            const delta = clock.getDelta();
+
+            if (modelReady) mixer.update(delta);
+            render();
+            controls.update()
+            // renderer.render(scene, camera);
+            stats.update();
+
+        }
+
+        function render() {
+
+            renderer.render(scene, camera);
+
+        }
+
+        function guiControls() {
+            let gui = new GUI();
+            // gui.close()
+
+
+            gui.add(camera.position, 'x', -3000, 3000);
+            gui.add(camera.position, 'y', -1000, 1000);
+            gui.add(camera.position, 'z', -10000, 10000);
+            let controlFolder = gui.addFolder("Control");
+            controlFolder.add(controls.target, 'x', -100, 100);
+            controlFolder.add(controls.target, 'y', -300, 300);
+            controlFolder.add(controls.target, 'z', -100, 100);
+
+        }
+
+        function createModel() {
+            const loader = new GLTFLoader();
+            loader
+                .setPath('../../model/')
+                .load('powersupply.glb', function (gltf) {
+                    model = gltf.scene;
+                    scene.add(model);
+                    model.scale.set(100, 100, 100);
+                    knob = model.getObjectByName('knob');
+                    knob.rotation.y = 0;;
+                    plus = model.getObjectByName('plus');
+                    plus.position.set(1, 0.2, 0.6);
+                    minus = model.getObjectByName('minus');
+                    minus.position.set(1, 0.2, - 0.6);
+
+                    plus.visible = false;
+                    minus.visible = false;
+
+                    mixer = new THREE.AnimationMixer(model);
+                    modelReady = true;
+                    let fixedStates = ['polarity', 'Action', 'Action_knob', 'AC_connector', 'DC_connector'];
+
+
+                    for (let i = 0; i < gltf.animations.length; i++) {
+
+                        let clip = gltf.animations[i];
+                        let action = mixer.clipAction(clip);
+                        actions[clip.name] = action;
+
+                        if (fixedStates.indexOf(clip.name) >= 0) {
+                            action.clampWhenFinished = true;
+                            action.loop = THREE.LoopOnce;
+
+                            // console.log(i, clip.name, fixedStates.indexOf(clip.name))
+                        }
+                    }
+
+
+                    render();
+
+
+                }, undefined, function (e) {
+
+                    console.error(e);
+
+                });
+
+
+
+        }
+
+        function calCapacitance() {
+            const e = 8.854e-12; //1e-12 Fm-1 or m-3kg-1s4A2 or C2N−1m−2 or CV−1m−1 
+            let k = params.factor;
+            let A = (params.a);
+            let d = params.dist;
+            let b = Number((e * k * A) / d);
+            let C = countPower(b).num;
+            let exp = countPower(b).count
+            // console.log(b)
+            return { C, exp }
+        }
+
+        function countPower(num) {
+            let count = 0;
+
+            while (num < 1) {
+                num = (num * 10);
+                count++;
+                // console.log(num,count)
+            }
+            return { num, count };
+        }
+
+    </script>
+
+</body>
+
+</html>
