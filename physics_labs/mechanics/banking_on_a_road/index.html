@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Car moving on a banked road - A 3D interactive Simulation</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel="shortcut icon" href="../files/favicon_white.ico" media="(prefers-color-scheme: dark)" />
+    <link rel="shortcut icon" href="../files/favicon.ico" media="(prefers-color-scheme: light)" />
+    <link rel="stylesheet" type="text/css" href="../../css/style-page.css">
+    <link rel="stylesheet" type="text/css" href="../../css/watermark.css">
+   
+</head>
+
+<body>
+    <div id="container">
+
+        <div id="topmenu">
+            <div>MOVING ON A CURVED ROAD - A 3D interactive Simulation</div>
+
+        </div>
+
+
+    <div id="menu">
+        <a style="font-weight: bold;">
+            Visualise the free-body diagram and adjust vehicle speed in the control. Use Button for Banked Road.
+        </a><br>
+        <strong>Car moving over a curved</strong> <button id="message-el"> PARALLEL </button><strong>road</strong>
+        <button id="move-el">PAUSE</button>
+        <button id="theorybutton" onClick="theorySite()">THEORY</button>
+        <br>
+    </div>
+</div>
+    <script>
+        function theorySite() {
+
+            window.open("../../theory/mechanics/mechanics_banking_on_a_road.html", "_self")
+        }
+    </script>
+    <script type="module">
+        import * as THREE from '../../build/three.module.js';
+        import { GLTFLoader } from '../../jsm/loaders/GLTFLoader.js';
+        import { OrbitControls } from '../../jsm/controls/OrbitControls.js';
+        import Stats from '../../jsm/libs/stats.module.js';
+        import { GUI } from '../../jsm/libs/lil-gui.module.min.js';
+
+        let scene, camera, gui, controls, stats, clock, renderer, labelRenderer;
+        let model, mixer, car, scaleHorizontal, road, refPoint, curvePoint, carMaterial;
+        let bank = false, move = true;
+        let modelReady = false;
+        let actions = {};
+        let activeAction, previousAction;
+        // let carMoving, carBanking;
+        let activeVector, previousVector;
+        let group = new THREE.Group();
+        let refgroup = new THREE.Group();
+        let curvegroup = new THREE.Group();
+        let Nx, Ny, Nylabel, Nxlabel;
+        let weight, Wlabel, velocity, force, label, Flabel, Vlabel, normal, Nlabel;
+
+        const params= {
+            Force: true,
+            Velocity: true,
+            Banking: function () {
+                changeBanking();
+            },
+            Weight: true,
+            Normal: true,
+            Opacity: 1,
+            Components: function () {
+                
+                pauseContinue();
+
+            },
+            slow: 0.5
+
+
+        }
+
+        let messageEl = document.getElementById('message-el');
+        let moveEl = document.getElementById('move-el');
+
+        function init() {
+
+            let container;
+            container = document.getElementById('container');
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xbfd1e5);
+
+            camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(70,40, -85);
+
+            const light1 = new THREE.DirectionalLight(0xffffff, 0.8);
+            light1.position.set(1, 1, 1);
+
+            scene.add(light1);
+
+            const light2 = new THREE.DirectionalLight(0xffffff, 0.5);
+            light2.position.set(- 1, - 1, 1);
+
+            scene.add(light2);
+
+
+            stats = new Stats();
+            clock = new THREE.Clock();
+
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            container.appendChild(renderer.domElement);
+
+            //
+
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enablePan = true;
+            controls.enableZoom = true;
+            controls.target.set(0, 0, 0);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.rotateSpeed = 0.1;
+            controls.minDistance = .1;
+            controls.maxDistance = 5000;
+
+            scaleHorizontal = new THREE.GridHelper(70, 70);
+
+            scene.add(scaleHorizontal);
+
+            window.addEventListener('resize', onWindowResize);
+
+            messageEl.addEventListener('click', function () {
+
+                console.log('banked')
+                changeBanking();
+            });
+            moveEl.addEventListener('click', function () {
+
+                console.log('Paused')
+                pauseContinue();
+            });
+        }
+
+        function createModel() {
+            const loader = new GLTFLoader();
+            loader
+                .setPath('../../model/')
+                .load('Banking.glb', function (gltf) {
+                    model = gltf.scene;
+
+                    car = model.getObjectByName('car');
+                    carMaterial = car.material;
+                    weight = model.getObjectByName('weight');
+                    Wlabel = model.getObjectByName('Wlabel');
+                    velocity = model.getObjectByName('velocity');
+                    Vlabel = model.getObjectByName('Vlabel');
+                    normal = model.getObjectByName('normal');
+                    Nlabel = model.getObjectByName('Nlabel');
+                    force = model.getObjectByName('force');
+                    Flabel = model.getObjectByName('Flabel');
+                    Nx = model.getObjectByName('nx');
+                    Nxlabel = model.getObjectByName('Nxlabel');
+                    Ny = model.getObjectByName('ny');
+                    Nylabel = model.getObjectByName('Nylabel');
+                    road = model.getObjectByName('road');
+                    refPoint = model.getObjectByName('refPoint');
+                    curvePoint = model.getObjectByName('curvePoint');
+
+                    modelReady = true;
+
+                    model.position.set(0,0,15);
+                    road.morphTargetInfluences[0] = 0;
+                    scene.add(model);
+                    // console.log(car)
+                    mixer = new THREE.AnimationMixer(model);
+
+                    for (let i = 0; i < gltf.animations.length; i++) {
+
+                        let clip = gltf.animations[i];
+                        let action = mixer.clipAction(clip);
+                        
+                        actions[clip.name] = action;
+
+                    }
+                    console.log(actions);
+                    activeAction = actions['nobankMoving'];
+                    activeVector = actions['nxAction'];
+                    for (const key in actions) {
+                        actions[key].play();
+                    }
+
+                    slowMotion(0.6)
+                    gltf.scene.traverse((child) => {
+                        if (child.type == 'SkinnedMesh') {
+                            child.frustumCulled = false;
+                        }
+                    });
+                    
+                    Nx.visible = false;
+                    Nxlabel.visible = false;
+                    Ny.visible = false;
+                    Nylabel.visible = false;
+                });
+
+               
+        }
+
+        window.onload = function () {
+            init();
+            animate();
+            createModel();
+            guiControls();
+
+
+            scene.add(new THREE.AmbientLight(0xffffff));
+
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const delta = clock.getDelta();
+            if (modelReady) mixer.update(delta);
+            controls.update();
+
+            render();
+        }
+
+        function onWindowResize() {
+
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            render();
+
+        }
+
+        function render() {
+            renderer.render(scene, camera);
+        }
+
+        function guiControls() {
+            gui = new GUI({ width: 200 });
+            gui.close();
+            gui.title('Free Body Diagram');
+           
+            // Add vectors
+            gui.add(params, 'Force').name('Force, F').onChange(() => {
+
+                showHide(params.Force, force, Flabel)
+            });;
+            gui.add(params, 'Velocity').name('Velocity, v').onChange(() => {
+
+                showHide(params.Velocity, velocity, Vlabel)
+            });
+
+            gui.add(params, 'Normal').name('Normal, N').onChange(() => {
+                showHide(params.Normal, normal, Nlabel)
+            });
+
+            gui.add(params, 'Weight').name('Weight, mg').onChange(() => {
+                // new THREE.Vector3( 1, 0, 0 )
+                showHide(params.Weight, weight, Wlabel)
+
+            });
+            gui.add(params, 'Components').name('Pause/Continue');
+            gui.add(params, 'slow', 0.0, 1.5, 0.005).name('Modify time').onChange(slowMotion);
+            gui.add(params, 'Opacity', 0.0, 1, 0.005).onChange((value) => {
+                carOpacity(value);
+
+            });
+
+
+        }
+        
+        function pauseContinue() {
+            if (move) {
+                for (const key in actions) {
+                    // console.log(key, actions[key])
+                    actions[key].paused = true;
+                }
+                moveEl.innerHTML = 'CONTINUE';
+                move = false;
+            } else {
+                for (const key in actions) {
+                    // console.log(key, actions[key])
+                    actions[key].paused = false;
+                }
+                moveEl.innerHTML = 'PAUSE';
+                move = true;
+            }
+
+        }
+
+        function slowMotion(speed) {
+
+            mixer.timeScale = speed;
+
+        }
+
+        function changeBanking() {
+            bank = !bank;
+            // console.log(bank)
+            addBanking();
+        }
+       
+        function addBanking() {
+            if (bank) {
+                slowMotion(0.5)
+                guiControls()
+                carOpacity(1)
+               
+                setTimeout(function () {
+                    for (let i = 0; i <= 0.55; i = i + 0.0005) {
+                        road.morphTargetInfluences[0] = i;
+                        messageEl.innerText = 'BANKED';
+                    }
+                    resetAction();
+                    Nx.visible = true;
+                    Nxlabel.visible = true;
+                    Ny.visible = true;
+                    Nylabel.visible = true;
+                }, 500);
+
+            } else {
+                slowMotion(0.5)
+                guiControls()
+                carOpacity(1)
+                setTimeout(function () {
+                    for (let i = 0.55; i >= 0; i = i - 0.0005) {
+                        road.morphTargetInfluences[0] = i;
+                        messageEl.innerText = 'PARALLEL';
+                    }
+                    resetAction();
+                    Nx.visible = false;
+                    Nxlabel.visible = false;
+                    Ny.visible = false;
+                    Nylabel.visible = false;
+                    fadeToAction('nobankMoving', .01);
+                    fadeToVector('nocurveAction', .01);
+                }, 500);
+            }
+
+        }
+
+        function fadeToAction(name, duration) {
+
+            previousAction = activeAction;
+            activeAction = actions[name];
+            // console.log(actions[ name ])
+            if (previousAction !== activeAction) {
+
+                previousAction.fadeOut(duration);
+
+            }
+
+            activeAction
+                .reset()
+                .setEffectiveTimeScale(1)
+                .setEffectiveWeight(1)
+                .fadeIn(duration)
+                .play();
+
+        }
+
+        function fadeToVector(name, duration) {
+
+            previousVector = activeVector;
+            activeVector = actions[name];
+            console.log(actions[name])
+            if (previousVector !== activeVector) {
+
+                previousVector.fadeOut(duration);
+
+            }
+
+            activeVector
+                .reset()
+                .setEffectiveTimeScale(1)
+                .setEffectiveWeight(1)
+                .fadeIn(duration)
+                .play();
+
+        }
+
+        function resetAction(name) {
+            // actions[name].reset();
+            actions['bankMoving'].reset();
+            actions['nobankMoving'].reset();
+            actions['refAction'].reset();
+            actions['nocurveAction'].reset();
+            actions['curveAction'].reset();
+            actions['nxAction'].reset();
+            actions['forceAction'].reset();
+            actions['FlabelAction'].reset();
+            actions['NxlabelAction'].reset();
+        }
+
+
+        function carOpacity(value) {
+            carMaterial.opacity = value;
+            carMaterial.transparent = true;
+            carMaterial.format = THREE.RGBAFormat
+        }
+       
+        function showHide(Action, vector, label) {
+            if (Action) {
+
+                let Vector = vector;
+                let Label = label;
+
+                Vector.visible = true;
+                Label.visible = true;
+            } else {
+                let Vector = vector;
+                let Label = label;
+                Vector.visible = false;
+                Label.visible = false;
+            }
+        }
+
+    </script>
+</body>
+</html>
