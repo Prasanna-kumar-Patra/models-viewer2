@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-  <title>blood-vessel-anatomy</title>
+  <title>Plant and Animal Cell</title>
   <meta charset="utf-8">
   <meta name="description" content="&lt;model-viewer&gt; template">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -15,60 +15,226 @@
 <body>
   <audio src="" id="myAudio1"></audio>
   <!-- <model-viewer> HTML element -->
-    <model-viewer id="mv1" class="mv1" src="../libs/glbs/blood_vessel_anatomy.glb" ar ar-modes="webxr scene-viewer quick-look"
-    camera-controls poster="poster.webp" shadow-intensity="1"camera-target="-0.66m -0.2579m 5.456m" camera-orbit="-41.13deg 55.33deg 35.21m" field-of-view="30deg"
+    <model-viewer id="mv1" class="mv1" src="../libs/glbs/plant_and_animal_cell.glb" ar ar-modes="webxr scene-viewer quick-look"
+    camera-controls poster="poster.webp" shadow-intensity="1" camera-orbit="-87.89deg 73.4deg 6.843m" field-of-view="26.26deg" camera-target="-0.15m -0.9547m -0.006618m"
    
     >
 
+<!-- Plant cell -->
+    
+    <button class="Hotspot" data-audio="myAudio1" slot="hotspot-1" data-surface="173 0 1 24 31 0.387 0.075 0.538" data-visibility-attribute="visible"
+    data-orbit="-63.25deg 42.84deg 3.976m" field-of-view="12deg" data-target="0.1m -0.96m 1.42m">A
+            <div class="HotspotAnnotation"> 
+              <p class="title">Nucleus</p>
+              <p class="description" style="display:none">Nucleus is the control centre of the cell and contains genetic material (DNA) that carries the instructions for the cell’s functions and characteristics.</p>
+             </div>
+        </button>
 
-    <button class="Hotspot" data-audio="myAudio1" slot="hotspot-1"  data-orbit="-93.49deg 101.6deg 35.21m" field-of-view="30deg"
-      data-target="-0.67m 3.027m 11.53m" data-surface="0 0 11008 11007 11005 0.778 0.061 0.161"
-      data-visibility-attribute="visible">1
-      <div class="HotspotAnnotation"></div>
-
-      <div class="HotspotAnnotation">
-        <p class="title">Vein</p>
-       <p class="description" style="display:none">Veins are blood vessels located throughout your body that collect oxygen-poor blood and return it to your heart. Veins are part of your circulatory system. They work together with other blood vessels and your heart to keep your blood moving. Veins hold most of the blood in your body</p>
-      </div>
-
+        <button class="Hotspot" data-audio="myAudio2" slot="hotspot-2" data-surface="174 0 91 82 100 0.573 0.131 0.296" data-visibility-attribute="visible"
+    data-orbit="-23.03deg 63.3deg 4.89m" field-of-view="15.4deg" data-target="0.46m -1.59m 0.04m">B
+    <div class="HotspotAnnotation"> 
+      <p class="title">Nucleolus</p>
+      <p class="description" style="display:none">Nucleolus is a region within the nucleus where ribosomal RNA is synthesized and assembled with proteins to form ribosomes.</p>
+     </div>
     </button>
 
-    <button class="Hotspot" data-audio="myAudio2" slot="hotspot-2"  data-orbit="-81.64deg 100.5deg 35.21m" field-of-view="30deg"
-      data-target="-0.7m 2.954m 0.4824m" data-surface="0 0 4610 4606 4607 0.199 0.748 0.054"
-      data-visibility-attribute="visible">2
-      <div class="HotspotAnnotation">
-        <p class="title">Artery</p>
-        <p class="description" style="display:none">Arteries distribute oxygen-rich blood to your body. Arteries, part of your circulatory (cardiovascular) system, are the blood vessels that bring oxygen-rich blood from your heart to all of your body's cells. </p>
-      </div>
-    </button>
-<!-- 
-    <button class="Hotspot" data-audio="myAudio3" slot="hotspot-3"  data-orbit="-89.67deg 102deg 35.21m" field-of-view="30deg"
-      data-target="-0.75m 5.053m 11.36m" data-surface="0 0 9948 10451 9953 0.072 0.778 0.150"
-      data-visibility-attribute="visible">3
-      <div class="HotspotAnnotation">
-        <p class="title">To Heart</p>
-        <p class="description" style="display:none">blood cerculated to Heart.</p>
-      </div>
-    </button>
+    <button class="Hotspot" data-audio="myAudio3" slot="hotspot-3" data-surface="173 0 46 53 43 0.257 0.379 0.365" data-visibility-attribute="visible"
+    data-orbit="-78.56deg 47.38deg 4.464m" field-of-view="13.71deg" data-target="0.55m -1.34m 1m">C
+    <div class="HotspotAnnotation"> 
+      <p class="title">Nuclear envelope</p>
+      <p class="description" style="display:none">Nuclear envelope is a double-layered membrane that encloses the nucleus, separating the genetic material from the rest of the cell.</p>
+     </div>
+        </button>
 
-    <button class="Hotspot" data-audio="myAudio4" slot="hotspot-4"  data-orbit="-81.64deg 100.5deg 35.21m" field-of-view="30deg"
-      data-target="-0.73m 5.158m 0.1688m" data-surface="0 0 6690 6870 6871 0.209 0.596 0.195"
-      data-visibility-attribute="visible">4
-      <div class="HotspotAnnotation">
-        <p class="title">From Heart</p>
-        <p class="description" style="display:none">Blood cerculated From Heart. </p>
-      </div>
-    </button> -->
+        <button class="Hotspot" data-audio="myAudio4" slot="hotspot-4" data-surface="173 0 100 96 94 0.243 0.121 0.636" data-visibility-attribute="visible"
+        data-orbit="-124.4deg 67.57deg 3.976m" field-of-view="12deg" data-target="0.09m -0.89m 1.2m">D
+        <div class="HotspotAnnotation"> 
+          <p class="title">Nuclear pore</p>
+          <p class="description" style="display:none">Nuclear pores are small openings in the nuclear envelope that allow the movement of molecules such as RNA and proteins in and out of the nucleus.</p>
+         </div>
+            </button>
 
-    <button class="Hotspot" data-audio="myAudio5" slot="hotspot-5"  data-orbit="-98.46deg 87.43deg 19.09m" field-of-view="12deg"
-      data-target="-2.23m 1.086m 5.906m" data-surface="0 0 580 3976 3974 0.012 0.967 0.021"
-      data-visibility-attribute="visible">5
-      <div class="HotspotAnnotation">
-        <p class="title">Capillaries</p>
-        <p class="description" style="display:none">Capillaries are delicate blood vessels that exist throughout your body. They transport blood, nutrients and oxygen to cells in your organs and body systems.</p>
-      </div>
+            <button class="Hotspot" data-audio="myAudio5" slot="hotspot-5" data-surface="177 0 170 171 172 0.122 0.485 0.393" data-visibility-attribute="visible"
+            data-orbit="-52.94deg 58.62deg 3.976m" field-of-view="12deg" data-target="0.07m -0.99m 1.14m">E
+            <div class="HotspotAnnotation"> 
+              <p class="title">Endoplasmic reticulum (ER)</p>
+              <p class="description" style="display:none">Endoplasmic reticulum (ER) is a network of interconnected membranes that form flattened sacs and tubes throughout the cell. It functions in protein and lipid synthesis, as well as the transport of materials throughout the cell.</p>
+             </div>
+                </button>
+
+                <button class="Hotspot" data-audio="myAudio6" slot="hotspot-6" data-surface="172 0 185 171 186 0.214 0.351 0.436" data-visibility-attribute="visible"
+                data-orbit="-127.1deg 78.04deg 4.464m" field-of-view="13.71deg" data-target="0.08m -0.82m 0.97m">F
+            <div class="HotspotAnnotation"> 
+              <p class="title">Vacuole</p>
+              <p class="description" style="display:none">Vacuoles are membrane-bound sacs that are used for storage of water, nutrients and waste products in plant cells. They can also help maintain turgor pressure in the cell.</p>
+             </div>
     </button>
 
+    <button class="Hotspot" data-audio="myAudio7" slot="hotspot-7" data-surface="151 0 70 69 71 0.559 0.283 0.159" data-visibility-attribute="visible"
+    data-orbit="-59.53deg 72.6deg 3.976m" field-of-view="12deg" data-target="-0.08m -0.77m 1.31m">G
+    <div class="HotspotAnnotation"> 
+      <p class="title">Mitochondria</p>
+      <p class="description" style="display:none">Mitochondria are organelles that are responsible for cellular respiration, converting energy from nutrients into ATP (adenosine triphosphate) that the cell can use.</p>
+     </div>
+</button>
+
+
+<button class="Hotspot" data-audio="myAudio8" slot="hotspot-8" data-surface="148 0 1365 1363 1364 0.689 0.222 0.090" data-visibility-attribute="visible"
+data-target="1.87m -0.87m -0.006618m" data-orbit="-58.31deg 82.24deg 5.867m" field-of-view="20.11deg">H
+    <div class="HotspotAnnotation"> 
+      <p class="title">Chloroplast</p>
+      <p class="description" style="display:none">Chloroplasts are organelles found in plant cells that carry out photosynthesis, converting sunlight into chemical energy in the form of glucose.</p>
+     </div>
+    </button>
+
+    <button class="Hotspot"  data-audio="myAudio9" slot="hotspot-9" data-surface="89 0 39 47 46 0.207 0.406 0.387" data-visibility-attribute="visible"
+    data-target="0.87m -2.81m -0.006618m" data-orbit="-48.7deg 40.36deg 5.866m" field-of-view="20.11deg">I
+    <div class="HotspotAnnotation"> 
+        <p class="title">Lysosome</p>
+        <p class="description" style="display:none">Lysosomes are membrane-bound organelles that contain digestive enzymes, which break down cellular waste products, foreign substances, and cellular components that are no longer needed by the cell.</p>
+       </div>
+    </button>
+
+    <button class="Hotspot" data-audio="myAudio10" slot="hotspot-10" data-surface="175 0 601 159 158 0.548 0.368 0.085" data-visibility-attribute="visible"
+    data-target="3.69m -2.4m 0.05m" data-orbit="-70.22deg 66.3deg 6.843m" field-of-view="26.26deg">J
+    <div class="HotspotAnnotation"> 
+        <p class="title">Cytoplasm</p>
+        <p class="description" style="display:none">Cytoplasm is a gel-like fluid inside the cell where many of the cell’s metabolic processes occur.</p>
+       </div>
+    </button>
+
+    <button class="Hotspot" data-audio="myAudio11" slot="hotspot-11"  data-surface="175 0 146 152 151 0.280 0.421 0.298" data-visibility-attribute="visible"
+    data-target="0.69m -1.92m 0.05m" data-orbit="-392.6deg 43.25deg 5.866m" field-of-view="20.11deg">K
+    <div class="HotspotAnnotation"> 
+        <p class="title">Cell wall</p>
+        <p class="description" style="display:none">Cell wall is a rigid, protective layer surrounding the cell membrane in plant cells. It provides structural support and protection for the cell.</p>
+       </div>
+    </button>
+
+    <button class="Hotspot" data-audio="myAudio12" slot="hotspot-12"  data-surface="175 0 544 543 539 0.387 0.598 0.015" data-visibility-attribute="visible"
+    data-target="2.19m -0.52m 0.05m" data-orbit="-423.3deg 85.9deg 5.866m" field-of-view="20.11deg">L
+    <div class="HotspotAnnotation"> 
+        <p class="title">Plasma membrane (Cell membrane)</p>
+        <p class="description" style="display:none">Plasma membrane is a thin, flexible barrier that surrounds the cell, separating the internal environment of the cell from the external environment. It is composed of a lipid bilayer and embedded proteins that regulate the movement of materials in and out of the cell.</p>
+       </div>
+    </button>
+
+    <button class="Hotspot" data-audio="myAudio13" slot="hotspot-13"  data-surface="168 0 3 53 54 0.009 0.655 0.336" data-visibility-attribute="visible"
+    data-target="0.26m -0.41m 0.98m" data-orbit="-396.8deg 46.32deg 4.402m" field-of-view="13.48deg">L
+    <div class="HotspotAnnotation"> 
+        <p class="title">Plasmodesmata</p>
+        <p class="description" style="display:none">Plasmodesmata are channels that connect adjacent plant cells, allowing the movement of materials between them.</p>
+       </div>
+    </button>
+
+
+    <button class="Hotspot" data-audio="myAudio14" slot="hotspot-14"  data-surface="175 0 57 169 602 0.206 0.639 0.155" data-visibility-attribute="visible"
+    data-target="0.19m -0.48m 1.2m" data-orbit="-433.7deg 92.42deg 4.402m" field-of-view="13.48deg">M
+    <div class="HotspotAnnotation"> 
+      <p class="title">Ribosomes</p>
+        <p class="description" style="display:none">Ribosomes are small, non-membrane-bound organelles that are responsible for protein synthesis. They are composed of ribosomal RNA (rRNA) and proteins, which can be found in both prokaryotic and eukaryotic cells. Ribosomes read the genetic code in mRNA (messenger RNA) and synthesize proteins by linking amino acids together in a specific order.</p>
+       </div>
+    </button>
+    
+
+    <!--  Animal Cell -->
+
+
+    
+    <button class="Hotspot" data-audio="myAudio15" slot="hotspot-15"  data-surface="1 0 1 23 28 0.388 0.486 0.126" data-visibility-attribute="visible"
+    data-target="-0.08m -0.61m -0.96m" data-orbit="-396.8deg 56.3deg 4.402m" field-of-view="13.48deg">A
+    <div class="HotspotAnnotation"> 
+      <p class="title">Nucleus</p>
+        <p class="description" style="display:none">Nucleus is the control centre of the cell and contains genetic material (DNA) that carries the instructions for the cell’s functions and characteristics.</p>
+       </div>
+    </button>
+
+
+    <button class="Hotspot" data-audio="myAudio16" slot="hotspot-16"  data-surface="2 0 100 82 64 0.155 0.553 0.292" data-visibility-attribute="visible"
+    data-target="-0.08m -0.61m -0.96m" data-orbit="-398.7deg 39.39deg 4.402m" field-of-view="13.48deg">B
+    <div class="HotspotAnnotation"> 
+      <p class="title">Nucleolus</p>
+        <p class="description" style="display:none">Nucleolus is a region within the nucleus where ribosomal RNA is synthesized and assembled with proteins to form ribosomes.</p>
+       </div>
+    </button>
+
+
+    <button class="Hotspot" data-audio="myAudio17" slot="hotspot-17"  data-surface="1 0 188 187 104 0.268 0.610 0.121" data-visibility-attribute="visible"
+    data-target="-0.06m -0.61m -0.96m" data-orbit="-376.8deg 59.37deg 4.402m" field-of-view="13.48deg">C
+    <div class="HotspotAnnotation"> 
+      <p class="title">Nuclear envelope</p>
+        <p class="description" style="display:none">Nuclear envelope is a double-layered membrane that encloses the nucleus, separating the genetic material from the rest of the cell.</p>
+       </div>
+    </button>
+    
+
+    <button class="Hotspot" data-audio="myAudio18" slot="hotspot-18"  data-surface="4 0 309 310 311 0.156 0.819 0.025"  data-visibility-attribute="visible"
+    data-target="-0.06m -1.03m -0.87m" data-orbit="-426deg 37.09deg 4.402m" field-of-view="13.48deg">D
+    <div class="HotspotAnnotation"> 
+      <p class="title">Mitochondria</p>
+        <p class="description" style="display:none">Mitochondria are organelles that are responsible for cellular respiration, converting energy from nutrients into ATP (adenosine triphosphate) that the cell can use.</p>
+       </div>
+    </button>
+    
+    <button class="Hotspot" data-audio="myAudio19" slot="hotspot-19"  data-surface="84 0 40 48 47 0.072 0.021 0.907" data-visibility-attribute="visible"
+    data-target="0.08m -1.08m -0.89m" data-orbit="-379.9deg 31.72deg 3.976m" field-of-view="12deg">E
+    <div class="HotspotAnnotation"> 
+      <p class="title">Lysosome</p>
+        <p class="description" style="display:none">Lysosomes are membrane-bound organelles that contain digestive enzymes, which break down cellular waste products, foreign substances, and cellular components that are no longer needed by the cell.</p>
+       </div>
+    </button>
+
+    <button class="Hotspot" data-audio="myAudio20" slot="hotspot-20"  data-surface="0 0 467 469 534 0.200 0.481 0.319" data-visibility-attribute="visible"
+    data-target="1.03m -0.37m -1.57m" data-orbit="-412.6deg 88.2deg 4.89m" field-of-view="15.4deg">F
+    <div class="HotspotAnnotation"> 
+      <p class="title">Cytoplasm</p>
+        <p class="description" style="display:none">Cytoplasm is a gel-like fluid inside the cell where many of the cell’s metabolic processes occur.</p>
+       </div>
+    </button>
+
+
+    <button class="Hotspot" data-audio="myAudio21" slot="hotspot-21"  data-surface="0 0 34 35 36 0.713 0.014 0.273" data-visibility-attribute="visible"
+    data-target="0.09m -0.58m -1.3m" data-orbit="-368deg 47.62deg 4.89m" field-of-view="15.4deg">G
+    <div class="HotspotAnnotation"> 
+      <p class="title">Plasma membrane (Cell membrane)</p>
+        <p class="description" style="display:none">Plasma membrane is a thin, flexible barrier that surrounds the cell, separating the internal environment of the cell from the external environment. It is composed of a lipid bilayer and embedded proteins that regulate the movement of materials in and out of the cell.</p>
+       </div>
+    </button>
+
+
+    <button class="Hotspot" data-audio="myAudio22" slot="hotspot-22"  data-surface="1 0 249 119 125 0.570 0.253 0.178" data-visibility-attribute="visible"
+    data-target="-0.01m -0.63m -0.98m" data-orbit="-445.2deg 59.53deg 4.402m" field-of-view="13.48deg">H
+    <div class="HotspotAnnotation"> 
+      <p class="title">Nuclear pore</p>
+        <p class="description" style="display:none">Nuclear pores are small openings in the nuclear envelope that allow the movement of molecules such as RNA and proteins in and out of the nucleus.</p>
+       </div>
+    </button>
+
+
+    <button class="Hotspot"data-audio="myAudio23" slot="hotspot-23"  data-surface="80 0 152 139 153 0.256 0.305 0.438" data-visibility-attribute="visible"
+    data-target="-0.25m -0.2m -0.58m" data-orbit="-416.8deg 69.9deg 3.976m" field-of-view="12deg">I
+    <div class="HotspotAnnotation"> 
+      <p class="title">Endoplasmic reticulum (ER)</p>
+        <p class="description" style="display:none">Endoplasmic reticulum (ER) is a network of interconnected membranes that form flattened sacs and tubes throughout the cell. It functions in protein and lipid synthesis, as well as the transport of materials throughout the cell.</p>
+       </div>
+    </button>
+
+    <button class="Hotspot" data-audio="myAudio24" slot="hotspot-24"  data-surface="81 0 25 33 32 0.055 0.194 0.750" data-visibility-attribute="visible"
+    data-target="-0.1m -0.61m -0.56m" data-orbit="-387.2deg 43.77deg 3.976m" field-of-view="12deg">J
+    <div class="HotspotAnnotation"> 
+      <p class="title">Peroxisome</p>
+        <p class="description" style="display:none">Peroxisomes are membrane-bound organelles that contain enzymes involved in various metabolic reactions, particularly those related to detoxifying harmful substances. They are involved in the breakdown of fatty acids and hydrogen peroxide metabolism, which is produced during these reactions. In plant cells, peroxisomes are also involved in photorespiration, a process that helps prevent the buildup of toxic byproducts in the plant’s photosynthetic tissues.</p>
+       </div>
+    </button>
+
+
+    <button class="Hotspot" data-audio="myAudio25" slot="hotspot-25"  data-surface="61 0 1 3 2 0.007 0.343 0.650" data-visibility-attribute="visible"
+    data-target="-0.13m -0.61m -0.56m" data-orbit="-354.2deg 44.92deg 3.976m" field-of-view="12deg">K
+    <div class="HotspotAnnotation"> 
+      <p class="title">Ribosomes</p>
+        <p class="description" style="display:none">Ribosomes are small, non-membrane-bound organelles that are responsible for protein synthesis. They are composed of ribosomal RNA (rRNA) and proteins, which can be found in both prokaryotic and eukaryotic cells. Ribosomes read the genetic code in mRNA (messenger RNA) and synthesize proteins by linking amino acids together in a specific order.</p>
+       </div>
+    </button>
 
     <div class="progress-bar hide" slot="progress-bar">
       <div class="update-bar"></div>
