@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <title>SO2(Sulfur dioxide) Molecule</title>
+  <meta charset="utf-8">
+  <meta name="description" content="&lt;model-viewer&gt; template">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link type="text/css" href="../libs/css/styles1.css" rel="stylesheet" />
+  <!-- OPTIONAL: The :focus-visible polyfill removes the focus ring for some input types -->
+  <script src="../libs/focus-visible.js" defer></script>
+  <script  src="../libs/index.73ea82f8.js"></script>
+</head>
+
+<body>
+  <audio src="" id="myAudio1"></audio>
+  
+  
+      <model-viewer class="mv1" src="../libs/glbs/sulfur_dioxide_molecule.glb" ar ar-modes="webxr scene-viewer quick-look" camera-controls poster="poster.webp" shadow-intensity="1" id="mv1" 
+      camera-target="0m 0.1m -0.09784m" camera-orbit="-900.2deg 72.06deg 1.823m" field-of-view="30deg">
+
+
+
+    <button class="Hotspot" data-audio="myAudio1" slot="hotspot-1" data-surface="3 0 1168 1160 324 0.453 0.072 0.475" data-visibility-attribute="visible"
+    data-target="0.05m 0.14m -0.05m" data-orbit="-872.2deg 77.44deg 1.11m" field-of-view="13.71deg">
+        <div class="HotspotAnnotation">
+            <p class="title">Sulfur</p>
+            <p class="description" style="display:none">Sulfur is a nonmetallic chemical element that is an essential element for all life, resembles oxygen in chemical properties, and is used especially in the form of sulfuric acid to extract phosphates from ores</p>
+          </div>
+    </button>
+    
+    
+    
+    <button class="Hotspot" data-audio="myAudio2" slot="hotspot-2" data-surface="2 0 1330 428 1377 0.174 0.499 0.327" data-visibility-attribute="visible"
+    data-target="0.36m 0.1085m -0.28m" data-orbit="-930.2deg 98.57deg 1.11m" field-of-view="13.71deg">
+        <div class="HotspotAnnotation">
+            <p class="title">Oxygen</p>
+            <p class="description" style="display:none">Oxygen is a chemical element with an atomic number of 8 (it has eight protons in its nucleus). Oxygen forms a chemical compound (O2) of two atoms which is a colorless gas at normal temperatures and pressures. 
+            </p>
+          </div>
+    </button>
+    
+    
+    <button class="Hotspot" data-audio="myAudio3" slot="hotspot-3" data-surface="4 0 1991 818 67 0.130 0.458 0.412" data-visibility-attribute="visible"
+    data-target="-0.3593m 0.07m -0.295m" data-orbit="-886.8deg 116.2deg 0.9888m" field-of-view="12deg">
+        <div class="HotspotAnnotation">
+            <p class="title">Oxygen</p>
+            <p class="description" style="display:none">Oxygen is a chemical element with an atomic number of 8 (it has eight protons in its nucleus). Oxygen forms a chemical compound (O2) of two atoms which is a colorless gas at normal temperatures and pressures. 
+            </p>
+          </div>
+    </button>
+    
+   
+    
+
+    <div class="progress-bar hide" slot="progress-bar">
+      <div class="update-bar"></div>
+    </div>
+    <button slot="ar-button" id="ar-button">
+      View in your space
+    </button>
+    <div id="ar-prompt">
+      <img src="../libs/css/svg/ar_hand_prompt.png">
+    </div>
+
+
+
+    <div class="navigation">
+      <div class="listPopup" style="display: none;"></div>
+      <div class="pagination"></div>
+    </div>
+
+
+    <div class="description-box"> 
+      <div class="actions">
+        <button class="action-btn">
+          <img class="action-btn actionBtn" src="../libs/css/svg/minimize.svg" />
+        </button>
+        <!-- <button class="action-btn">
+          <img class="action-btn" src="../css/svg/maximize.svg" />
+        </button> -->
+      </div>
+      <div class="description-container">
+        <p class="description_title" ></p>
+        <div class="descriptions "></div>
+      </div>
+    </div>
+
+
+   
+
+  </model-viewer>
+
+  <script type="module">
+    var ap = '';
+    var model = '';
+    
+    $(document).ready(function (e) {
+      model = new ModelViewer()
+      model.init(e);
+     
+    })
+  </script>
+
+  <script src="script.js"></script>
+  <!-- <script src="./js/model.js"></script> -->
+  <script src="../libs/js/model.js"></script>
+  <script src="../libs/jquery-1.12.4.min.js"></script>
+
+ 
+  <!-- <script type="module" src="../libs/model-viewer.min.js"></script> -->
+  <!-- <script type="module" src="../libs/index.73ea82f8.js"></script> -->
+</body>
+
+</html>
