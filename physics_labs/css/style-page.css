@@ -128,11 +128,14 @@ select {
   margin-bottom: 10px;
   margin-top: 10px;
   outline: 0;
-  background: rgb(3, 108, 156);;
+  background: #55f;
   color: #fff;
-  border: 1px solid rgba(131, 10, 36, 0.75);
-  padding: 4px;
-  border-radius: 9px;
+  border: 1px solid #55f;
+  padding: 5px 10px;
+  border-radius: 5px;
+  box-shadow: 0px 1px 0px #000;
+  font-weight: bold;
+
 }
 
 input {
@@ -316,4 +319,43 @@ caption {
 
 .lil-gui button{
   height: auto!important;
+}
+
+
+.red-btn{
+  
+    color: rgba(253, 251, 251, 0.75);
+    background: rgba(243, 44, 87, 0.75);
+    outline: 1px solid rgba(243, 44, 87, 0.75);
+    
+    box-shadow: 0px 1px 0px #000;
+}
+
+.red-btn:hover {
+    background-color: #dd5a78;
+}
+
+.green-btn{
+  color: rgba(253, 251, 251, 0.75);
+  background: #54c754;
+  outline: 1px solid #54c754;
+  box-shadow: 0px 1px 0px #000;
+}
+
+.green-btn:hover {
+  background-color: #3ab53a;
+}
+ 
+.purple-btn{
+  color: rgba(253, 251, 251, 0.75);
+  background: rgb(177 33 231);
+  outline: 1px solid rgb(177 33 231);  
+  box-shadow: 0px 1px 0px #000;
+}
+ 
+.purple-btn:hover{
+  /* color: rgba(253, 251, 251, 0.75); */
+  background: rgb(147, 22, 193);
+  outline: 1px solid rgb(147, 22, 193);  
+  /* box-shadow: 0px 1px 0px #000; */
 }
