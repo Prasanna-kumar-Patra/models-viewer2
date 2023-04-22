@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Coulomb's law</title>
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<!-- <link rel="shortcut icon" href="../files/favicon_white.ico" media="(prefers-color-scheme: dark)" />
+	<link rel="shortcut icon" href="../files/favicon.ico" media="(prefers-color-scheme: light)" /> -->
+	<link rel="stylesheet" type="text/css" href="../../css/style-page.css">
+	
+    <link type="text/css" rel="stylesheet" href="../../css/watermark.css">
+	<style>
+		.label {
+			font-weight: bold;
+			font-size: 16px;
+
+		}
+	</style>
+	
+</head>
+
+<body>
+
+	<div id="topmenu">
+		<div>
+			Coulomb's law
+		</div>
+
+	</div>
+
+
+
+	<div id="menu">
+		<a><label for="q1Value">q<sub>1</sub> =</label>
+			<input type="value" id="q1Value" name="q1Value" min="-25" max="25" value="-10" step="1" size="4">
+			&micro;C<br>
+		</a>
+		<a><label for="q2Value">q<sub>2</sub> =</label>
+			<input type="value" id="q2Value" name="q2Value" min="-25" max="25" value="10" step="1" size="4">
+			&micro;C<br>
+		</a>
+		<a><label for="rValue"> r =</label>
+			<input type="value" id="rValue" name="rValue" min="1" max="100" value="20" step="1" size="4">
+			&times;10<sup>-2</sup> m<br>
+		</a>
+		<div>
+			F =
+			<div class="fraction">
+				<span class="fup">1</span>
+				<span class="bar">/</span>
+				<span class="fdn">4 &pi; &epsilon;<sub>0</sub></span>
+			</div>
+			<div class="fraction">
+				<span class="fup">q<sub>1</sub>q<sub>2</sub></span>
+				<span class="bar">/</span>
+				<span class="fdn">r<sup>2</sup></span>
+			</div>
+			= <a id="fValue"></a>
+		</div>
+		<a > <a id="message-1" style="color: red; text-transform: uppercase;">Negative </a> indicates <a id="message-2" style="color: red; text-transform: uppercase">Attractive</a> nature of the force </a><br> 
+		<!-- <a style="color: blue; text-transform: uppercase;">Positive </a> indicates <a style="color:blue; text-transform: uppercase;">Repulsive</a> nature of the force -->
+		<button id="reset-el">RESET</button>
+
+	</div>
+	<script>
+		
+	</script>
+
+	<script type="module">
+		import * as THREE from '../../build/three.module.js';
+		import { TransformControls } from '../../jsm/controls/TransformControls.js';
+		import { OrbitControls } from '../../jsm/controls/OrbitControls.js';
+		import { CSS2DRenderer, CSS2DObject } from '../../jsm/renderers/CSS2DRenderer.js';
+
+
+		let pointer, raycaster;
+		let camera, aspect, fov, gui;
+		let scene, renderer, labelRenderer, controls, transformControls, lineArrow;
+		let q1Charge, q2Charge, indicatorF1, indicatorF2;
+		let q1Material, q2Material, posMaterial, negMaterial;
+		let disp = 0.0, t = 0.001;
+		let curveHandles = [];
+		const objects = [];
+		let SELECTED;
+		let curves = new THREE.Group();
+		let CURVES = new THREE.Group();
+		let LABELS = new THREE.Group();
+		let LINES = new THREE.Group();
+		let arrows = new THREE.Group();
+		
+		let params = {
+			dist: 20, // m
+
+			q1Charge: -10, // in &micro;C
+			q2Charge: 10  // in &micro;C
+		}
+		const K = 9 //Coulomb's constant x1e9 in Nm^2/C^2
+
+		//button and html elements
+		let inputQ1value = document.getElementById("q1Value");
+		let inputQ2value = document.getElementById("q2Value");
+		let inputRvalue = document.getElementById("rValue");
+		let fvalueEl = document.getElementById("fValue");
+		let message1El = document.getElementById("message-1");
+		let message2El = document.getElementById("message-2");
+		const buttonReset = document.getElementById('reset-el');
+
+		init()
+		animate()
+
+		function init() {
+			//scene
+			scene = new THREE.Scene();
+			scene.background = new THREE.Color(0xbfd1e5);
+
+			//camera
+			createCamera();
+			// stats = new Stats();
+			// document.body.appendChild(stats.dom);
+			// clock = new THREE.Clock();
+
+
+			//renderer
+			createRenderer();
+
+			//cameracontrols
+			createControls(0, 1, 0);
+
+			//create light 
+			createLights();
+
+			raycaster = new THREE.Raycaster();
+			pointer = new THREE.Vector2();
+
+			posMaterial = new THREE.MeshPhongMaterial({ color: "rgb(90%, 10%, 0%)" });
+			negMaterial = new THREE.MeshPhongMaterial({ color: "rgb(10%, 0%, 90%)" });
+			const gridHelper = new THREE.GridHelper(50, 50);
+			// gridHelper.position.y = -2;
+			scene.add(gridHelper);
+
+			let q1Geometry = new THREE.SphereGeometry(1, 16).translate(0, 1, 0);
+			let q2Geometry = new THREE.SphereGeometry(1, 16).translate(0, 1, 0);
+			q1Charge = new THREE.Mesh(q1Geometry, negMaterial);
+			q2Charge = new THREE.Mesh(q2Geometry, posMaterial);
+
+
+			q1Charge.position.x = - params.dist / 2;
+			scene.add(q1Charge);
+			
+			q2Charge.position.x = params.dist / 2;
+			scene.add(q2Charge);
+			objects.push(q1Charge, q2Charge)
+			
+			LABELS.add(addLabel(q1Charge.position, '-25px', params.q1Charge + ' &micro;C', 'white'))
+
+			LABELS.add(addLabel(q2Charge.position, '-25px', params.q2Charge + ' &micro;C', 'white'))
+			scene.add(LABELS);
+			scene.add(LINES);
+
+			LINES.add(initLine({
+				points: [q1Charge.position, q2Charge.position],
+				lineMaterial: new THREE.LineBasicMaterial({ color: "rgb(0%, 0%, 0%)" })
+			}));
+			LABELS.add(addLabel(new THREE.Vector3(0, 0, 0), '25px', 'r = ' + params.dist + ' m', 'black'))
+			let force = coulombLaw().toFixed(2);
+			LABELS.add(addLabel(new THREE.Vector3(0, 0, 0), '-45px', 'F =' + force + 'N', 'red'))
+
+			fvalueEl.innerHTML = force + 'N';
+			indicatorF1 = addArrow(2 , -1)
+			indicatorF2 = addArrow(0, 1)
+			q1Charge.add(indicatorF1)
+			q2Charge.add(indicatorF2)
+			indicatorF1.rotation.z = (q1Charge.position.angleTo(q2Charge.position) / 2)
+			indicatorF2.rotation.z = (q2Charge.position.angleTo(q1Charge.position) / 2)
+			// guiControls();
+			buttonLoad();
+
+			transformControls = new TransformControls(camera, renderer.domElement);
+			transformControls.showY = false
+			// transformControls.showZ = false
+			// transformControls.attach(q1Charge);
+			transformControls.setTranslationSnap(1);
+			scene.add(transformControls);
+
+			// transformControls.addEventListener('drag', render);
+			transformControls.addEventListener('change', function () {
+				render
+			});
+			transformControls.addEventListener('dragging-changed', function (event) {
+				controls.enabled = !event.value;		
+
+				params.dist = (q1Charge.position.distanceTo(q2Charge.position)).toFixed(2);
+				indicatorPoint()
+				transformCal()
+			});
+			document.body.appendChild(renderer.domElement);
+			document.addEventListener('click', onClick);
+			window.addEventListener('resize', onWindowResize);
+		}
+
+		function guiControls() {
+			gui = new GUI();
+			gui.close()
+			// camera control adjust
+			// console.log(camera.position)
+			let controlFolder = gui.addFolder("Control");
+			controlFolder.add(controls.target, 'x', -100, 100);
+			controlFolder.add(controls.target, 'y', -100, 100);
+			controlFolder.add(controls.target, 'z', -100, 100);
+			// let cameraFolder = gui.addFolder("Camera");
+			gui.add(camera.position, 'x', -100, 100);
+			gui.add(camera.position, 'y', -100, 100);
+			gui.add(camera.position, 'z', -100, 100);
+
+			// change current flow path
+
+		}
+
+		function createCamera() {
+
+			fov = 50;
+			const aspect = window.innerWidth / window.innerHeight;
+			const near = 0.1;
+			const far = 1500;
+
+			camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+
+			camera.position.set(2, 10, 31);
+		}
+
+		function createControls(x, y, z) {
+			controls = new OrbitControls(camera, renderer.domElement);
+			controls.enablePan = true;
+			controls.enableZoom = true;
+			controls.target.set(x, y, z);
+			controls.enableDamping = true;
+			controls.dampingFactor = 0.05;
+			controls.rotateSpeed = 0.1;
+			controls.update();
+			controls.addEventListener('change', render);
+		}
+
+		function createRenderer() {
+			// create the renderer
+			renderer = new THREE.WebGLRenderer({ antialias: true });
+			renderer.alpha = true;
+			renderer.setPixelRatio(window.devicePixelRatio);
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			renderer.outputEncoding = THREE.sRGBEncoding;
+			document.body.appendChild(renderer.domElement);
+
+			labelRenderer = new CSS2DRenderer();
+			labelRenderer.setSize(window.innerWidth, window.innerHeight);
+			labelRenderer.domElement.style.position = 'absolute';
+			// labelRenderer.domElement.style.top = '-25px';
+			labelRenderer.domElement.style.left = '-25px';
+			labelRenderer.domElement.style.pointerEvents = 'none';
+			document.body.appendChild(labelRenderer.domElement);
+
+		}
+
+		function createLights() {
+			let hemiLight = new THREE.AmbientLight(0xffffff, .20);
+			hemiLight.position.set(0, 20, 0);
+			scene.add(hemiLight);
+
+			let dirLight = new THREE.DirectionalLight(0xffffff, 1);
+			dirLight.position.set(-30, 50, -30);
+			dirLight.castShadow = true;
+			dirLight.shadow.camera.top = 70;
+			dirLight.shadow.camera.bottom = -70;
+			dirLight.shadow.camera.left = -70
+			dirLight.shadow.camera.right = 70;
+			dirLight.shadow.mapSize.width = 2048;
+			dirLight.shadow.mapSize.height = 2048;
+			scene.add(dirLight);
+
+			scene.add(new THREE.AmbientLight(0xffffff, .4));
+		}
+
+		function onWindowResize() {
+
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			labelRenderer.setSize(window.innerWidth, window.innerHeight);
+			render();
+
+		}
+
+		function render() {
+
+			renderer.render(scene, camera);
+			labelRenderer.render(scene, camera);
+		}
+
+		function animate() {
+			requestAnimationFrame(animate);
+
+			controls.update();
+
+			render();
+		};
+
+		function inputAction() {
+			params.q1Charge = inputQ1value.value;
+			params.q2Charge = inputQ2value.value;
+			params.dist = inputRvalue.value;
+			let force = coulombLaw().toFixed(2);
+			fvalueEl.innerHTML = force + 'N';
+			if (force<0) {
+				message1El.innerHTML = 'negative';
+				message2El.innerHTML = 'attractive';
+				message1El.style.color = 'red';
+				message2El.style.color = 'red';
+			}else {				
+				message1El.innerHTML = 'positive';
+				message2El.innerHTML = 'repulsive';
+				message1El.style.color = 'blue';	
+				message2El.style.color = 'blue';		
+			}
+			recreateScene()
+		}
+
+		function buttonLoad() {
+
+			inputQ1value.addEventListener('input', function (e) {
+
+				inputAction()
+
+			})
+			inputQ2value.addEventListener('input', function (e) {
+
+				inputAction()
+
+			})
+			inputRvalue.addEventListener('input', function (e) {
+
+				inputAction()
+
+			})
+
+			buttonReset.addEventListener('click', function () {
+				console.log('reset scene')
+				params.dist = 20;
+				params.q1Charge = -10;
+				params.q2Charge = 10;
+				q1Charge.position.set(- params.dist / 2, 0, 0);
+				q2Charge.position.set(params.dist / 2, 0, 0);
+				indicatorPoint()
+				recreateScene()
+			});
+		}
+
+		function coulombLaw() {
+			let force = (K * params.q1Charge * params.q2Charge) / (params.dist * params.dist)
+			let f = force * 10
+			return f
+		}
+
+		function onClick(event) {
+			// console.log(event); 
+			event.preventDefault();
+
+			pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+			pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
+
+			raycaster.setFromCamera(pointer, camera);
+			let intersects = raycaster.intersectObjects(objects, true);
+			if (intersects.length > 0) {
+				
+				SELECTED = intersects[0].object;
+				if (SELECTED.parent.type == 'Scene') {					
+					
+					transformControls.attach(SELECTED);
+				}
+				
+
+			}
+		}
+
+		function transformCal() {
+			while (LINES.children.length > 0) {
+				const A = LINES.children[0];
+				A.parent.remove(A);
+			}
+			while (LABELS.children.length > 0) {
+				const A = LABELS.children[0];
+				A.parent.remove(A);
+			}
+
+			LABELS.add(addLabel(q1Charge.position, '-25px', params.q1Charge + ' &micro;C', 'white'))
+
+			LABELS.add(addLabel(q2Charge.position, '-25px', params.q2Charge + ' &micro;C', 'white'))
+
+			LINES.add(initLine({
+				points: [q1Charge.position, q2Charge.position],
+				lineMaterial: new THREE.LineBasicMaterial({ color: "rgb(0%, 0%, 0%)" })
+			}));
+
+			LABELS.add(addLabel(new THREE.Vector3(0, 0, 0), '25px', 'r =' + params.dist + ' m', 'black'))
+			let force = coulombLaw().toFixed(2);
+			LABELS.add(addLabel(new THREE.Vector3(0, 0, 0), '-45px', 'F =' + force + ' N', 'red'))
+
+			inputRvalue.value = params.dist;
+
+			fvalueEl.innerHTML = force + ' N';
+			// indicatorF1.rotateY = Math (q1Charge.position.x)/(q2Charge.position.x)
+		}
+
+		function recreateScene() {
+			
+
+			let mag1 = (params.q1Charge) / Math.abs(params.q1Charge);
+			let mag2 = (params.q2Charge) / Math.abs(params.q2Charge);
+			// console.log(q1Charge, q2Charge)
+
+
+			while (LINES.children.length > 0) {
+				const A = LINES.children[0];
+				A.parent.remove(A);
+			}
+			while (LABELS.children.length > 0) {
+				const A = LABELS.children[0];
+				A.parent.remove(A);
+			}
+
+
+			indicatorF1.position.y = 2;
+			indicatorF2.position.y = 0;
+
+			
+
+			if (mag1 < 0) {
+				q1Charge.material = negMaterial
+			} else {
+				q1Charge.material = posMaterial
+			}
+
+			if (mag2 < 0) {
+				q2Charge.material = negMaterial
+			} else {
+				q2Charge.material = posMaterial
+			}
+
+			q1Charge.position.x = - params.dist / 2;
+
+			LABELS.add(addLabel(q1Charge.position, '-25px', params.q1Charge + ' &micro;C', 'white'))
+
+
+			q2Charge.position.x = params.dist / 2;
+
+			LABELS.add(addLabel(q2Charge.position, '-25px', params.q2Charge + ' &micro;C', 'white'))
+
+			LINES.add(initLine({
+				points: [q1Charge.position, q2Charge.position],
+				lineMaterial: new THREE.LineBasicMaterial({ color: "rgb(0%, 0%, 0%)" })
+			}));
+
+			LABELS.add(addLabel(new THREE.Vector3(0, 0, 0), '25px', 'r = ' + params.dist + ' m', 'black'))
+			let force = coulombLaw().toFixed(2);
+			LABELS.add(addLabel(new THREE.Vector3(0, 0, 0), '-45px', 'F = ' + force + ' N', 'red'))
+			let a = 1
+			if (mag1 != mag2) {
+
+				indicatorF1.scale.set(-a, -a, -a)
+				indicatorF2.scale.set(a, a, a)
+
+			} else if (mag1 == mag2) {
+
+				indicatorF1.scale.set(a, a, a)
+				indicatorF2.scale.set(-a, -a, -a)
+
+			}
+
+
+		}
+
+		function addArrow(Y, sign) {
+			let len = params.dist / 3.5;
+
+			let r = 0.6;
+			//d[2]<10?'0'+d[2]:''+ d[2];0.6
+			let lineGeometry = new THREE.CylinderBufferGeometry(.1, .1, len, 3).translate(0, len / 2, 0);
+			// lineGeometry.rotateX(Math.PI / 2);
+
+			let line = new THREE.Mesh(lineGeometry, new THREE.MeshBasicMaterial({ color: "rgb(60%, 50%, 0%)", transparent: true, opacity: 0.8 }));
+			let coneGeometry = new THREE.ConeGeometry(r, 2 * r, 6).translate(0, len + r, 0);
+			// coneGeometry.rotateX(Math.PI / 2);
+			let cone = new THREE.Mesh(coneGeometry, new THREE.MeshBasicMaterial({ color: "rgb(60%, 45%, 0%)", transparent: true, opacity: 0.8 }));
+			line.add(cone)
+			line.position.y = Y - .1;
+			// line.rotateZ(Math.PI / 2);
+
+			line.scale.set(sign, sign, sign)
+			arrows.add(line)
+			return line
+		}
+		
+		function indicatorPoint() {
+			let T = -(q1Charge.position.z - q2Charge.position.z) / (q1Charge.position.x - q2Charge.position.x);
+			indicatorF1.rotation.y = Math.atan(T);
+			indicatorF2.rotation.y = Math.atan(T);
+			
+			
+		}
+
+		function addLabel(vector, value, name, col) {
+			let text = document.createElement('div');
+			text.className = 'label';
+			text.style.color = col;
+			// text.style.font.size = 16px;
+			text.innerHTML = name;
+			text.style.top = value;
+			let label = new CSS2DObject(text);
+			label.position.copy(vector);
+			LABELS.add(label);
+			return label
+		}
+
+		function initLine(data) {
+			let lineGeometry = new THREE.BufferGeometry().setFromPoints(data.points);
+			let line = new THREE.Line(lineGeometry, data.lineMaterial);
+			return line;
+		}
+
+	</script>
+
+</body>
+
+</html>
