@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Understanding Waves</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel="shortcut icon" href="../files/favicon_white.ico" media="(prefers-color-scheme: dark)" />
+    <link rel="shortcut icon" href="../files/favicon.ico" media="(prefers-color-scheme: light)" />
+    <link rel="stylesheet" type="text/css" href="../../css/style-page.css">
+    <link rel="stylesheet" type="text/css" href="../../css/watermark.css">
+   
+</head>
+
+
+<body>
+
+    <div id="container">
+        <div id="topmenu">
+            <div>UNDERSTANDING WAVES</div>
+
+        </div>
+    </div>
+<div id="sidemenu">
+    <a><input type="range" id="amp" name="amp" min="0.05" max="0.8" value="0.2" step="0.05"><br>
+        <label for="amp">Amplitude =</label><a id="ampDisplay"> 0.2 </a> mm <br>
+    </a>
+    <a><input type="range" id="wave" name="wave" min="1" max="10" value="2" step="0.5"><br>
+        <label for="wave">Wave Number =</label><a id="waveDisplay"> 2 </a><br>
+    </a>
+    <a><input type="range" id="freq" name="freq" min=".1" max="8" value="1" step="0.01"><br>
+        <label for="freq">Frequency =</label><a id="freqDisplay"> 1 </a> s<sup>-1</sup><br>
+    </a>
+</div> 
+
+
+    <div id="menu">
+        Mathematical represention of sinusoidal waves <br> <em>y (x,t) = </em>A cos ( <em>kx - &omega;t</em> ) <br>
+        where; wave number, <em>k</em> = 2 &pi; / &lambda; <br> and angular frequency, <em>&omega;</em> = 2 &pi; <em>f</em> <br> and wave speed, <em>v</em> = &omega; / <em>k</em><br>
+        travelling  in x-direction
+    </div>
+
+
+    <script type="module">
+        import * as THREE from '../../build/three.module.js';
+        import { GLTFLoader } from '../../jsm/loaders/GLTFLoader.js';
+        import { OrbitControls } from '../../jsm/controls/OrbitControls.js';
+        import { TWEEN } from '../../jsm/libs/tween.module.min.js';
+        import { GUI } from '../../jsm/libs/lil-gui.module.min.js';
+        import { CSS2DRenderer, CSS2DObject } from '../../jsm/renderers/CSS2DRenderer.js';
+
+
+        let camera, scene, labelRenderer, renderer, controls;
+        let fov, gui, delta;
+        let plane, box;
+        let modelReady = false;
+        let clock = new THREE.Clock();
+        let inputFreq = document.getElementById('freq');
+        let freqDisplay = document.getElementById('freqDisplay');
+        let inputWave = document.getElementById('wave');
+        let waveDisplay = document.getElementById('waveDisplay');
+        let inputAmp = document.getElementById('amp');
+        let ampDisplay = document.getElementById('ampDisplay');
+        let selectedPos = new THREE.Vector3();
+        let requestAnim;
+        let mouse = new THREE.Vector3();
+        let raycaster = new THREE.Raycaster();
+
+        let params = {
+            k: 2,
+            f: 1,
+            A: 0.2
+        }
+        window.onload = function () {
+
+            init();
+            // guiControls();
+            animate();
+
+        }
+        
+        function checkMousePos() {
+
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            raycaster.setFromCamera(mouse, camera);
+            let intersects = raycaster.intersectObjects(scene.children);
+            // console.log(intersects);
+            
+            if (intersects.length > 0) {
+                cancelAnimationFrame(requestAnim)
+                // console.log('intersect',  intersects[0].object.parent.children[3])
+                let wave = {};
+                wave.x = intersects[0].point.x;
+                wave.y = intersects[0].point.y;
+                wave.z = intersects[0].point.z;
+                selectedPos = intersects[0].point; 
+                drawWave(wave, params);
+               
+            } 
+
+            if (intersects.length ==0) {
+                cancelAnimationFrame(requestAnim)
+                console.log('take inputs')
+                drawWave(selectedPos, params);
+            }
+        };
+
+        function drawWave(wave, params) {
+
+            let center = new THREE.Vector3(wave.x, wave.y, wave.z);
+            let k = params.k; //1 to 10 :- 5
+            let A = params.A;//0.05 to 0.5 :-0.4
+            let f = params.f; // 1
+            function anim() {
+
+                requestAnim = requestAnimationFrame(anim);
+
+                let vLength = plane.geometry.attributes.position.count;
+                let t = clock.getElapsedTime();
+                for (let i = 0; i < vLength; i++) {
+                    const vx = plane.geometry.attributes.position.getX(i);
+                    const vy = plane.geometry.attributes.position.getY(i);
+                    const vz = plane.geometry.attributes.position.getZ(i);
+
+                    let dist = new THREE.Vector3(vx, vy, vz).sub(center);
+
+                   
+                    let xsin = Math.sin(f * t - dist.length() * k) * A;
+
+                    //   v.z = Math.sin(dist.length() / -size + (ts / 500)) * magnitude;
+                    plane.geometry.attributes.position.setZ(i, xsin);
+                }
+                plane.geometry.computeVertexNormals();
+                plane.geometry.attributes.position.needsUpdate = true;
+                renderer.render(scene, camera);
+            }
+            anim();
+           
+        };
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        };
+
+        function init() {
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xbfd1e5);
+            createCamera(50, 0, 0, 30, scene.position);
+
+            createLights();
+            createRenderer();
+            createControls(0, 0, 0);
+
+            let planeGeometry = new THREE.PlaneBufferGeometry(20, 20, 100, 100);
+            let planeMaterial = new THREE.MeshPhongMaterial({
+                color: 0xEF3523
+            });
+            plane = new THREE.Mesh(planeGeometry, planeMaterial);
+            plane.geometry.dynamic = true;
+            // plane.rotation.x = -0.5 * Math.PI;
+            scene.add(plane);
+
+
+            window.addEventListener('resize', onWindowResize);
+            document.addEventListener('click', function (e) {
+                // console.log('freq', params, requestAnim)
+                checkMousePos()
+              
+            });
+
+            inputFreq.addEventListener('input', function () {
+                params.f = inputFreq.valueAsNumber
+                freqDisplay.innerHTML = params.f
+                // console.log('f', params)
+            })
+           
+            inputWave.addEventListener('input', function () {
+                params.k = inputWave.valueAsNumber
+                waveDisplay.innerHTML = params.k
+                // console.log('k', params)
+            })
+
+            inputAmp.addEventListener('input', function () {
+                params.A = inputAmp.valueAsNumber
+                ampDisplay.innerHTML = params.A
+                // console.log('A', params)
+            })
+        }
+
+        function createCamera(view, x, y, z, vector) {
+
+            fov = view;
+            const aspect = window.innerWidth / window.innerHeight;
+            const near = 0.1;
+            const far = 1500;
+
+            camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+
+            camera.position.set(x, y, z);
+            camera.lookAt(vector)
+            // camera.position.set(-10, 3, 40);
+        }
+
+        function createLights() {
+            const ambientLight = new THREE.HemisphereLight(0xddeeff, 0x202020, 2);
+            const mainLight = new THREE.DirectionalLight(0xffffff, 1);
+            scene.add(ambientLight);
+
+            mainLight.position.set(10, 10, 10);
+
+            scene.add(ambientLight, mainLight);
+        }
+
+        function createRenderer() {
+            // create the renderer
+            renderer = new THREE.WebGLRenderer({
+                antialias: true
+            });
+            renderer.alpha = true;
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            document.body.appendChild(renderer.domElement);
+
+            // const renderer = new THREE.WebGLRenderer( { antialias: true } );
+            // renderer.setSize( window.innerWidth, window.innerHeight );
+            // renderer.setClearColor( 0xdedede, 1 );
+            // document.body.appendChild( renderer.domElement );
+            labelRenderer = new CSS2DRenderer();
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.domElement.style.position = 'absolute';
+            labelRenderer.domElement.style.top = '0px';
+            labelRenderer.domElement.style.pointerEvents = 'none';
+            container.appendChild(labelRenderer.domElement);
+
+        }
+
+        function createControls(x, y, z) {
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enablePan = true;
+            controls.enableZoom = true;
+            controls.target.set(x, y, z);
+        }
+
+        function guiControls() {
+            gui = new GUI();
+            // camera control adjust
+            let controlFolder = gui.addFolder("Control");
+            controlFolder.add(controls.target, 'x', -100, 100);
+            controlFolder.add(controls.target, 'y', -100, 100);
+            controlFolder.add(controls.target, 'z', -100, 100);
+            let cameraFolder = gui.addFolder("Camera");
+            cameraFolder.add(camera.position, 'x', -100, 100);
+            cameraFolder.add(camera.position, 'y', -100, 100);
+            cameraFolder.add(camera.position, 'z', -100, 100);
+
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function render() {
+
+            renderer.render(scene, camera);
+            labelRenderer.render(scene, camera);
+        }
+
+    </script>
+    <script src="../../js/watermark.js"></script>
+</body>
+
+</html>
