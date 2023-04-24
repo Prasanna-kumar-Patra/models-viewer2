@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Wave Interference</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel="shortcut icon" href="../files/favicon_white.ico" media="(prefers-color-scheme: dark)" />
+    <link rel="shortcut icon" href="../files/favicon.ico" media="(prefers-color-scheme: light)" />
+    <link rel="stylesheet" type="text/css" href="../../css/style-page.css">
+    <link rel="stylesheet" type="text/css" href="../../css/watermark.css">
+   
+
+</head>
+
+
+<body>
+
+    <div id="container">
+        <div id="topmenu">
+            <div>Wave Interference</div>
+
+        </div>
+    </div>
+
+
+
+    <div id="menu">
+        <button id="menuButton">INTERFERENCE</button>
+        <!-- <button id="theorybutton">THEORY</button> -->
+        <br>
+    </div>
+
+
+    <script type="module">
+        import * as THREE from '../../build/three.module.js';
+        import { GLTFLoader } from '../../jsm/loaders/GLTFLoader.js';
+        import { OrbitControls } from '../../jsm/controls/OrbitControls.js';
+        import { TWEEN } from '../../jsm/libs/tween.module.min.js';
+        import { GUI } from '../../jsm/libs/lil-gui.module.min.js';
+
+
+        let camera, scene, labelRenderer, renderer, controls;
+        let fov, gui, delta;
+        let plane, box;
+        let modelReady = false;
+        let clock = new THREE.Clock();
+        window.onload = function () {
+
+            init();
+            // guiControls();
+            animate();
+            wave1()
+
+        }
+        let mouse = new THREE.Vector3();
+        let raycaster = new THREE.Raycaster();
+
+        function checkMousePos() {
+
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            raycaster.setFromCamera(mouse, camera);
+            let intersects = raycaster.intersectObjects(scene.children);
+            console.log(intersects.length);
+            if (intersects.length > 0) {
+                let wave = {};
+                wave.x = intersects[0].point.x;
+                wave.y = intersects[0].point.y;
+                wave.z = intersects[0].point.z;
+
+                drawWave(wave);
+            }
+        };
+
+        function drawWave(wave) {
+
+            let center = new THREE.Vector3(wave.x, wave.y, wave.z);
+
+            function anim() {
+
+                requestAnimationFrame(anim);
+
+                let vLength = plane.geometry.attributes.position.count;
+                let t = clock.getElapsedTime();
+                for (let i = 0; i < vLength; i++) {
+                    const vx = plane.geometry.attributes.position.getX(i);
+                    const vy = plane.geometry.attributes.position.getY(i);
+                    const vz = plane.geometry.attributes.position.getZ(i);
+
+                    let dist = new THREE.Vector3(vx, vy, vz).sub(center);
+
+                    let size = 6; //5
+                    let magnitude = 0.2;//4
+
+                    let xsin = Math.sin(3 * t - dist.length() * size) * magnitude;
+
+                    //   v.z = Math.sin(dist.length() / -size + (ts / 500)) * magnitude;
+                    plane.geometry.attributes.position.setZ(i, xsin);
+
+
+                }
+                plane.geometry.computeVertexNormals();
+                plane.geometry.attributes.position.needsUpdate = true;
+                renderer.render(scene, camera);
+            }
+            anim();
+        };
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        };
+
+        function wave() {
+            let center1 = box.position;
+            let center2 = new THREE.Vector3(-8, -2.5, 0);
+            let vLength = plane.geometry.attributes.position.count;
+            let t = clock.getElapsedTime();
+            for (let i = 0; i < vLength; i++) {
+                const vx = plane.geometry.attributes.position.getX(i);
+                const vy = plane.geometry.attributes.position.getY(i);
+                const vz = plane.geometry.attributes.position.getZ(i);
+                let dist1 = new THREE.Vector3(vx, vy, vz).sub(center1);
+                let dist2 = new THREE.Vector3(vx, vy, vz).sub(center2);
+                let size = 6; //5
+                let magnitude = 0.2;//4
+
+                let xsin1 = Math.sin(3 * t - dist1.length() * size) * magnitude;
+                let xsin2 = Math.sin(3 * t - dist2.length() * size) * magnitude;
+                plane.geometry.attributes.position.setZ(i, xsin1 + xsin2);
+            }
+            plane.geometry.computeVertexNormals();
+            plane.geometry.attributes.position.needsUpdate = true;
+
+            requestAnimationFrame(wave);
+
+            render();
+        }
+
+        function wave1() {
+            let center1 = box.position;
+
+            let vLength = plane.geometry.attributes.position.count;
+            let t = clock.getElapsedTime();
+            for (let i = 0; i < vLength; i++) {
+                const vx = plane.geometry.attributes.position.getX(i);
+                const vy = plane.geometry.attributes.position.getY(i);
+                const vz = plane.geometry.attributes.position.getZ(i);
+                let dist1 = new THREE.Vector3(vx, vy, vz).sub(center1);
+
+                let size = 6; //5
+                let magnitude = 0.2;//4
+
+                let xsin1 = Math.sin(3 * t - dist1.length() * size) * magnitude;
+
+                plane.geometry.attributes.position.setZ(i, xsin1);
+            }
+            plane.geometry.computeVertexNormals();
+            plane.geometry.attributes.position.needsUpdate = true;
+
+            requestAnimationFrame(wave1);
+
+            render();
+        }
+
+        function wave2() {
+
+            let center2 = new THREE.Vector3(-8, -2.5, 0);
+            let vLength = plane.geometry.attributes.position.count;
+            let t = clock.getElapsedTime();
+            for (let i = 0; i < vLength; i++) {
+                const vx = plane.geometry.attributes.position.getX(i);
+                const vy = plane.geometry.attributes.position.getY(i);
+                const vz = plane.geometry.attributes.position.getZ(i);
+                let dist2 = new THREE.Vector3(vx, vy, vz).sub(center2);
+                let size = 6; //5
+                let magnitude = 0.2;//4
+                let xsin2 = Math.sin(3 * t - dist2.length() * size) * magnitude;
+                plane.geometry.attributes.position.setZ(i, xsin2);
+            }
+            plane.geometry.computeVertexNormals();
+            plane.geometry.attributes.position.needsUpdate = true;
+
+            requestAnimationFrame(wave2);
+
+            render();
+        }
+
+        function init() {
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xbfd1e5);
+            createCamera(50, 0, 0, 20, scene.position);
+
+            createLights();
+            createRenderer();
+            createControls(0, 0, 0);
+
+            let planeGeometry = new THREE.PlaneBufferGeometry(20, 10, 100, 50);
+            let planeMaterial = new THREE.MeshPhongMaterial({
+                color: 0xEF3523
+            });
+            plane = new THREE.Mesh(planeGeometry, planeMaterial);
+            plane.geometry.dynamic = true;
+            // plane.rotation.x = -0.5 * Math.PI;
+            scene.add(plane);
+
+            let box_geometry = new THREE.BoxGeometry(.1, .1, .1); //Default width, length, height of .1           
+            let material = new THREE.MeshLambertMaterial({ color: new THREE.Color(0.9, 0.55, 0.4) });
+            box = new THREE.Mesh(box_geometry, material);
+            box.position.y = 2.5;
+            box.position.x = -8;
+            scene.add(box);
+
+            window.addEventListener('resize', onWindowResize);
+            document.addEventListener('click', function (e) {
+                cancelAnimationFrame(wave1)
+                wave();
+            });
+        }
+
+        function createCamera(view, x, y, z, vector) {
+
+            fov = view;
+            const aspect = window.innerWidth / window.innerHeight;
+            const near = 0.1;
+            const far = 1500;
+
+            camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+
+            camera.position.set(x, y, z);
+            camera.lookAt(vector)
+            // camera.position.set(-10, 3, 40);
+        }
+
+        function createLights() {
+            scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+            // DIRECTIONAL LIGHT
+            const dirLight = new THREE.DirectionalLight(0xffffff, 1.0)
+            dirLight.position.x += 20
+            dirLight.position.y += 20
+            dirLight.position.z += 20
+            dirLight.castShadow = true
+            dirLight.shadow.mapSize.width = 4096;
+            dirLight.shadow.mapSize.height = 4096;
+            const d = 10;
+            dirLight.shadow.camera.left = - d;
+            dirLight.shadow.camera.right = d;
+            dirLight.shadow.camera.top = d;
+            dirLight.shadow.camera.bottom = - d;
+            dirLight.position.z = -25;
+
+            let target = new THREE.Object3D();
+            target.position.z = -30;
+            dirLight.target = target;
+            dirLight.target.updateMatrixWorld();
+
+            dirLight.shadow.camera.lookAt(0, 0, -30);
+            scene.add(dirLight);
+            // scene.add(new THREE.CameraHelper(dirLight.shadow.camera));
+        }
+
+        function createRenderer() {
+            // create the renderer
+            renderer = new THREE.WebGLRenderer({
+                antialias: true
+            });
+            renderer.alpha = true;
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            document.body.appendChild(renderer.domElement);
+        }
+
+        function createControls(x, y, z) {
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enablePan = true;
+            controls.enableZoom = true;
+            controls.target.set(x, y, z);
+        }
+
+        function guiControls() {
+            gui = new GUI();
+            // camera control adjust
+            let controlFolder = gui.addFolder("Control");
+            controlFolder.add(controls.target, 'x', -100, 100);
+            controlFolder.add(controls.target, 'y', -100, 100);
+            controlFolder.add(controls.target, 'z', -100, 100);
+            let cameraFolder = gui.addFolder("Camera");
+            cameraFolder.add(camera.position, 'x', -100, 100);
+            cameraFolder.add(camera.position, 'y', -100, 100);
+            cameraFolder.add(camera.position, 'z', -100, 100);
+
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function render() {
+
+            renderer.render(scene, camera);
+        }
+
+    </script>
+     <script src="../../js/watermark.js"></script>
+</body>
+
+</html>

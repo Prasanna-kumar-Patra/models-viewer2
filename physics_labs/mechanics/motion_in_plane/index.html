@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>MOTION IN A PLANE</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="../../css/style-page.css">
+    <link rel="stylesheet" type="text/css" href="../../css/watermark.css">
+   
+
+</head>
+
+<body>
+
+	<div id="container">
+		<div id="topmenu">
+			<div> MOTION IN A PLANE - A 3D interactive Simulation</div>
+		</div>
+
+		<div id="sidemenu">
+			<table style="text-align: center; font-size: 16px;" border="1">
+				<colgroup>
+					<col span="1" style="width: 30%; ">
+					<col span="1" style="width: 35%;">
+					<col span="1" style="width: 35%;">
+				</colgroup>
+				<tbody>
+					<tr>
+						<th style="text-align: left;"></th>
+						<th>BODY 1</th>
+						<th>BODY 2</th>
+					</tr>
+					<tr>
+						<td style="text-align: left;">Start Point</td>
+						<td> ( -15, 0 )</td>
+						<td>( -10, 10 )</td>
+					</tr>
+					<tr>
+						<td style="text-align: left;">Initial Position</td>
+						<td> ( <a id="initialpos"></a> )</td>
+						<td>( <a id="initialpos1">-10, 10</a> )</td>
+					</tr>
+					<tr>
+						<td style="text-align: left;">Final Position</td>
+						<td>( <a id="finalpos">_, _</a> )</td>
+						<td>( <a id="finalpos1">_, _</a> )</td>
+					</tr>
+					<tr>
+						<td style="text-align: left;">Time taken</td>
+						<td><a id="time">_</a> s</td>
+						<td><a id="time1">_</a> s</td>
+					</tr>
+
+					<tr>
+						<td style="text-align: left;">Total Time, T </td>
+						<td> <a id="totalTime">_</a> s</td>
+						<td><a id="totalTime1">_</a> s</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div id="menu">
+			<p id="message-el"><strong>Representation of bodies moving in a plane at constant velocity </strong>
+
+				<br>
+
+				<button id="stop">STOP</button>
+		</div>
+	</div>
+
+
+	<script type="module">
+		import * as THREE from '../../build/three.module.js';
+		import { OrbitControls } from '../../jsm/controls/OrbitControls.js';
+		import Stats from '../../jsm/libs/stats.module.js';
+		import { TWEEN } from '../../jsm/libs/tween.module.min.js';
+		import { GLTFLoader } from '../../jsm/loaders/GLTFLoader.js';
+		import { CSS2DRenderer, CSS2DObject } from '../../jsm/renderers/CSS2DRenderer.js';
+		import { GUI } from '../../jsm/libs/lil-gui.module.min.js';
+
+		let camera, scene, renderer, controls, plane, labelRenderer, line, line1;
+		let Label = [];
+		let Helper = [];
+		let BODY = {};
+		let body, bodyOrbit, bodyCurve, bodyPoints;
+		let body1Orbit, body1Curve, body1Points;
+		let scaleHorizontal, scaleVertical, axesHelper;
+		let width = window.innerWidth, height = window.innerHeight;
+		let bodyText, bodyLabel, bodyHelper, lineText, lineLabel;
+		let body1Text, body1Label, body1Helper, line1Text, line1Label;
+		let axisVisible = false, labelVisible = false;
+		let mouse = new THREE.Vector2();
+		let clock = new THREE.Clock();
+		let v = new THREE.Vector3();
+		let up = new THREE.Vector3(0, 0, 1);
+		let t = 0, t1 = 0, t2 = 0, requestA, requestB;
+		let initialTIme = 0, finalTime = 0;
+		let group = new THREE.Group();
+		let buttonStop = document.getElementById('stop');
+		let timeEl = document.getElementById('time');
+		let totalEl = document.getElementById('totalTime');
+		let initialposEl = document.getElementById('initialpos');
+		let finalposEl = document.getElementById('finalpos');
+		let time1El = document.getElementById('time1');
+		let total1El = document.getElementById('totalTime1');
+		let initialpos1El = document.getElementById('initialpos1');
+		let finalpos1El = document.getElementById('finalpos1');
+		let stop = false;
+		const animations = {
+
+			Labels: function () {
+				
+				labelVisible = !labelVisible
+				if (labelVisible) {
+					console.log(Label)
+					showElements(Label)
+					
+				} else {
+					hideElements(Label)
+				}
+
+			},
+			Helper: function () {
+				axisVisible = !axisVisible;
+				if (axisVisible) {
+					console.log(Helper)
+					showElements(Helper)
+				} else {
+					hideElements(Helper)
+				}
+			}
+		}
+		init()
+		let tan; // tangent
+		const n0 = new THREE.Vector3(0, 1, 0); // normal, first up
+		const n = new THREE.Vector3(); // normal,
+		const b = new THREE.Vector3(); // binormal
+		const M3 = new THREE.Matrix3();
+		const M4 = new THREE.Matrix4();
+		let X;
+		const N0 = new THREE.Vector3(0, 1, 0), N = new THREE.Vector3(0, 1, 0), B = new THREE.Vector3();
+		let matrix3 = new THREE.Matrix3();
+		let matrix4 = new THREE.Matrix4();
+		let P = new THREE.Vector3();
+		let f = 0; // fraction
+		let p = new THREE.Vector3();
+
+		function someCurve() {
+			const somePoints = [
+
+				new THREE.Vector3(-10, 0, -10),
+				new THREE.Vector3(0, 0, -8),
+
+				new THREE.Vector3(10, 0, -10),
+				new THREE.Vector3(0.8, 0, 0),
+
+				new THREE.Vector3(10, 0, 10),
+				new THREE.Vector3(0, 0, 8),
+
+				new THREE.Vector3(-10, 0, 10),
+				new THREE.Vector3(-8, 0, 0),
+
+			];
+
+
+			const pts = new THREE.Points(new THREE.BufferGeometry().setFromPoints(somePoints), new THREE.PointsMaterial({ color: "white", size: 0.04 }));
+			scene.add(pts);
+
+			const curve = new THREE.CatmullRomCurve3(somePoints);
+			curve.closed = true;
+
+			const points = curve.getPoints(80);
+			const line = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(points), new THREE.LineBasicMaterial({ color: 0xffffaa }));
+
+			return { curve, points, line }
+
+		}
+
+		let body1 = new THREE.Object3D();
+		let body1Ref = new THREE.Object3D();
+
+		const loader = new GLTFLoader();
+		loader
+			.setPath('../../model/')
+			.load('motionPlane.glb', function (gltf) {
+				let model = gltf.scene;
+				body1.add(model);
+				body1.add(body1Ref);
+				scene.add(body1);
+			});
+
+		// Add body
+		let bodyGeometry = new THREE.BoxGeometry(4, 1, .5).translate(0, .5, 0);
+		let bodyMaterial = new THREE.MeshPhongMaterial({
+			color: 0xA020F0
+		});
+		body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+		BODY['1'] = [catmullCurve().catmull, catmullCurve().curve, catmullCurve().points];
+		BODY['2'] = [someCurve().line, someCurve().curve, someCurve().points];
+		bodyOrbit = BODY['1'][0];
+		bodyCurve = BODY['1'][1];
+		bodyPoints = BODY['1'][2];
+
+		scene.add(body);
+		bodyHelper = new THREE.AxesHelper(5);
+		body.add(bodyHelper);
+		Helper.push(bodyHelper);
+
+		bodyText = document.createElement('div');
+		bodyText.className = 'label';
+		bodyText.innerHTML = '(' + bodyPoints[0].x + ',' + bodyPoints[0].z + ')';
+
+		bodyLabel = new CSS2DObject(bodyText);
+		body.add(bodyLabel);
+
+		Label.push(bodyLabel);
+
+		body1Orbit = BODY['2'][0];
+		body1Curve = BODY['2'][1];
+		body1Points = BODY['2'][2];
+
+		body1Helper = new THREE.AxesHelper(5);
+
+		body1Ref.add(body1Helper);
+		Helper.push(body1Ref);
+
+		body1Text = document.createElement('div');
+		body1Text.className = 'label';
+		body1Text.innerHTML = '(' + body1Points[0].x + ',' + body1Points[0].y + ')';
+
+		body1Label = new CSS2DObject(body1Text);
+		body1Ref.add(body1Label);
+		Label.push(body1Label);
+
+		let points = [new THREE.Vector3(0, 0, 0), body.position];
+		let lineMaterial = new THREE.LineBasicMaterial({ color: 0xff0000 });
+
+		let lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+		line = new THREE.Line(lineGeometry, lineMaterial);
+
+		scene.add(line);
+		lineText = document.createElement('div');
+		lineText.className = 'label';
+		let measure = new THREE.Vector3(0, 0, 0).distanceTo(body.position)
+		lineText.innerHTML = measure.toFixed(1) + ' units ';
+
+		lineLabel = new CSS2DObject(lineText);
+		lineLabel.position.set(body.position.x / 2, 0, body.position.z / 2)
+		line.add(lineLabel);
+
+		Helper.push(line);
+		Label.push(lineLabel)
+		let points1 = [new THREE.Vector3(0, 0, 0), body1.position];
+		let line1Material = new THREE.LineBasicMaterial({ color: 0xff0000 });
+
+		let line1Geometry = new THREE.BufferGeometry().setFromPoints(points1);
+		line1 = new THREE.Line(line1Geometry, line1Material);
+
+		scene.add(line1);
+		line1Text = document.createElement('div');
+		line1Text.className = 'label';
+		let measure1 = new THREE.Vector3(0, 0, 0).distanceTo(body1.position)
+		line1Text.innerHTML = measure1.toFixed(1) + ' units ';
+
+		line1Label = new CSS2DObject(line1Text);
+		line1Label.position.set(body1.position.x / 2, 0, body1.position.z / 2)
+		line1.add(line1Label);
+		Helper.push(line1);
+		Label.push(line1Label);
+
+		ani();
+		bodyMovement();
+
+		function createCamera(x, y, z) {
+
+			const fov = 40;
+			const aspect = width / height;
+			const near = 1;
+			const far = 1000;
+
+			camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+			camera.position.set(x, y, z);
+
+		}
+
+		function createLights() {
+			// Create a directional light
+			const ambientLight = new THREE.HemisphereLight(0xddeeff, 0x202020, 1);
+			const mainLight = new THREE.DirectionalLight(0xffffff, 0.3);
+			scene.add(ambientLight);
+
+			// move the light back and up a bit
+			mainLight.position.set(0, 60, 0);
+
+			// remember to add the light to the scene
+			scene.add(ambientLight, mainLight);
+		}
+
+		function motionPlane() {
+
+			scaleHorizontal = new THREE.GridHelper(50, 50);
+			scene.add(scaleHorizontal);
+
+			axesHelper = new THREE.AxesHelper(15);
+			scene.add(axesHelper);
+
+			Helper.push(axesHelper);
+
+			//Add Plane
+			let texture = new THREE.TextureLoader().load('../../assets/img/ground.jpg');
+			plane = new THREE.Mesh(new THREE.PlaneGeometry(50, 50, 50), new THREE.MeshPhongMaterial({
+
+				map: texture,
+				side: THREE.DoubleSide
+
+			}));
+			scene.add(plane);
+			plane.rotation.x = -1.57;
+			plane.position.y = -0.1;
+
+
+		}
+
+		function hideElements(name) {
+
+			for (let i = 0; i < name.length; i++) {
+				name[i].visible = false;
+				// scene.remove(name[i])
+			}
+			render()
+		}
+
+		function showElements(name) {
+			for (let i = 0; i < name.length; i++) {
+				name[i].visible = true;
+			}
+			render()
+		}
+
+		function createControls(x, y, z) {
+			controls = new OrbitControls(camera, renderer.domElement);
+			controls.enablePan = true;
+			controls.enableZoom = true;
+			controls.target.set(x, y, z);
+		}
+
+		function createRenderer() {
+			renderer = new THREE.WebGLRenderer({
+				antialias: true
+			});
+			renderer.alpha = true;
+			renderer.setSize(width, height);
+			renderer.setPixelRatio(window.devicePixelRatio);
+			document.body.appendChild(renderer.domElement);
+			labelRenderer = new CSS2DRenderer();
+			labelRenderer.setSize(window.innerWidth, window.innerHeight);
+			labelRenderer.domElement.style.position = 'absolute';
+			labelRenderer.domElement.style.top = '0px';
+
+			labelRenderer.domElement.style.pointerEvents = 'none';
+			document.body.appendChild(labelRenderer.domElement);
+
+		}
+
+		function init() {
+			scene = new THREE.Scene();
+			scene.background = new THREE.Color(0xbfd1e5);
+			createCamera(0, 70, 0);
+			createLights();
+			createRenderer();
+			createControls(0, 0, 0);
+			// createModel();
+			motionPlane();
+
+			window.addEventListener('resize', onWindowResize);
+			initialposEl.innerHTML = -15 + ', ' + 0;
+
+			initialTIme = t;
+			timeEl.innerHTML = initialTIme;
+			// console.log(bodyCurve.getPointAt(t))
+			buttonStop.addEventListener('click', function () {
+				stop = !stop;
+				if (stop) {
+					axisVisible = true;
+					labelVisible = true;
+					stopAction()
+
+				} else {
+					axisVisible = false;
+					labelVisible = false;
+					startAction()
+				}
+			});
+
+			// document.addEventListener( 'click', onClick );
+			
+		}
+
+		window.onload = function () {
+			// init();
+			animate();
+			guiControls();
+		}
+
+		function labelChange(obj, text, label, ref) {
+			let points = [new THREE.Vector3(0, 0, 0), ref.position];
+			let newlineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+			obj.geometry = newlineGeometry;
+
+			let measure = new THREE.Vector3(0, 0, 0).distanceTo(ref.position);
+
+			text.innerHTML = measure.toFixed(2) + ' units';
+			label.position.set(ref.position.x / 2, 0, ref.position.z / 2)
+		}
+
+		function stopAction() {
+			cancelAnimationFrame(requestA)
+			cancelAnimationFrame(requestB)
+			buttonStop.innerHTML = 'START';
+			finalTime = t;
+			line.geometry.dispose();
+			line1.geometry.dispose();
+			// console.log('stop', t, initialTIme, finalTime )
+			timeEl.innerHTML = (t - initialTIme).toFixed(1);
+			totalEl.innerHTML = finalTime.toFixed(1);
+			finalposEl.innerHTML = (body.position.x).toFixed(2) + ', ' + (body.position.z).toFixed(2);
+			time1El.innerHTML = (t - initialTIme).toFixed(1);
+			total1El.innerHTML = finalTime.toFixed(1);
+			finalpos1El.innerHTML = (body1.position.x).toFixed(2) + ', ' + (body1.position.z).toFixed(2);
+			body1Text.innerHTML = '(' + (body1.position.x).toFixed(2) + ', ' + (body1.position.z).toFixed(2) + ')';
+
+			labelChange(line, lineText, lineLabel, body);
+			labelChange(line1, line1Text, line1Label, body1);
+			showElements(Label)
+			showElements(Helper)
+		}
+
+		function startAction() {
+			requestAnimationFrame(bodyMovement)
+			requestAnimationFrame(ani)
+			buttonStop.innerHTML = 'STOP';
+
+			initialTIme = finalTime;
+			initialposEl.innerHTML = finalposEl.innerHTML;
+			initialpos1El.innerHTML = finalpos1El.innerHTML;
+			hideElements(Label);
+			hideElements(Helper);
+		}
+		
+		function guiControls() {
+			// dat.GUI
+
+			const gui = new GUI({ width: 250 });
+			// const CamPosition = gui.addFolder('Camera Position');
+			// CamPosition.add(camera.position, 'x').min(-40).max(40).step(0.01);
+			// CamPosition.add(camera.position, 'y').min(-40).max(40).step(0.01);
+			// CamPosition.add(camera.position, 'z').min(-80).max(80).step(0.01);
+			// const ConPosition = gui.addFolder('Control Position');
+
+			// ConPosition.add(controls.target, 'x').min(-40).max(40).step(0.01);
+			// ConPosition.add(controls.target, 'y').min(-40).max(40).step(0.01);
+			// ConPosition.add(controls.target, 'z').min(-40).max(40).step(0.01);
+
+			gui.add(animations, 'Labels').name('Body Reference')
+			gui.add(animations, 'Helper').name('Frame Reference')
+		}
+
+		function render() {
+			renderer.render(scene, camera);
+			labelRenderer.render(scene, camera);
+		}
+
+		function onWindowResize() {
+
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+			labelRenderer.setSize(window.innerWidth, window.innerHeight);
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			render();
+
+		}
+
+		function bodyMovement() {
+			t = clock.getElapsedTime();
+			requestA = requestAnimationFrame(bodyMovement);
+
+			if (t1 === 0 || t1 > 1) {
+
+				N.copy(N0);
+				t1 = 0; // loop
+
+			}
+
+			t1 += 0.0004;
+
+			// t tangent, n normal, b binormal
+			X = bodyCurve.getTangent(t1);
+			B.crossVectors(X, N);
+			N.crossVectors(X, B.negate());
+
+			//M3.set( -t.x, -t.y, -t.z,  n.x, n.y, n.z,  b.x, b.y, b.z ); // -t, n, b -> otherwise bee in wrong direction
+			//M4.setFromMatrix3( M3.transpose( ) );
+
+			matrix3.set(-X.x, N.x, B.x, -X.y, N.y, B.y, -X.z, N.z, B.z); // transposed arranged
+			matrix4.setFromMatrix3(matrix3);
+
+			P = bodyCurve.getPoint(t1);
+
+			body.setRotationFromMatrix(matrix4);
+			body.position.set(P.x, P.y + 0.1, P.z);
+			adjustLabel(bodyText, body.position);
+		}
+
+		function body1Movement() {
+
+			t = clock.getElapsedTime();
+			// t = clock.getDelta()
+			t2 = (t2 + 0.0008) % 1;
+
+			body1.position.copy(body1Curve.getPointAt(t2, v));
+			body1.position.applyMatrix4(body1Orbit.matrixWorld);
+			// body.rotation.y += 0.05;
+			adjustLabel(body1Text, body1.position)
+			requestB = requestAnimationFrame(body1Movement);
+		}
+
+		function ani() {
+
+			requestB = requestAnimationFrame(ani);
+
+			if (f === 0 || f > 1) {
+
+				n.copy(n0);
+				f = 0; // loop
+
+			}
+
+			f += 0.0006;
+			tan = body1Curve.getTangent(f);
+			b.crossVectors(tan, n);
+			n.crossVectors(tan, b.negate());
+
+			M3.set(-tan.x, n.x, b.x, -tan.y, n.y, b.y, -tan.z, n.z, b.z); // transposed arranged
+			M4.setFromMatrix3(M3);
+
+			p = body1Curve.getPoint(f);
+
+			body1.setRotationFromMatrix(M4);
+			body1.position.set(p.x, p.y + 0.1, p.z);
+			adjustLabel(body1Text, body1.position)
+			// console.log(body1Text)
+		}
+
+		function catmullCurve() {
+			const curve = new THREE.CatmullRomCurve3([
+				new THREE.Vector3(-15, 0, 0),
+				new THREE.Vector3(-5, 0, 15),
+				new THREE.Vector3(15, 0, 15),
+				new THREE.Vector3(10, 0, 0),
+				new THREE.Vector3(-5, 0, -15)
+
+			]);
+			curve.closed = true;
+			const points = curve.getPoints(50);
+			const geometry = new THREE.BufferGeometry().setFromPoints(points);
+
+			const material = new THREE.LineBasicMaterial({ color: 0xff0000 });
+
+			// Create the final object to add to the scene
+			const catmull = new THREE.Line(geometry, material);
+
+			return { curve, points, catmull }
+
+		}
+
+		function animate() {
+			requestAnimationFrame(animate);
+			controls.update();
+			TWEEN.update();
+			render();
+
+		}
+
+		function adjustLabel(text, value) {
+			// console.log(body1.position)
+			text.innerHTML = '(' + (value.x).toFixed(2) + ',' + (value.z).toFixed(2) + ')';
+
+		}
+
+
+	</script>
+	 <script src="../../js/watermark.js"></script>
+</body>
+</html>
