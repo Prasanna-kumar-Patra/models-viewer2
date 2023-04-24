@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>PROPERTIES OF VECTOR</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel="shortcut icon" href="../files/favicon_white.ico" media="(prefers-color-scheme: dark)" />
+    <link rel="shortcut icon" href="../files/favicon.ico" media="(prefers-color-scheme: light)" />
+    <link rel="stylesheet" type="text/css" href="../../css/style-page.css">
+    <link rel="stylesheet" type="text/css" href="../../css/watermark.css">
+
+</head>
+
+<body>
+    <div id="topmenu">PROPERTIES OF VECTOR</div>
+    <div id="sidemenu"> </div>
+
+
+    <div id="menu">
+        <!-- <div style="color: red;"><strong>A</strong> = <a id="Ai">2</a><strong>i</strong> + <a id="Aj">10</a><strong>j</strong> + <a id="Ak">0</a><strong>k</strong></div>
+        <div style="color: blue;"><strong>B</strong> = <a id="Bi">3</a><strong>i</strong> + <a id="Bj"></a><strong>j</strong> + <a id="Bk">2</a><strong>k</strong></div>
+        <div style="color: green; display: none;" ><strong>A + B</strong> = <a id="addi">2</a><strong>i</strong> + <a id="addj">10</a><strong>j</strong> + <a id="addk">0</a><strong>k</strong></div> -->
+        <div id="inputAction"><input type="checkbox" id="xyPlane" name="xyPlane" >
+        <label for="xyPlane">Only XY plane </label>
+        <input type="checkbox" id="yzPlane" name="yzPlane">
+        <label for="yzPlane">Only YZ plane </label>
+        <input type="checkbox" id="zxPlane" name="zxPlane">
+        <label for="zxPlane">Only ZX plane </label> </div>
+
+        <button id="random">REGENERATE VECTORS</button> 
+        <div style="color: red; display: block;"><strong>A</strong> = <a id="vectorA"></a></div>
+        <div style="color: green; display: block;"><strong>B</strong> = <a id="vectorB"></a></div>
+        <div style="color: blue; display: none;" id="vectorDisplay"><strong>A+B</strong> = <a id="vectorAdd"></a></div>
+        <div style="color: brown; display: none;" id="crossDisplay"><strong>AxB</strong> = <a id="vectorCross"></a>
+        </div>
+
+        <button id="add">ADD</button>
+        <button id="cross">CROSS</button>
+        <button id="reset">RESET</button>
+
+        <button id="polar">PROJECTION <strong>A</strong> </button>
+        <button onClick="vectorDisplay() ">VECTOR DISPLAY</button>
+    </div>
+    <script>
+        function vectorDisplay() {
+
+            window.open("mechanics_vector_display.html", "_self")
+        }
+
+    </script>
+
+    <script type="module">
+
+        import * as THREE from '../../build/three.module.js';
+        import { GLTFLoader } from '../../jsm/loaders/GLTFLoader.js';
+        import { OrbitControls } from '../../jsm/controls/OrbitControls.js';
+        import Stats from '../../jsm/libs/stats.module.js';
+        import { GUI } from '../../jsm/libs/lil-gui.module.min.js';
+        import { CSS2DRenderer, CSS2DObject } from '../../jsm/renderers/CSS2DRenderer.js';
+
+        let camera, scene, renderer, stats, controls, labelRenderer;
+        let vectorToadd, initialPoint, finalPoint, pointLabel, magLabel;
+        let selectA = false;
+        let ARROWS = new THREE.Group();
+        let DOTS = new THREE.Group();
+        let LABELS = new THREE.Group();
+        let PLANES = new THREE.Group();
+        let XZplane, XYplane, ZYplane, polarHelper;
+        let Alabel, Blabel, ADDlabel = new THREE.Object3D();
+        let Avector, Bvector, ADDvector = new THREE.Object3D();
+        let angleMeasure = new THREE.Object3D(), angleText1, angleText2, angleDisplay;
+        let point = [-2, 10, 4];
+        let vectorV = [-4, -1, 1];
+
+        const vector = new THREE.Vector3(2, 10, 0);
+        const axis = new THREE.Vector3(0, 0, 0);
+        const velocity = new THREE.Vector3(3, 1, 2);
+
+        let buttonAdd = document.getElementById('add');
+        let buttonCross = document.getElementById('cross');
+        let buttonReset = document.getElementById('reset');
+        let buttonRandom = document.getElementById('random');
+        let buttonPolar = document.getElementById('polar');
+
+        let vectorAEl = document.getElementById('vectorA');
+        let vectorBEl = document.getElementById('vectorB');
+        let vectorDisplayEl = document.getElementById('vectorDisplay');
+        let vectorAddEl = document.getElementById('vectorAdd');
+        let crossDisplayEl = document.getElementById('crossDisplay');
+        let vectorCrossEl = document.getElementById('vectorCross');
+
+        let inputxyPlane = document.getElementById('xyPlane');
+        let inputyzPlane = document.getElementById('yzPlane');
+        let inputzxPlane = document.getElementById('zxPlane');
+        let inputAction = document.getElementById('inputAction');
+        init()
+        animate()
+
+        function getRandomInt(min, max) {
+
+            return Math.floor(Math.random() * (max - min) + min);
+        }
+
+        function init() {
+
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(7, 8, 25);
+            camera.lookAt(0, 0, 0);
+
+            //
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xbfd1e5);
+
+            const pointLight = new THREE.PointLight(0xAA8899, 1);
+            // pointLight.position.set(50, - 25, 75);
+            scene.add(pointLight);
+
+            scene.add(new THREE.HemisphereLight());
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+            createLabelrender()
+
+            scene.add(new THREE.Mesh(new THREE.BoxGeometry(50, 0.2, 50).translate(0, -0.1, 0), new THREE.MeshBasicMaterial({ transparent: true, opacity: .4 })))
+            const gridHelper = new THREE.GridHelper(50, 10);
+            scene.add(gridHelper);
+            const planeHelper = gridHelper.clone();
+            scene.add(planeHelper);
+            planeHelper.rotation.set(1.57, 0, 0)
+            polarHelper = gridHelper.clone();
+            scene.add(polarHelper);
+            polarHelper.rotation.set(1.57, 0, 1.57);
+            polarHelper.visible = false;
+
+            const loader = new GLTFLoader();
+            loader
+                .load('../../model/axis.glb', function (gltf) {
+
+                    scene.add(gltf.scene)
+                });
+
+            stats = new Stats();
+            document.body.appendChild(stats.dom);
+
+            scene.add(DOTS);
+            scene.add(PLANES);
+
+            initialPoint = createDots(new THREE.Vector3(point[0], point[1], point[2]));
+            htmlLabels(new THREE.Vector3(point[0], point[1], point[2]), vectorAEl)
+            Alabel = addVectors(point[0], point[1], point[2], 'red', 'A').label;
+            Avector = addVectors(point[0], point[1], point[2], 'red', 'A').vector;
+            // console.log(Alabel, Avector)
+            scene.add(Alabel, Avector)
+
+            htmlLabels(new THREE.Vector3(vectorV[0], vectorV[1], vectorV[2]), vectorBEl)
+            Blabel = addVectors(vectorV[0], vectorV[1], vectorV[2], 'blue', 'B').label
+
+            Bvector = addVectors(vectorV[0], vectorV[1], vectorV[2], 'blue', 'B').vector;
+            scene.add(Blabel, Bvector)
+            scene.add(ADDlabel, ADDvector)
+
+            let theta = Math.atan(point[1] / point[0])
+            let angleGeometry = new THREE.RingBufferGeometry(0.92, 1, 16, 1, 0, theta)
+            angleMeasure = new THREE.Mesh(angleGeometry, new THREE.MeshBasicMaterial({ color: 'black', side: THREE.DoubleSide }));
+            scene.add(angleMeasure)
+            angleMeasure.visible = false;
+
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enablePan = true;
+            controls.enableZoom = true;
+            controls.target.set(4, 9, 2);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.rotateSpeed = 0.1;
+            controls.update();
+            controls.addEventListener('change', render);
+
+            // guiControls()
+
+            buttonActions();
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function buttonActions() {
+
+            buttonAdd.addEventListener('click', function () {
+                resetVector()
+                let A = new THREE.Vector3(point[0], point[1], point[2]);
+                let B = new THREE.Vector3(vectorV[0], vectorV[1], vectorV[2]);
+                Bvector.position.copy(initialPoint.position);
+                Blabel.position.copy(initialPoint.position);
+                let E = A.add(B);
+                initialPoint.position.copy(E)
+
+                vectorDisplayEl.style.display = 'block';
+                ADDlabel = addVectors(E.x, E.y, E.z, 'green', 'A + B').label;
+                ADDvector = addVectors(E.x, E.y, E.z, 'green', 'A + B').vector;
+                scene.add(ADDlabel, ADDvector)
+                htmlLabels(E, vectorAddEl)
+
+            });
+
+            buttonCross.addEventListener('click', function () {
+                resetVector()
+                let A = new THREE.Vector3(point[0], point[1], point[2]);
+                let B = new THREE.Vector3(vectorV[0], vectorV[1], vectorV[2]);
+
+                let E = A.cross(B);
+                initialPoint.position.copy(E)
+
+                crossDisplayEl.style.display = 'block';
+                ADDlabel = addVectors(E.x, E.y, E.z, 'green', 'A x B').label;
+                ADDvector = addVectors(E.x, E.y, E.z, 'green', 'A x B').vector;
+                scene.add(ADDlabel, ADDvector)
+                htmlLabels(E, vectorCrossEl)
+
+            });
+
+            buttonReset.addEventListener('click', function () {
+                resetVector()
+            });
+
+            buttonRandom.addEventListener('click', function () {
+
+                if (inputxyPlane.checked) {
+                    point = [getRandomInt(1, 15), getRandomInt(1, 15), 0];
+                    vectorV = [getRandomInt(-7, 7), getRandomInt(-7, 7), 0];
+                } else if (inputyzPlane.checked) {
+                    
+                    point = [0, getRandomInt(1, 15), getRandomInt(1, 15)];
+                    vectorV = [0, getRandomInt(-7, 7), getRandomInt(-7, 7)];
+                } else if (inputzxPlane.checked) {
+                   
+                    point = [getRandomInt(1, 15), 0, getRandomInt(1, 15)];
+                    vectorV = [getRandomInt(-2, 2), 0, getRandomInt(-7, 7)];
+                }
+                 else {
+                    point = [getRandomInt(-15, 15), getRandomInt(0, 15), getRandomInt(-15, 15)];
+                    vectorV = [getRandomInt(-5, 5), getRandomInt(-2, 5), getRandomInt(-5, 5)];
+                }
+
+                resetVector()
+
+            });
+
+            buttonPolar.addEventListener('click', function () {
+                resetVector()
+                PLANES = new THREE.Group();
+                initialPoint.visible = false;
+                polarHelper.visible = true;
+                selectA = !selectA;
+               
+                angleMeasure.visible = true;
+                
+                scene.remove(angleMeasure, angleText1, angleText2, angleDisplay)
+                if (selectA) {
+                    buttonPolar.innerHTML = 'PROJECTION ' + ' <strong>B</strong> '
+                    Bvector.visible = false;
+                    Blabel.visible = false;
+                    XZplane = initPlane({
+                        points: [0, 0, 0, point[0], point[1], point[2], point[0], 0, point[2]],
+                        col: 'yellow'
+                    });
+                    PLANES.add(XZplane)
+                    XYplane = initPlane({
+                        points: [0, 0, 0, point[0], point[1], point[2], point[0], point[1], 0],
+                        col: 'orange'
+                    });
+
+                    PLANES.add(XYplane)
+                    ZYplane = initPlane({
+                        points: [0, 0, 0, point[0], point[1], point[2], 0, point[1], point[2]],
+                        col: 'pink'
+                    });
+                    PLANES.add(ZYplane)
+                    scene.add(PLANES)
+                    scene.remove(pointLabel)
+                    pointLabel = addLabel(point[0], point[1], point[2], ' ( ' + point[0] + ', ' + point[1] + ', ' + point[2] + ' ) ')
+                    scene.add(pointLabel)
+                    scene.remove(magLabel)
+
+                }
+                else {
+                    buttonPolar.innerHTML = 'PROJECTION ' + ' <strong>A</strong> '
+                    Avector.visible = false;
+                    Alabel.visible = false;
+                    XZplane = initPlane({
+                        points: [0, 0, 0, vectorV[0], vectorV[1], vectorV[2], vectorV[0], 0, vectorV[2]],
+                        col: 'yellow'
+                    });
+                    PLANES.add(XZplane)
+                    XYplane = initPlane({
+                        points: [0, 0, 0, vectorV[0], vectorV[1], vectorV[2], vectorV[0], vectorV[1], 0],
+                        col: 'orange'
+                    });
+
+                    PLANES.add(XYplane)
+                    ZYplane = initPlane({
+                        points: [0, 0, 0, vectorV[0], vectorV[1], vectorV[2], 0, vectorV[1], vectorV[2]],
+                        col: 'pink'
+                    });
+                    PLANES.add(ZYplane)
+                    scene.add(PLANES)
+                    scene.remove(pointLabel)
+                    pointLabel = addLabel(vectorV[0], vectorV[1], vectorV[2], ' ( ' + vectorV[0] + ', ' + vectorV[1] + ', ' + vectorV[2] + ' ) ')
+                    scene.add(pointLabel)
+                    scene.remove(magLabel)
+
+                }
+
+                if (inputxyPlane.checked) {
+                    Alabel.visible = false;
+                    Blabel.visible = false;
+                    if (selectA) {
+                        let sum = (point[0] * point[0] + point[1] * point[1] + point[2] * point[2])
+                        let R = Math.pow(sum, 0.5).toFixed(2);
+                        let theta = Math.atan(point[1] / point[0])
+                        magLabel = addLabel(point[0] / 2, point[1] / 2, point[2] / 2, 'r = ' + R)
+                        scene.add(magLabel)
+                        angleLabel(theta, point[0], point[1], point[2], theta)
+                        scene.add(angleMeasure, angleText1, angleText2, angleDisplay)
+                    } else {
+                        let sum = (vectorV[0] * vectorV[0] + vectorV[1] * vectorV[1] + vectorV[2] * vectorV[2]);
+                        let R = Math.pow(sum, 0.5).toFixed(2);
+                        let theta = Math.atan(vectorV[1] / vectorV[0])
+                        magLabel = addLabel(vectorV[0] / 2, vectorV[1] / 2, vectorV[2] / 2, 'r = ' + R)
+                        scene.add(magLabel)
+                        angleLabel(theta, vectorV[0], vectorV[1], vectorV[2], theta)
+                        scene.add(angleMeasure, angleText1, angleText2, angleDisplay)
+                    }
+                }
+            });
+        
+            inputAction.addEventListener('click', function () {
+                if (inputyzPlane.checked){
+                    inputxyPlane.checked = false;
+                    inputzxPlane.checked = false;
+
+                } else if (inputzxPlane.checked){
+                    inputxyPlane.checked = false;
+                    inputyzPlane.checked = false;
+                }else if (inputxyPlane.checked){
+                    inputyzPlane.checked = false;
+                    inputzxPlane.checked = false;
+                }
+                
+            })
+        }
+
+        function resetVector() {
+            polarHelper.visible = false;
+            scene.remove(DOTS, PLANES)
+            scene.remove(Alabel, Avector)
+            scene.remove(Blabel, Bvector)
+            scene.remove(ADDlabel, ADDvector)
+            DOTS = new THREE.Group();
+            scene.add(DOTS);
+
+            initialPoint = createDots(new THREE.Vector3(point[0], point[1], point[2]));
+            htmlLabels(new THREE.Vector3(point[0], point[1], point[2]), vectorAEl)
+            Alabel = addVectors(point[0], point[1], point[2], 'red', 'A').label;
+            Avector = addVectors(point[0], point[1], point[2], 'red', 'A').vector;
+            // console.log(Alabel, Avector)
+            scene.add(Alabel, Avector)
+
+            polarHelper.visible = false;
+            buttonPolar.innerHTML = 'PROJECTION ' + ' <strong>A</strong> '
+            htmlLabels(new THREE.Vector3(vectorV[0], vectorV[1], vectorV[2]), vectorBEl)
+            Blabel = addVectors(vectorV[0], vectorV[1], vectorV[2], 'blue', 'B').label
+
+            Bvector = addVectors(vectorV[0], vectorV[1], vectorV[2], 'blue', 'B').vector;
+            scene.add(Blabel, Bvector)
+            ADDlabel = new THREE.Object3D();
+            ADDvector = new THREE.Object3D();
+            scene.add(ADDlabel, ADDvector)
+            scene.remove(pointLabel, magLabel)
+            vectorDisplayEl.style.display = 'none';
+            crossDisplayEl.style.display = 'none';
+            scene.remove(angleMeasure, angleText1, angleText2, angleDisplay)
+        }
+
+        function addVectors(X, Y, Z, col, name) {
+            let a = new THREE.Vector3(X, Y, Z);
+            let label = addLabel(X, Y, Z, name)
+            label.position.multiplyScalar(0.5);
+
+
+            let d = a.distanceTo(axis);
+            a.normalize();
+            let vector = new THREE.ArrowHelper(a, axis, d, col);
+
+            ARROWS.add(vector);
+            return { vector, label }
+        }
+
+        function addLabel(X, Y, Z, name) {
+            let text = document.createElement('div');
+            text.className = 'label';
+            text.innerHTML = name;
+
+            let label = new CSS2DObject(text);
+            label.position.set(X, Y, Z);
+            LABELS.add(label);
+            return label
+        }
+
+        function angleLabel(a, X, Y, Z, value) {
+            angleMeasure.geometry.dispose();
+            let newangleGeometry = new THREE.RingBufferGeometry(0.9, 1, 16, 1, 0, a);
+            angleMeasure.position.z = 0.1;
+            angleMeasure.geometry = newangleGeometry;
+            let D = radTodegree(value)
+            angleDisplay = addLabel(3, -0.25, 0, '&theta; = ' + D + '&deg;')
+            angleText1 = addLabel(X / 2, -2, 0, 'r cos' + '&theta;')
+            angleText2 = addLabel(X + 1, Y / 2, 0, 'r sin' + '&theta;')
+
+        }
+
+        function radTodegree(value) {
+            let deg = (value * (180 / Math.PI)).toFixed(1);
+            return deg
+        }
+
+        function createDots(pos) {
+            let geometry = new THREE.CircleGeometry(0.2, 8);
+            let material = new THREE.MeshBasicMaterial({ color: 'black', side: THREE.DoubleSide })
+            let dot = new THREE.Mesh(geometry, material);
+            dot.position.copy(pos)
+            DOTS.add(dot)
+            return dot
+        }
+
+        function htmlLabels(A, html) {
+
+            let X, Y, Z;
+            if (A.x == 1) {
+                X = ' i '
+            } else if (A.x == -1) {
+                X = ' - ' + ' i '
+            } else if (A.x > 0) {
+                X = A.x + ' i '
+            } else if (A.x == 0) {
+                X = ' '
+            } else {
+                X = A.x + ' i '
+            }
+
+            if (A.y == 1) {
+                Y = ' + ' + '' + ' j '
+            } else if (A.y == -1) {
+                Y = ' - ' + ' j '
+            } else if (A.y > 0) {
+                Y = ' + ' + A.y + ' j '
+            } else if (A.y == 0) {
+                Y = ' '
+            } else {
+                Y = A.y + ' j '
+            }
+
+            if (A.z == 1) {
+                Z = ' + ' + '' + ' k '
+            } else if (A.z == -1) {
+                Z = ' - ' + ' k '
+            } else if (A.z > 0) {
+                Z = ' + ' + A.z + ' k '
+            } else if (A.z == 0) {
+                Z = ' '
+            } else {
+                Z = A.z + ' k '
+            }
+
+            html.innerHTML = ' ' + X + Y + Z;
+
+        }
+
+        function onWindowResize() {
+
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function createLabelrender() {
+            labelRenderer = new CSS2DRenderer();
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.domElement.style.position = 'absolute';
+            labelRenderer.domElement.style.top = '-25px';
+            labelRenderer.domElement.style.left = '-25px';
+            labelRenderer.domElement.style.pointerEvents = 'none';
+            document.body.appendChild(labelRenderer.domElement);
+        }
+
+        function animate() {
+
+            requestAnimationFrame(animate);
+
+            render();
+            controls.update()
+            stats.update();
+
+        }
+
+        function render() {
+
+
+            renderer.render(scene, camera);
+            labelRenderer.render(scene, camera);
+
+        }
+
+        function guiControls() {
+            let gui = new GUI();
+            // gui.close()
+            // camera control adjust
+            // console.log(camera.position)
+            let controlFolder = gui.addFolder("Control");
+            controlFolder.add(controls.target, 'x', -100, 100);
+            controlFolder.add(controls.target, 'y', -100, 100);
+            controlFolder.add(controls.target, 'z', -100, 100);
+            // let cameraFolder = gui.addFolder("Camera");
+            gui.add(camera.position, 'x', -100, 100);
+            gui.add(camera.position, 'y', -100, 100);
+            gui.add(camera.position, 'z', -100, 100);
+
+        }
+
+        function initLine(data) {
+            let lineGeometry = new THREE.BufferGeometry().setFromPoints(data.points);
+            let line = new THREE.Line(lineGeometry, data.lineMaterial);
+            return line;
+        }
+
+        function initPlane(data) {
+            let dataPoints = data.points;
+            let planeGeometry = new THREE.BufferGeometry()
+            const vertices = new Float32Array(dataPoints);
+            planeGeometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+            let planeMaterial = new THREE.MeshBasicMaterial({
+                color: data.col,
+                transparent: true,
+                opacity: 0.6,
+                side: THREE.DoubleSide
+            });
+            let plane = new THREE.Mesh(planeGeometry, planeMaterial);
+            return plane;
+        }
+
+
+    </script>
+ <script src="../../js/watermark.js"></script>
+</body>
+
+</html>
