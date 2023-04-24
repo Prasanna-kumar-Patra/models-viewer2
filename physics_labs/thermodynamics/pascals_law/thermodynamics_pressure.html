@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Buoyant Forces</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="../../css/style-page.css">
+    <link rel="stylesheet" type="text/css" href="../../css/watermark.css">
+    
+</head>
+
+<body>
+
+    <div id="topmenu">
+        <div>Visualise Pressure with Depth in Fluid</div>
+
+    </div>
+
+    <div id="sidemenu">
+        Pressure due to the water volume at a distance h, <br>
+        <strong>F<sub>fluid</sub> = F<sub>air</sub> + mg</strong><br>
+        <strong>P<sub>fluid</sub>A = P<sub>air</sub>A + (&rho;V)g</strong><br>
+        <strong>P<sub>fluid</sub>A = P<sub>air</sub>A + (&rho;Ah)g</strong><br>
+        <br>
+        <strong>P<sub>fluid</sub> = P<sub>air</sub> + &rho;hg</strong>
+    </div>
+
+    <div id="menu">
+
+        <strong>Pressure</strong>, P =
+        <div class="fraction">
+            <span class="fup"> F</span>
+            <span class="bar">/</span>
+            <span class="fdn"> A</span>
+        </div><br>
+        In fluid, pressure at depth h, <strong>P = &rho;hg + P<sub>0</sub></strong><br>
+
+        <button id="buoyant" onClick="buoyantForce()">Buoyant Force</button>
+        <button onClick="pascalLaw()">Pascal's Law</button>
+        <button onClick="torricellisLaw()">Torricellis Law</button>
+
+    </div>
+    <script>
+        function buoyantForce() {
+
+            window.open("thermodynamics_buoyant_force.html", "_self")
+        }
+        function pascalLaw() {
+
+            window.open("index.html", "_self")
+        }
+        function torricellisLaw() {
+
+            window.open("thermodynamics_torricellis_law.html", "_self")
+        }
+    </script>
+    <script type="module">
+        import * as THREE from '../../build/three.module.js';
+        import { OrbitControls } from '../../jsm/controls/OrbitControls.js';
+        import { CSS2DRenderer, CSS2DObject } from '../../jsm/renderers/CSS2DRenderer.js';
+        import { TWEEN } from '../../jsm/libs/tween.module.min.js';
+
+        let camera, aspect, fov, stats, clock, gui;
+        let scene, renderer, labelRenderer, controls, container;
+        let column, fluid, steel, wood;
+        let group = new THREE.Group();
+        let params = {
+            A: 10,
+            H: 1.7,
+            posLow: 1.2,
+            posHigh: 1.6,
+            W: 4, // 0 to 18 adjust column marker low density material to higher vol const 
+            Fair: 1.34, // in air 
+            Ffluid: 1.34,
+            pos: 30 // adjust spring balance position
+        }
+
+
+        let buttonPressure = document.getElementById("pressure");
+
+        init()
+        animate()
+
+        function init() {
+            //scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xbfd1e5);
+
+            //camera
+            createCamera(-15, 15, 40);
+            createRenderer();
+            createControls(0, 10, -10);
+            createLights();
+            //Gas Container Box
+            let chamber1 = new THREE.Group();
+            let chamber2 = new THREE.Group();
+            let planeGeometry = new THREE.BoxGeometry(params.A * 4, params.A * 2, 0.2).translate(0, params.A, 0);
+
+            const material1 = new THREE.MeshPhongMaterial({
+                color: 'grey',
+                side: THREE.DoubleSide,
+                shininess: 30,
+                specular: 0x222222
+            });
+            let face1 = new THREE.Mesh(planeGeometry, material1)
+            face1.position.z = -params.A;
+            chamber1.add(face1)
+            let face2 = face1.clone();
+            face2.scale.x = 0.5
+            face2.position.x = -params.A * 2;
+            face2.position.z = 0;
+            face2.rotation.y = -1.57;
+            chamber1.add(face2)
+            let face3 = face1.clone();
+            face3.scale.x = 0.5
+            face3.position.x = params.A * 2;
+            face3.position.z = 0;
+            face3.rotation.y = 1.57;
+            chamber1.add(face3)
+            let face4 = face1.clone();
+            face4.position.z = -params.A;
+            face4.rotation.x = 1.57;
+            chamber1.add(face4)
+            // chamber1.position.set(-15,0,0)
+            scene.add(chamber1);
+
+            let cylinderGeometry = new THREE.CylinderGeometry(3, 3, 8, 16);
+
+            let cylinderMaterial = new THREE.MeshPhongMaterial({
+                color: 'aqua',
+                side: THREE.DoubleSide
+            });
+            column = new THREE.Mesh(cylinderGeometry, cylinderMaterial)
+            scene.add(column);
+            column.position.y = 13;
+
+            let geometry = new THREE.BoxGeometry(1, 1, 1).translate(0, 1 / 2, 0);
+            let texture = new THREE.TextureLoader().load('../../assets/gravity/waterNormal.jpg')
+
+            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+            let material = new THREE.MeshPhongMaterial({
+                color: 'aqua',
+                side: THREE.DoubleSide,
+                map: texture,
+                transparent: true,
+                opacity: 0.3
+            });
+
+            fluid = new THREE.Mesh(geometry, material);
+            chamber1.add(fluid);
+            fluid.scale.set(params.A * 4, params.A * params.H, params.A * 2 - 2)
+
+            let steelMaterial = new THREE.MeshPhongMaterial({
+                color: 'orange',
+                side: THREE.DoubleSide,
+                bumpMap: texture,
+                shininess: 0,
+                specular: 0xff0000
+            });
+            let woodMaterial = new THREE.MeshPhongMaterial({
+                color: 'wheat',
+                side: THREE.DoubleSide,
+                bumpMap: texture,
+                bumpScale: 0.2,
+                specular: 0xff00ff
+            });
+            steel = new THREE.Mesh(geometry, steelMaterial)
+            scene.add(steel)
+            steel.scale.set(8, 4, 4)
+            steel.position.set(-13, 0, 0)
+
+            wood = new THREE.Mesh(geometry, woodMaterial)
+            scene.add(wood)
+            wood.scale.set(8, 4, 4)
+            wood.position.set(13, 17, 0)
+
+            column.add(addArrows(6, new THREE.Vector3(0, -1, 0), 'black', 'mg', new THREE.Vector3(0, 2, 3), 3))
+            column.add(addArrows(8, new THREE.Vector3(0, -1, 0), 'blue', 'F<sub>air</sub>', new THREE.Vector3(0, 12, 0), 2))
+            column.add(addArrows(0, new THREE.Vector3(0, -1, 0), 'blue', '1', new THREE.Vector3(0, 2, 0), 0))
+            column.add(addArrows(8, new THREE.Vector3(0, 1, 0), 'red', 'F<sub>fluid</sub>', new THREE.Vector3(0, -12, 0), -2))
+            column.add(addArrows(0, new THREE.Vector3(0, 1, 0), 'red', '2', new THREE.Vector3(0, -6, 0), 0))
+            column.add(addArrows(4, new THREE.Vector3(0, -1, 0), 'black', 'h', new THREE.Vector3(5, 0, 0), 2))
+            column.add(addArrows(4, new THREE.Vector3(0, 1, 0), 'black', '', new THREE.Vector3(5, 0, 0), 4))
+            wood.add(addLabel('Wood', 0))
+            steel.add(addLabel('Steel', 0))
+            
+
+            document.body.appendChild(renderer.domElement);
+
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function createCamera(x, y, z) {
+
+            fov = 55;
+            const aspect = window.innerWidth / window.innerHeight;
+            const near = 0.1;
+            const far = 1500;
+
+            camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+
+            camera.position.set(x, y, z);
+        }
+
+        function createControls(x, y, z) {
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enablePan = true;
+            controls.enableZoom = true;
+            controls.target.set(x, y, z);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.rotateSpeed = 0.1;
+            controls.update();
+            controls.addEventListener('change', render);
+        }
+
+        function createRenderer() {
+            // create the renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.alpha = true;
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.outputEncoding = THREE.sRGBEncoding;
+            document.body.appendChild(renderer.domElement);
+
+            labelRenderer = new CSS2DRenderer();
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.domElement.style.position = 'absolute';
+            labelRenderer.domElement.style.top = '-25px';
+            labelRenderer.domElement.style.left = '-25px';
+            labelRenderer.domElement.style.pointerEvents = 'none';
+            document.body.appendChild(labelRenderer.domElement);
+
+        }
+
+        function createLights() {
+            let hemiLight = new THREE.AmbientLight(0xffffff, .20);
+            hemiLight.position.set(0, 20, 0);
+            scene.add(hemiLight);
+
+            let dirLight = new THREE.DirectionalLight(0xffffff, 1);
+            dirLight.position.set(-30, 50, -30);
+            scene.add(dirLight);
+
+            scene.add(new THREE.AmbientLight(0xffffff, .4));
+        }
+
+        function onWindowResize() {
+
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+
+        }
+
+        function addLabels(name, col, x, y) {
+
+            let text = document.createElement('div');
+            text.className = 'label';
+            text.innerHTML = name;
+            text.style.color = col;
+
+            let label = new CSS2DObject(text);
+            label.position.x = x;
+            label.position.y = y;
+
+            return label
+        }
+
+        function render() {
+
+            renderer.render(scene, camera);
+            labelRenderer.render(scene, camera);
+        }
+
+        function animate() {
+
+            requestAnimationFrame(animate);
+            camera.lookAt(scene.position);
+            controls.update();
+            TWEEN.update();
+            render();
+            // console.log(column.position.y, spring.scale.y, mark.position.y)
+
+        }
+
+        function addArrows(len, dir, col, name, pos, Y) {
+            // let a = THREE.MathUtils.degToRad(valueDegree);
+
+            //normalize the direction vector (convert to vector of length 1)
+            dir.normalize();
+
+            const origin = new THREE.Vector3(0, 0, 0);
+            const length = len;
+            const hex = col;
+
+            let arrowHelper = new THREE.ArrowHelper(dir, origin, length, hex);
+            group.add(arrowHelper);
+            let label = addLabel(name, Y);
+            arrowHelper.add(label)
+            arrowHelper.position.copy(pos);
+            return group
+        }
+
+        function addLabel(name, Y) {
+            let text = document.createElement('div');
+            text.className = 'label';
+            text.innerHTML = name;
+            text.style.color = 'black';
+
+            let label = new CSS2DObject(text);
+            label.position.y = Y;
+            return label
+        }
+    </script>
+    <script src="../../js/watermark.js"></script>
+</body>
+
+</html>

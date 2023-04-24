@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Buoyant Forces</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel="shortcut icon" href="../files/favicon_white.ico" media="(prefers-color-scheme: dark)" />
+    <link rel="shortcut icon" href="../files/favicon.ico" media="(prefers-color-scheme: light)" />
+    <link rel="stylesheet" type="text/css" href="../../css/style-page.css">
+    <link rel="stylesheet" type="text/css" href="../../css/watermark.css">
+   
+</head>
+
+<body>
+
+    <div style="font-weight: normal;  text-decoration-line: none; padding-bottom: 2px;" id="topmenu">
+        <div>ARCHIMEDE'S PRINCIPLE and BUOYANT FORCE</div>
+
+    </div>
+
+
+
+    <div id="menu">
+        <a> Air Density = 1.204 kg/m<sup>3</sup></a><br>
+        <a> Object Density = 7800 kg/m<sup>3</sup></a><br>
+        <a><input type="range" id="density" name="density" min="600" max="1600" value="1000" step="50"></a>
+        <a> <label for="density"><strong>Fluid Density </strong></label>
+            = </a> <a id="densityValue"></a><a> kg/m<sup>3</sup> </a><br>
+
+        <a><input type="range" id="weight" name="weight" min="1" max="18" value="4" step="1">
+            <label for="weight"><strong> Object Mass </strong></label>
+        </a> </a>= <a id="weightValue"></a><a> kg</a><br>
+        <br>
+
+        <strong>The apparent loss of weight of the object equals to the weight of the fluid displaced by
+            it.</strong><br>
+        <button id="fluid">ADD FLUID</button>
+        <button id="reset">RESET</button><br>
+        <button onClick="pressure()">Pressure</button>
+        <button onClick="pascalLaw()">Pascal's Law</button>
+        <button onClick="torricellisLaw()">Torricellis Law</button>
+    </div>
+    <script>
+
+        function pressure() {
+
+            window.open("thermodynamics_pressure.html.html", "_self")
+        }
+        function pascalLaw() {
+
+            window.open("index.html", "_self")
+        }
+        function torricellisLaw() {
+
+            window.open("thermodynamics_torricellis_law.html", "_self")
+        }
+    </script>
+    <script type="module">
+        import * as THREE from '../../build/three.module.js';
+        import { OrbitControls } from '../../jsm/controls/OrbitControls.js';
+        import { CSS2DRenderer, CSS2DObject } from '../../jsm/renderers/CSS2DRenderer.js';
+        import { TWEEN } from '../../jsm/libs/tween.module.min.js';
+
+        let camera, aspect, fov, stats, clock, gui;
+        let scene, renderer, labelRenderer, controls, container, spring, fluid, mark, springMeasure;
+        let weight, weightMaterial, tension, tensionLabel, buoyant, buoyantLabel;
+        let massDisplay, massLabel, massMaterial;
+        let group = new THREE.Group();
+        let params = {
+            A: 10,
+            H: 2,
+            W: 4, // 0 to 18 adjust weight marker low density material to higher vol const 
+            Fair: 1.3, // in air 
+            Ffluid: 1000,
+            pos: 30 // adjust spring balance position
+        }
+        let drawingCanvas, drawingContext;
+        let message = "";
+        let messageEl = document.getElementById("message-el");
+
+        let densityInput = document.getElementById("density");
+        let densityValue = document.getElementById("densityValue");
+
+        let weightInput = document.getElementById("weight");
+        let weightValue = document.getElementById("weightValue");
+
+        let buttonReset = document.getElementById("reset");
+        let buttonFluid = document.getElementById("fluid");
+        densityValue.innerHTML = densityInput.value;
+        weightValue.innerHTML = weightInput.value;
+        init()
+        animate()
+
+        function init() {
+            //scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xbfd1e5);
+
+            //camera
+            createCamera(-5, 5, 55);
+            createRenderer();
+            createControls(0, 10, 0);
+            createLights();
+            //Gas Container Box
+            let chamber1 = new THREE.Group();
+            let chamber2 = new THREE.Group();
+            let planeGeometry = new THREE.BoxGeometry(params.A * 2, params.A * 2, 0.2);
+
+            const material1 = new THREE.MeshPhongMaterial({
+                color: 'grey',
+                side: THREE.DoubleSide,
+                shininess: 0,
+                specular: 0x222222
+            });
+            let face1 = new THREE.Mesh(planeGeometry, material1)
+            face1.position.z = -params.A;
+            chamber1.add(face1)
+            let face2 = face1.clone();
+            face2.position.x = -params.A;
+            face2.position.z = 0;
+            face2.rotation.y = -1.57;
+            chamber1.add(face2)
+            let face3 = face1.clone();
+            face3.position.x = params.A;
+            face3.position.z = 0;
+            face3.rotation.y = 1.57;
+            chamber1.add(face3)
+            let face4 = face1.clone();
+            face4.position.y = -params.A;
+            face4.position.z = 0;
+            face4.rotation.x = 1.57;
+            chamber1.add(face4)
+            chamber1.scale.set(2, 1, 1)
+            scene.add(chamber1)
+
+            // Adjust spring balance position
+            let springGeometry = new THREE.PlaneGeometry(4, 20).translate(0, -4, 0.5);
+            let texture = new THREE.TextureLoader().load('../../assets/img/springReading.png');
+            springMeasure = new THREE.Mesh(springGeometry, new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, map: texture, transparent: true }));
+
+            springMeasure.position.set(0, params.pos, 0)
+            scene.add(springMeasure)
+
+            massMaterial = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true });
+            massDisplay = new THREE.Mesh(new THREE.PlaneGeometry(15, 8).translate(12, 0, 1), massMaterial);
+            massLabel = makeText('M = ' + params.W + ' kg', massMaterial)
+            springMeasure.add(massDisplay)
+            mark = createBox(3, 0.4, 1.2, 0x000000, new THREE.Vector3(0, 1 - (params.W / params.Fair), 0), false);
+            springMeasure.add(mark)
+            spring = createBox(2, 2, 0.5, 0x000000, new THREE.Vector3(0, 0, 0), false);
+            spring.scale.set(1, -1 - (params.W * 0.15) / params.Fair, 1);
+            mark.add(spring)
+            //tension string
+            let string = createBox(.2, 15, .2, 'blue', new THREE.Vector3(0, 0, 0), false);
+            string.scale.set(1, -1, 1);
+            mark.add(string)
+            let hook = new THREE.Mesh(new THREE.TorusGeometry(), new THREE.MeshPhongMaterial({ color: 'black' }));
+            hook.position.y = 16
+            string.add(hook)
+            let hanger = createBox(.15, 5, .15, 'aqua', new THREE.Vector3(0, 1, 0), false);
+            hook.add(hanger)
+
+            fluid = createBox(params.A * 2, params.A, params.A * 2 - 2, 'aqua', new THREE.Vector3(0, -params.A, 0), true);
+            chamber1.add(fluid);
+            fluid.scale.set(1, 0, 1);
+
+            let geometry = new THREE.BoxGeometry(8, 4, 4).translate(0, 2, 0);
+            weightMaterial = new THREE.MeshPhongMaterial({
+                color: 0x00ff00,
+                side: THREE.DoubleSide
+            });
+
+            weight = new THREE.Mesh(geometry, weightMaterial);
+            weight.position.set(0, 5, 0);
+            weight.scale.set(params.W / 10, 1, 1);
+            hanger.add(weight)
+
+            weight.add(squareFromPoints(params.W * 2, 0x0ff0000))
+
+            weight.add(addLabels('mg', 'black', 0, params.W * 2))
+            tension = squareFromPoints(-params.W * 2 + 2, 0x0000ff)
+            tensionLabel = addLabels('T', 'black', 0, -params.W * 2 + 4)
+            tension.add(tensionLabel)
+            tension.position.x = 0.3
+            // tension.scale.y = 1
+            buoyant = squareFromPoints(-params.W * 2 + 2, 'yellow')
+            buoyantLabel = addLabels('B', 'black', 0, -params.W * 2 + 4)
+            buoyant.add(buoyantLabel)
+            buoyant.visible = false
+            buoyantLabel.visible = false
+            buoyant.scale.y = 0.5
+            buoyant.position.x = -2
+            weight.add(tension, buoyant)
+
+
+            buttonLoad()
+
+            document.body.appendChild(renderer.domElement);
+
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function buttonLoad() {
+            densityInput.addEventListener('change', function () {
+                params.H = 0;
+                buoyant.visible = false
+                buoyantLabel.visible = false
+                fluid.material.opacity = densityInput.value / 3000;
+                // densityValue.innerHTML = 1.3 + densityInput.value / 4;
+                densityValue.innerHTML = densityInput.value;
+                params.Ffluid = densityInput.value;
+                massLabel = makeText('M = ' + params.W + ' kg', massMaterial)
+                addFluid(params.W, 100, 1, false)
+                console.log(params.Ffluid, params.Fair, params.H)
+            })
+
+            weightInput.addEventListener('change', function () {
+                params.H = 0;
+                buoyant.visible = false
+                buoyantLabel.visible = false
+                weightValue.innerHTML = weightInput.value;
+                params.W = weightInput.value;
+                massLabel = makeText('M = ' + params.W + ' kg', massMaterial)
+                addFluid(params.W, 100, 1, false)
+                let color = new THREE.Color(0xffffff);
+                color.setHex(Math.random() * 0xffffff);
+                weight.material.color = color
+                weight.scale.x = weightInput.value / 10
+                // console.log(weight.material.color)
+            })
+
+            buttonReset.addEventListener('click', function () {
+                params.H = 0;
+                params.W = 4;
+                weight.scale.set(params.W / 10, 1, 1);
+                addFluid(params.W, 100, 1, false)
+                weightInput.value = 4;
+                weightValue.innerHTML = weightInput.value;
+                massLabel = makeText('M = ' + 4 + ' kg', massMaterial);
+                densityInput.value = 1000;
+                densityValue.innerHTML = densityInput.value;
+
+            })
+
+            buttonFluid.addEventListener('click', function () {
+                params.H = 2;
+                // params.Ffluid = 1.3 + densityInput.value / 4;
+                let change = massChange()
+
+                addFluid(change, 2500, 0.5, true)
+
+            })
+
+        }
+
+        //make the  texture for mass display
+        function makeText(message, material) {
+
+            let fontface = "Arial";
+            let fontsize = 40;
+            let borderThickness = 4;
+            let borderColor = { r: 0, g: 0, b: 0, a: 1.0 };
+            let backgroundColor = { r: 0, g: 0, b: 0, a: 0.8 };
+
+            // let Alignment = THREE.Alignment.topLeft;
+
+            let canvas = document.createElement('canvas');
+            let context = canvas.getContext('2d');
+            context.font = "Bold " + fontsize + "px " + fontface;
+
+            material.map = new THREE.CanvasTexture(canvas);
+            // text color
+            context.fillStyle = "rgba(0, 0, 05, 1.0)";
+
+            context.fillText(message, borderThickness, fontsize + borderThickness);
+        }
+
+        function massChange() {
+            let A = ((1 - (params.Ffluid / 7800)) * params.W).toFixed(2);
+            massLabel = makeText('M = ' + A + ' kg', massMaterial)
+            // console.log(A, params.Ffluid, params.W)
+            return A
+        }
+
+        function createBox(x, y, z, col, loc, boolean) {
+            let geometry = new THREE.BoxGeometry(x, y, z).translate(0, y / 2, 0);
+            let material = new THREE.MeshPhongMaterial({
+                color: col,
+                side: THREE.DoubleSide,
+                transparent: boolean,
+                opacity: 0.27
+            });
+
+            let box = new THREE.Mesh(geometry, material);
+            box.position.copy(loc)
+            return box
+        }
+
+        function createCamera(x, y, z) {
+
+            fov = 55;
+            const aspect = window.innerWidth / window.innerHeight;
+            const near = 0.1;
+            const far = 1500;
+
+            camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+
+            camera.position.set(x, y, z);
+        }
+
+        function createControls(x, y, z) {
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enablePan = true;
+            controls.enableZoom = true;
+            controls.target.set(x, y, z);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.rotateSpeed = 0.1;
+            controls.update();
+            controls.addEventListener('change', render);
+        }
+
+        function createRenderer() {
+            // create the renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.alpha = true;
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.outputEncoding = THREE.sRGBEncoding;
+            document.body.appendChild(renderer.domElement);
+
+            labelRenderer = new CSS2DRenderer();
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.domElement.style.position = 'absolute';
+            labelRenderer.domElement.style.top = '0px';
+            labelRenderer.domElement.style.left = '-20px';
+            labelRenderer.domElement.style.pointerEvents = 'none';
+            document.body.appendChild(labelRenderer.domElement);
+
+        }
+
+        function createLights() {
+            let hemiLight = new THREE.AmbientLight(0xffffff, .20);
+            hemiLight.position.set(0, 20, 0);
+            scene.add(hemiLight);
+
+            let dirLight = new THREE.DirectionalLight(0xffffff, 1);
+            dirLight.position.set(-30, 50, -30);
+            scene.add(dirLight);
+
+            scene.add(new THREE.AmbientLight(0xffffff, .4));
+        }
+
+        function onWindowResize() {
+
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+
+        }
+
+        function addLabels(name, col, x, y) {
+
+            let text = document.createElement('div');
+            text.className = 'label';
+            text.innerHTML = name;
+            text.style.color = col;
+
+            let label = new CSS2DObject(text);
+            label.position.x = x;
+            label.position.y = y;
+
+            return label
+        }
+
+        function render() {
+
+            renderer.render(scene, camera);
+            labelRenderer.render(scene, camera);
+        }
+
+        function animate() {
+
+            requestAnimationFrame(animate);
+            camera.lookAt(scene.position);
+            controls.update();
+            TWEEN.update();
+            render();
+            // console.log(weight.position.y, spring.scale.y, mark.position.y)
+
+        }
+
+        function addFluid(factor, T, scale, boolean) {
+
+            new TWEEN.Tween(fluid.scale)
+                .to({ y: params.H }, T)
+                .easing(TWEEN.Easing.Cubic.Out)
+                .start()
+
+            setTimeout(function () {
+                new TWEEN.Tween(mark.position)
+                    .to({ y: 1 - (factor / params.Fair) }, 2500)
+                    .easing(TWEEN.Easing.Cubic.Out)
+                    .start()
+
+
+                // tension.position.x = pos
+                tension.scale.y = scale
+                buoyant.visible = boolean
+                buoyantLabel.visible = boolean
+
+            }, T)
+
+        }
+
+        function addArrows(len, x, y, col, pos) {
+            // let a = THREE.MathUtils.degToRad(valueDegree);
+
+            let dir = new THREE.Vector3(x, y, 0);
+
+            //normalize the direction vector (convert to vector of length 1)
+            dir.normalize();
+
+            const origin = new THREE.Vector3(0, 0, 0);
+            const length = len;
+            const hex = col;
+
+            let arrowHelper = new THREE.ArrowHelper(dir, origin, length, hex);
+            arrowHelper.position.z = 0.4;
+            arrowHelper.position.x = pos;
+            group.add(arrowHelper);
+
+            return arrowHelper
+        }
+
+        function squareFromPoints(a, col) {
+            let squareGeometry = new THREE.BufferGeometry()
+            const vertices = new Float32Array([
+                0.3, 0, 0,
+                -0.3, 0, 0,
+                -0.3, a, 0,
+
+                -0.3, a, 0,
+                0.3, a, 0,
+                0.3, 0, 0,
+
+                -1, a, 0,
+                1, a, 0,
+                0, 1.3 * a, 0
+            ]);
+            squareGeometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+            let squareMaterial = new THREE.MeshBasicMaterial({
+                color: col,
+                side: THREE.DoubleSide
+            });
+            let square = new THREE.Mesh(squareGeometry, squareMaterial);
+            square.position.z = 0.4
+            return square;
+        }
+    </script>
+    <script src="../../js/watermark.js"></script>
+</body>
+
+</html>
