@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Simple Harmonic Motion</title>
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link rel="shortcut icon" href="../../files/favicon_white.ico" media="(prefers-color-scheme: dark)"/>
+		<link rel="shortcut icon" href="../../files/favicon.ico" media="(prefers-color-scheme: light)" />
+		<link rel="stylesheet" type="text/css"  href="../../css/style-theory.css">
+    <script id="MathJax-script" async src="../../mathjax/mathjax_script.js"></script>
+		
+	</head>
+   
+
+    <!-- Here is our page's main content -->
+   
+  <article>
+    <div id="part1" class="content"> 
+      <h2> Physics 3D Interactive Simulation</h2>
+
+<button onclick="simSite()"><span><strong>3D SIMULATION</strong> </span></button>
+Press the button to visualise 'Simple Harmonic Motion' in 3D 
+   </div>
+ 
+          <div id="part2" class="content">
+              
+            <h2> SIMPLE HARMONIC MOTION</h2>
+
+             
+           <h2> Understanding <a href="https://openstax.org/books/college-physics-ap-courses-2e/pages/16-6-uniform-circular-motion-and-simple-harmonic-motion" target="_blank" rel="noopener">simple harmonic motion (SHM)</a></h2>
+           <div> <iframe src="../simulations/mechanics_periodic_motion.html" name="iframe" height="650px" width="100%" style="border:none;" title="simulation"></iframe></div>
+           
+           <dl>
+            <dt>
+              &#160 &#xa0 &#10148 Repetitive back and forth movement through an equilibrium position.    
+           </dt>
+          </dl>
+          
+          <dl>
+            <dt>
+              &#160 &#xa0 &#10148 Maximum displacement on either side of the equilibrium position is equal.
+            </dt>
+          </dl> 
+          <dl>
+            <dt>
+              &#160 &#xa0 &#10148 The time interval of each complete vibration (to and fro motion) is the same.
+            </dt>
+          </dl>
+
+         <h2>Mathematical Representation of Simple Harmonic Motion</h2>
+            <p>
+              Any motion that repeats at regular intervals is called periodic motion or harmonic motion. 
+              Here we are interested in a periodic motion of simple harmonic motion (SHM) type which can be
+              represented using a sinusoidal function of time \(t\). In simple harmonic motion (SHM), the 
+              displacement \(x(t)\) of a particle from its equilibrium position is described by the equation
+              $$ x = x_{m} \cos(\omega t + \phi) $$
+              in which \(x_{m}\) is the amplitude of the displacement, \((\omega t + \phi)\) is
+              the phase of the motion, and \(\phi\) is the phase constant. The
+              angular frequency \(\omega\) is related to the period and frequency of
+              the motion by 
+              $$\omega = \frac{2\pi}{T} = 2\pi f$$
+             
+              Differentiating \(x(t)\) leads to equations for the particle's SHM velocity and acceleration 
+              as functions of time:
+              <p>
+                velocity
+                $$v = - \omega x_{m} \sin(\omega t + \phi)  $$
+              </p>
+              <p>
+               acceleration
+                $$ a = -\omega^{2} x_{m} \cos(\omega t + \phi)  $$
+                $$\begin{aligned} 
+                a &= -\omega^{2} x_{m} \cos(\omega t + \phi) \\
+                a &= -\omega^{2} x\\
+                a &\propto -x \end{aligned}$$                
+              </p>
+              <dl>
+                <dt>
+                  &#160 &#xa0 &#10148 In SHM, the acceleration is proportional to the position of the body and its direction is opposite the direction of the displacement from equilibrium position.
+                     
+               </dt>
+              </dl> 
+              In the velocity function, the positive quantity \(\omega x_{m} \) is the velocity amplitude \(v_{m} \).
+              In the acceleration function, the positive quantity \(\omega^{2} x_{m} \) is the acceleration amplitude \(a_{m} \).
+              <h2> SHM in a Spring </h2>
+              <dl>
+                <dt>
+                  &#160 &#xa0 &#10148 In SHM, the net force of the system, is proportional to the displacement and acts in the opposite direction of the displacement.
+                     
+               </dt>
+              </dl> 
+              
+              A particle with mass \(m\) that moves under the influence of a
+              Hooke's law restoring force given by \(F = -kx\) is a linear simple harmonic 
+              oscillator with
+              <p>
+                Angular frequency,
+                $$\omega = \sqrt \frac{k}{m} $$
+              </p>
+             <p>
+               and Time Period,
+              $$ T = \frac{2\pi}{\omega} = 2\pi\sqrt \frac{m}{k} $$
+             </p>
+             <h2> SHM in a Simple Gravity Pendulum </h2>
+             <dl>
+               <dt>
+                 &#160 &#xa0 &#10148 Here, the net weight of the bob acts downwards and the tension acts along the pendulum string. The tension 'T' depends on the amplitude but the period of oscillation is independent of the mass of the bob and the amplitude of the swing. 
+              </dt>
+             </dl> 
+              Period of oscillation of a simple pendulum depends only on the length of the string.
+                    
+                    \[ T = 2 \pi \sqrt \frac L g\]   
+            
+</article>
+  
+<!-- And here is our main footer that is used across all the pages of our website -->
+
+<footer >
+  <p id="footer"></p>
+<p id="email"></p>
+</footer>
+<script>
+    function simSite() {
+
+        window.open("../../mechanics/spring_force/mechanics_periodic_motion.html", "_self")
+    }
+
+    
+    
+  </script>
+
+<script type="module" src="../footer.js"></script>    
