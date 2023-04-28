@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Hot-air balloon</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel="shortcut icon" href="../files/favicon_white.ico" media="(prefers-color-scheme: dark)" />
+    <link rel="shortcut icon" href="../files/favicon.ico" media="(prefers-color-scheme: light)" />
+    <link rel="stylesheet" type="text/css" href="../../css/style-page.css">
+    <link rel="stylesheet" type="text/css" href="../../css/watermark.css">
+   
+</head>
+
+<body>
+
+    <div style="text-decoration: none;" id="topmenu">
+        <div>
+            Hot-Air Balloon
+        </div>
+        <a style="font-weight:normal;">The mass of a hot-air balloon and its cargo (not including the air inside) is 200kg. The air
+            outside is at 10.0°C and 101kPa. The volume of the balloon is 400m<sup>3</sup>. To what temperature must
+            the air in the balloon be heated before the balloon will lift off? (Air density at 10.0°C is 1.25kg/m<sup>3</sup>.)</a>
+    </div>
+    <div id="sidemenu">
+       
+        
+       
+    </div>
+
+
+    <div id="menu">
+
+        <a>Mass of Balloon = 200 kg</a><br>
+        <a>At T<sub>1</sub> = 10.0°C = 283K</a><br>
+        <a> Density of air, &rho;<sub>c</sub>= 1.25 kg/m<sup>3</sup></a><br>
+        <a>At high temp, T<sub>2</sub> =</a><a id="t2-el"> _ </a><a> K</a><br>
+        <a>Density of air, &rho;<sub>h</sub> = <div class="fraction">
+            <span class="fup"> &rho;<sub>c</sub> T<sub>1</sub></span>
+            <span class="bar">/</span>
+            <span class="fdn"> T<sub>2</sub></span>
+        </div></a><br>
+        <a><strong>(&rho;<sub>c</sub>-&rho;<sub>h</sub>)gV = mg</strong></a><br>
+        <a><input type="range" id="temp" name="temp" min="10" max="200" value="10" step="0.5"><br>
+            <label for="temp"><strong> T =<a id="temp-el"> 10 </a>°C</strong> </label>
+        </a><br>
+        <a id="message-el">Density of hot air is lower than the cold air surrounding the Hor-air Balloon</a>
+        <button id="theorybutton" onClick="theorySite()">THEORY / CALCULATION</button>
+
+    </div>
+    <script>
+        function theorySite() {
+
+            window.open("../../theory/thermodynamics/thermodynamics_hot_air_balloon.html", "_self")
+        }
+
+    </script>
+    <script type="module">
+        import * as THREE from '../../build/three.module.js';
+        import { CSS2DRenderer, CSS2DObject } from '../../jsm/renderers/CSS2DRenderer.js';
+        import { OrbitControls } from '../../jsm/controls/OrbitControls.js';
+        import { GLTFLoader } from '../../jsm/loaders/GLTFLoader.js';
+        import { GUI } from '../../jsm/libs/lil-gui.module.min.js';
+        import { TWEEN } from '../../jsm/libs/tween.module.min.js';
+
+        let camera, aspect, fov, stats, clock, gui;
+        let scene, renderer, labelRenderer, controls, container, model;
+        let balloon, plane, rod, weight, buoyant, tempPointer;
+        const spheres = [];
+        let mixed = false;
+        let atoms = true;
+        let t = 0.0006;
+        let params = {
+            A: 10,
+            T: 283,
+            l: -6
+        }
+        //button and html elements
+        let temp = document.getElementById('temp');
+        let tempEl = document.getElementById('temp-el');
+        let message = "";
+        let messageEl = document.getElementById("message-el");
+        // const P2 = document.getElementById('p2-el');
+        // const V2 = document.getElementById('v2-el');
+        const T2 = document.getElementById('t2-el');
+
+        init()
+        animate()
+
+        function buttonAction() {
+            // change volume space and pressure indicator
+            temp.addEventListener("input", function (event) {
+               
+                let value = temp.valueAsNumber;
+                params.A = value;
+                tempEl.innerHTML = value;
+                params.l = -value/1.7;
+                let M = 200;
+                let V = 400;
+                let rho = 1.25;
+                let T = 0;
+                let X = 1 - M / (rho * V);
+                T = 283 / X;
+                // console.log(.2 + value/200);
+                buoyant.scale.y = .3 + value/200;
+                T2.innerHTML = (value + 273).toFixed(2);
+                if (value > 198) {
+                    new TWEEN.Tween(model.position)
+                        .to({ x: 6, y: 2 + value / 10 }, 7500)
+                        .easing(TWEEN.Easing.Cubic.Out)
+                        .start()
+                   
+                    new TWEEN.Tween(camera.position)
+                        .to({x:-80, y: 30,  z: 65 + value / 5 }, 3500)
+                        .easing(TWEEN.Easing.Cubic.Out)
+                        .start()
+
+                    messageEl.innerHTML = 'Air in the balloon must be heated to 199°C for it to lift off'
+                }
+
+                if (value < 30) {
+                    new TWEEN.Tween(model.position)
+                        .to({ x: 0, y: 0, z: 0 }, 7500)
+                        .easing(TWEEN.Easing.Bounce.InOut)
+                        .start()
+                    setTimeout(function () {
+                        new TWEEN.Tween(camera.position)
+                            .to({x: -15, y:7, z: 50 }, 3500)
+                            .easing(TWEEN.Easing.Cubic.Out)
+                            .start()
+                    }, 5500)
+                }
+            });
+        }
+
+
+        function init() {
+            //scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xbfd1e5);
+
+            //camera
+            createCamera(-15, 7, 50);
+
+            //renderer
+            createRenderer();
+
+            //cameracontrols
+            createControls(-2, 15, 0);
+
+            //create light 
+            createLights();
+
+            //create ref
+            addAxes(new THREE.Vector3(0, 0, 0));
+
+            buttonAction();
+            // guiControls();
+            createModel();
+            
+            document.body.appendChild(renderer.domElement);
+
+            window.addEventListener('resize', onWindowResize);
+        }
+
+
+        function addRays(x, y, z, len, w, col) {
+            let point = new THREE.Vector3(x, y, z);
+            let point1 = new THREE.Vector3(x + 0.5, y, z)
+            let point2 = new THREE.Vector3(x, y + len, z)
+            let point3 = new THREE.Vector3(x + 0.5, y + len, z)
+            let planeGeometry = new THREE.BufferGeometry()
+            
+            const vertices1 = new Float32Array([
+                x + 1.2, y - len, z + w,
+                x - 1.2, y - len, z + w,
+                x, y - 1.2 * len, z + w                 
+            ]);
+            const vertices = new Float32Array([
+                x - w, y - len, z + w,
+                x + w, y - len, z + w,
+                x + w, y , z + w,
+
+                x + w, y , z + w,
+                x - w, y , z + w,
+                x - w, y - len, z + w
+            ]);
+            planeGeometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+            let planeMaterial = new THREE.MeshBasicMaterial({ color: col, side: THREE.DoubleSide });
+            let plane = new THREE.Mesh(planeGeometry, planeMaterial);
+
+            let arrowGeometry = new THREE.BufferGeometry()
+            
+            arrowGeometry.setAttribute('position', new THREE.BufferAttribute(vertices1, 3));
+            let arrowMaterial = new THREE.MeshBasicMaterial({ color: col, side: THREE.DoubleSide });
+            let arrow = new THREE.Mesh(arrowGeometry, arrowMaterial);
+            
+            // scene.add(plane)
+            plane.add(arrow)
+            return plane
+        }
+
+        function createModel() {
+
+            const loader = new GLTFLoader();
+            loader
+                .setPath('../../model/')
+                .load('balloon.glb', function (gltf) {
+                    model = gltf.scene;
+                    balloon = model.getObjectByName('Balloon');
+                    scene.add(model);
+                    // console.log(model)
+                    weight = addRays(0, 0, 8, 5, 0.25, 'red')
+                    
+                    buoyant = addRays(0, 0,8, -5, 0.25, 'blue')
+                    buoyant.scale.y = .37;
+                    balloon.add(weight, buoyant)
+                    balloon.add(addLabels('F = mg', 0xff0111, 1, -4, 8))
+                    balloon.add(addLabels('B = (&rho;<sub>c</sub>- &rho;<sub>h</sub>)gV', 0xbfd1ff, 2.5,1, 8))
+                });
+
+        }
+
+        function guiControls() {
+            gui = new GUI();
+            // gui.close()
+            // camera control adjust
+            // console.log(camera.position)
+            let controlFolder = gui.addFolder("Control");
+            controlFolder.add(controls.target, 'x', -100, 100);
+            controlFolder.add(controls.target, 'y', -100, 100);
+            controlFolder.add(controls.target, 'z', -100, 100);
+            // // let cameraFolder = gui.addFolder("Camera");
+            gui.add(camera.position, 'x', -100, 100);
+            gui.add(camera.position, 'y', -100, 100);
+            gui.add(camera.position, 'z', -100, 100);
+
+            // change volume space and pressure indicator
+            gui.add(params, 'A', 1, 20, 0.25).onChange((value) => {
+                // console.log(value)
+                box.geometry.dispose();
+                let newGeometry = new THREE.BoxGeometry(10.8, (params.A * 2 + 1), 10.8);
+                box.geometry = newGeometry;
+                slider1.position.y = -params.A - 1;
+                slider2.position.y = params.A + 1;
+                tempPointer.scale.set(1, value * 1.5, 1);
+                t = 0.0001 + value * 0.0001
+            });
+
+
+        }
+
+        function createCamera(x, y, z) {
+
+            fov = 55;
+            const aspect = window.innerWidth / window.innerHeight;
+            const near = 0.1;
+            const far = 1500;
+
+            camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+
+            camera.position.set(x, y, z);
+        }
+
+        function createControls(x, y, z) {
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enablePan = true;
+            controls.enableZoom = true;
+            controls.target.set(x, y, z);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.rotateSpeed = 0.1;
+            controls.update();
+            controls.addEventListener('change', render);
+        }
+
+        function createRenderer() {
+            // create the renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.alpha = true;
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.outputEncoding = THREE.sRGBEncoding;
+            document.body.appendChild(renderer.domElement);
+
+            labelRenderer = new CSS2DRenderer();
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.domElement.style.position = 'absolute';
+            labelRenderer.domElement.style.top = '0px';
+            labelRenderer.domElement.style.pointerEvents = 'none';
+            document.body.appendChild(labelRenderer.domElement);
+        }
+
+        function createLights() {
+            let hemiLight = new THREE.AmbientLight(0xffffff, .20);
+            hemiLight.position.set(0, 20, 0);
+            scene.add(hemiLight);
+
+            let dirLight = new THREE.DirectionalLight(0xffffff, 1);
+            dirLight.position.set(-30, 50, -30);
+            dirLight.castShadow = true;
+            dirLight.shadow.camera.top = 70;
+            dirLight.shadow.camera.bottom = -70;
+            dirLight.shadow.camera.left = -70
+            dirLight.shadow.camera.right = 70;
+            dirLight.shadow.mapSize.width = 2048;
+            dirLight.shadow.mapSize.height = 2048;
+            scene.add(dirLight);
+
+            scene.add(new THREE.AmbientLight(0xffffff, .4));
+        }
+
+        function onWindowResize() {
+
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+
+        }
+
+        function addLabels(name, col, x, y, z) {
+
+            let text = document.createElement('div');
+            text.className = 'label';
+            text.innerHTML = name;
+            text.style.color = col;
+
+            let label = new CSS2DObject(text);
+            label.position.x = x;
+            label.position.y = y;
+            label.position.z = z;
+            return label
+        }
+
+        function render() {
+
+            renderer.render(scene, camera);
+            labelRenderer.render(scene, camera);
+        }
+
+        function addAxes(pos) {
+            let axes = new THREE.Group();
+            const axesHelper = new THREE.AxesHelper(20);
+            axes.add(axesHelper);
+            const axesHelper1 = new THREE.AxesHelper(-20);
+            axes.add(axesHelper1);
+            axes.position.copy(pos)
+            scene.add(axes)
+        }
+
+        function addMolecules(N) {
+            const geometry1 = new THREE.OctahedronGeometry(0.2, 3).translate(0.15, 0, 0);
+            const geometry2 = new THREE.OctahedronGeometry(0.2, 3).translate(-0.15, 0, 0);
+            const material1 = new THREE.MeshPhongMaterial({ color: 'red' });
+
+            for (let i = 0; i < N; i++) {
+                let molecule = new THREE.Group()
+                molecule.add(new THREE.Mesh(geometry2, material1), new THREE.Mesh(geometry1, material1));
+                // scene.add(molecule)
+                molecule.position.x = Math.random() * 10 - 5;
+                molecule.position.y = Math.random() * 20 - 10;
+                molecule.position.z = Math.random() * 10 - 5;
+                molecule.rotation.x = Math.random() * 3.14;
+                molecule.rotation.y = Math.random() * 3.14;
+                molecule.rotation.z = Math.random() * 3.14;
+                scene.add(molecule);
+
+                spheres.push(molecule);
+
+            }
+
+        }
+
+        function animate() {
+
+            requestAnimationFrame(animate);
+            const timer = t * Date.now();
+
+            camera.lookAt(scene.position);
+
+            for (let i = 0; i < spheres.length; i++) {
+
+                const sphere = spheres[i];
+
+                sphere.position.x = params.A * Math.cos(timer + i);
+                sphere.position.z = params.A * Math.sin(timer + i * 1.1);
+
+            }
+            controls.update();
+            TWEEN.update();
+            render();
+
+        }
+
+    </script>
+    <script src="../../js/watermark.js"></script>
+</body>
+
+</html>
